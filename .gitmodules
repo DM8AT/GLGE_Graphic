@@ -1,0 +1,6 @@
+[submodule "src/GLGE_BG"]
+	path = src/GLGE_BG
+	url = https://github.com/DM8AT/GLGE_BG.git
+[submodule "src/GLGE_Math"]
+	path = src/GLGE_Math
+	url = https://github.com/DM8AT/GLGE_Math.git
