@@ -4,3 +4,6 @@
 [submodule "src/GLGE_Math"]
 	path = src/GLGE_Math
 	url = https://github.com/DM8AT/GLGE_Math.git
+[submodule "GLGE_CORE_CONTAINER/GLGE_Core"]
+	path = GLGE_CORE_CONTAINER/GLGE_Core
+	url = https://github.com/DM8AT/GLGE_Core.git
