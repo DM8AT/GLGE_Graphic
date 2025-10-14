@@ -1,3 +1,5 @@
 # ignore the build stuff
 build
 build.sh
+# ignore the vs code settings
+.vscode

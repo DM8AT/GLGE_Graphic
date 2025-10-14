@@ -7,3 +7,6 @@
 [submodule "GLGE_CORE_CONTAINER/GLGE_Core"]
 	path = GLGE_CORE_CONTAINER/GLGE_Core
 	url = https://github.com/DM8AT/GLGE_Core.git
+[submodule "SDL3"]
+	path = src/GLGEGraphic/external/SDL
+	url = https://github.com/libsdl-org/SDL.git

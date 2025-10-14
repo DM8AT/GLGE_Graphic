@@ -7,3 +7,6 @@ set(SRC
 project(MAIN_PROJ LANGUAGES CXX)
 
 add_executable(MAIN ${SRC})
+
+add_subdirectory(src/GLGEGraphic)
+target_link_libraries(MAIN GLGE_GRAPHIC)
