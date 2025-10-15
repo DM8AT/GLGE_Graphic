@@ -1,5 +1,10 @@
-#include <iostream>
+#include "GLGEGraphic/GLGEGraphic.h"
 
-int main() {
-    std::cout << "Hello World!\n";
+int main()
+{
+    Window win("Hello World!", uivec2(600,600));
+
+    while (!win.isClosingRequested()) {
+        
+    }
 }

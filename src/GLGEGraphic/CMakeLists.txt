@@ -4,6 +4,8 @@ project(GLGE_GRAPHIC_PROJ)
 
 set(SRC 
     Backend/Instance.cpp
+
+    Frontend/Window/Window.cpp
 )
 
 add_library(GLGE_GRAPHIC ${SRC})
@@ -24,4 +26,4 @@ target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/../GLGE_Co
 ## SDL3
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/SDL ${PROJECT_BINARY_DIR}/external/SDL)
 target_link_libraries(GLGE_GRAPHIC PRIVATE SDL3::SDL3)
-target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/SDL/include/SDL3)
+target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/SDL/include)

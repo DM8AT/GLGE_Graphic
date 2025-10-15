@@ -13,6 +13,7 @@
 #ifndef _GLGE_GRAPHIC_
 #define _GLGE_GRAPHIC_
 
-
+//include the frontend
+#include "Frontend/Frontend.h"
 
 #endif

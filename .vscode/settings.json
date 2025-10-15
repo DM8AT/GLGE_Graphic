@@ -3,6 +3,7 @@
         "*.tpp": "cpp"
     },
     "cSpell.words": [
-        "GLGE"
+        "GLGE",
+        "uivec"
     ]
 }
