@@ -14,37 +14,30 @@
 
 //include the backend
 #include "../../Backend/Backend.h"
-
-//add SDL3 for window creation
+//add SDL3
 #include "SDL3/SDL.h"
 
 Window::Window(const String& name, const uivec2 size) noexcept
- : m_name(name), m_size(size), LayerBase(LayerType(WINDOW_LIBRARY_NAME.data(), WINDOW_LAYER_NAME.data()), Window::staticEventHandler, this, false)
+ : m_name(name), m_size(size), LayerBase(LayerType(WINDOW_LIBRARY_NAME.data(), "INVALID"), Window::staticEventHandler, this, false)
 {
-    //use an SDL command to issue the window creation
-    GLGE::Graphic::Backend::SDL_Command command(&m_window, &m_windowID,
-                                                &m_name, &m_size, 0);
-    //queue the command
-    GLGE::Graphic::Backend::INSTANCE.queueCommand(&command);
-
-    //command is important - wait for the command to finish
-    command.waitTillFinished();
+    //create and sanity check the SDL window
+    m_window = SDL_CreateWindow(m_name.c_str(), m_size.x, m_size.y, 0);
+    GLGE_ASSERT("Failed to create SDL3 window", !m_window);
+    m_windowID = SDL_GetWindowID((SDL_Window*)m_window);
+    
+    //set the name correctly
+    m_type.name = std::to_string(m_windowID).c_str();
 
     //register to the instance
-    if (!GLGE::Graphic::Backend::INSTANCE.getWindowEventStack().addNewLayer(this)) {
-        //fatal error
-        GLGE_ABORT("[CRITICAL ERROR] Failed to register the window as an event layer to the base instance");
-    }
+    GLGE::Graphic::Backend::INSTANCE.registerWindow(this);
 }
 
 Window::~Window()
 {
-    //use an SDL command to ddelete the window creation
-    GLGE::Graphic::Backend::SDL_Command command(m_window);
-    //queue the command
-    GLGE::Graphic::Backend::INSTANCE.queueCommand(&command);
-    //command is important - wait for the command to finish
-    command.waitTillFinished();
+    //remove the window
+    GLGE::Graphic::Backend::INSTANCE.deregisterWindow(this);
+    //close the SDL window
+    SDL_DestroyWindow((SDL_Window*)m_window);
 }
 
 void Window::handleEvent(const Event* event) 
@@ -57,3 +50,7 @@ void Window::handleEvent(const Event* event)
         }
     }
 }
+
+//just return the amount of active windows
+uint64_t Window::getActiveWindowCount() noexcept
+{return GLGE::Graphic::Backend::INSTANCE.m_activeWindowCount;}

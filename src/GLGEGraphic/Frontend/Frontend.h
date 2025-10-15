@@ -15,5 +15,7 @@
 
 //include windows
 #include "Window/Window.h"
+//include the common functionality
+#include "Common.h"
 
 #endif

@@ -26,9 +26,7 @@
 //include string views for utilities
 #include <string_view>
 //store the library for the window
-constexpr std::string_view WINDOW_LIBRARY_NAME = "GLGE_GRAPHIC";
-//store the identifier for the window
-constexpr std::string_view WINDOW_LAYER_NAME = "WINDOW_LAYER";
+constexpr std::string_view WINDOW_LIBRARY_NAME = "GLGE_GRAPHIC_WINDOW";
 
 //define the identifiers for the different events for a window
 constexpr EventType WINDOW_EVENT_TYPE_CLOSE_REQUEST(WINDOW_LIBRARY_NAME.data(), (1ul << 48ul | 1ul));
@@ -53,12 +51,24 @@ public:
     ~Window();
 
     /**
+     * @brief say that closing is requested
+     */
+    inline void requestClosing() noexcept {m_requestedClosing = true;}
+
+    /**
      * @brief get if closing was requested
      * 
      * @return true : closing was requested
      * @return false : closing is not requested
      */
     inline bool isClosingRequested() const noexcept {return m_requestedClosing;}
+
+    /**
+     * @brief Get the amount of currently known active windows
+     * 
+     * @return uint64_t the amount of registered active windows
+     */
+    static uint64_t getActiveWindowCount() noexcept;
 
 protected:
 

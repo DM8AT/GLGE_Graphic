@@ -6,6 +6,7 @@ set(SRC
     Backend/Instance.cpp
 
     Frontend/Window/Window.cpp
+    Frontend/Common.cpp
 )
 
 add_library(GLGE_GRAPHIC ${SRC})
