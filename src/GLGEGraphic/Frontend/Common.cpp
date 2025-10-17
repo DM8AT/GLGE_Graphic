@@ -15,9 +15,17 @@
 //include the backend
 #include "../Backend/Backend.h"
 
-
 void glge_Graphic_MainTick()
 {
     //simply update the backend instance
     GLGE::Graphic::Backend::INSTANCE.update();
 }
+
+bool glge_Graphic_IsAPISupported(InstanceAPI api)
+{return glge_graphic_IsAPISupported(api);}
+
+InstanceAPI glge_Graphic_GetCurrentAPI()
+{return GLGE::Graphic::Backend::INSTANCE.getAPI();}
+
+bool glge_Graphic_SelectAPI(InstanceAPI api)
+{return GLGE::Graphic::Backend::INSTANCE.setAPI(api);}

@@ -19,19 +19,8 @@
 //add the default types
 #include "../../GLGE_Core/Types.h"
 
-//define a C/C++ enum for the type of Graphic API
-typedef enum e_InstanceAPI {
-    //automatically select the best API available
-    GLGE_GRAPHIC_INSTANCE_API_AUTO = 0,
-    //use OpenGL (uses OpenGL 4.6)
-    GLGE_GRAPHIC_INSTANCE_API_OPEN_GL,
-    //use Vulkan
-    GLGE_GRAPHIC_INSTANCE_API_VULKAN,
-    //use directX 11
-    GLGE_GRAPHIC_INSTANCE_API_DIRECT_X11,
-    //use directX 12
-    GLGE_GRAPHIC_INSTANCE_API_DIRECT_X12
-} InstanceAPI;
+//add the common stuff
+#include "../Frontend/Common.h"
 
 //include the layer system from the core - the instance contains a layer stack
 #include "../../GLGE_Core/Layers/Layers.h"
@@ -39,6 +28,8 @@ typedef enum e_InstanceAPI {
 #include "../../GLGE_BG/CBinding/String.h"
 //math is just important
 #include "../../GLGE_Math/GLGEMath.h"
+//add the backend instance API
+#include "API_Implementations/API_Instance.h"
 
 //only allowed for C++
 #if __cplusplus
@@ -90,24 +81,73 @@ public:
     inline LayerStack& getWindowEventStack() noexcept
     {return m_windowEventStack;}
 
+    /**
+     * @brief get the currently selected API
+     * 
+     * @return const InstanceAPI the selected API
+     */
+    inline const InstanceAPI getAPI() const noexcept {return m_api;}
+
+    /**
+     * @brief set the API if possible
+     * 
+     * @param api the API to select
+     * @return true : successfully selected the API
+     * @return false : failed to select the API, the graphic API is allready initialized
+     */
+    inline bool setAPI(InstanceAPI api) noexcept {
+        return (m_inst) ? false : ((int)(m_api = api) + 1);
+    }
+
+    /**
+     * @brief Get the graphic Instance
+     * 
+     * @return GLGE::Graphic::Backend::API::Instance* a pointer to the internal API instance
+     */
+    inline GLGE::Graphic::Backend::API::Instance* getInstance() const noexcept
+    {return m_inst;}
+
     //add windows as a friend class so they can access the stuff here
     friend class ::Window;
 
 protected:
 
     /**
+     * @brief store the currently selected API
+     */
+    InstanceAPI m_api = GLGE_GRAPHIC_INSTANCE_API_AUTO;
+    /**
+     * @brief store the abstract graphic instance
+     */
+    GLGE::Graphic::Backend::API::Instance* m_inst = NULL;
+
+    /**
+     * @brief Get the Window Flags for the current API
+     * 
+     * @warning this sets `m_inst` to 1 if it is NULL so the API can no longer change
+     * 
+     * @return uint32_t the flags for the current API
+     */
+    uint32_t getWindowFlags() noexcept;
+
+    /**
      * @brief register the creation of a window
      * 
      * @param window the window that was created
      */
-    void registerWindow(Window* window) noexcept;
+    void registerWindow(::Window* window) noexcept;
 
     /**
      * @brief register the deletion of a window
      * 
      * @param window the window that was deleted
      */
-    void deregisterWindow(Window* window) noexcept;
+    void deregisterWindow(::Window* window) noexcept;
+
+    /**
+     * @brief if the API is set to auto, this sets the API to a usable value
+     */
+    void resolveAPI() noexcept;
 
     /**
      * @brief store the amount of active windows

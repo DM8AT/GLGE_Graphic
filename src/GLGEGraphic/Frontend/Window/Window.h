@@ -64,11 +64,44 @@ public:
     inline bool isClosingRequested() const noexcept {return m_requestedClosing;}
 
     /**
+     * @brief change the name of the window
+     * 
+     * @param name the new name of the window
+     */
+    void rename(const String& name) noexcept;
+
+    /**
+     * @brief Get the Name of the window
+     * 
+     * @return const String& the name of the window
+     */
+    inline const String& getName() const noexcept {return m_name;}
+
+    /**
+     * @brief Get the Size of the window
+     * 
+     * @return const uivec2& the size of the window in pixels
+     */
+    inline const uivec2& getSize() const noexcept {return m_size;}
+
+    /**
      * @brief Get the amount of currently known active windows
      * 
      * @return uint64_t the amount of registered active windows
      */
     static uint64_t getActiveWindowCount() noexcept;
+
+    //define SDL stuff
+    #ifdef SDL_h_
+
+    /**
+     * @brief get the SDL window
+     * 
+     * @return SDL_Window* a pointer to the SDL window
+     */
+    inline SDL_Window* getSDLWindow() const noexcept {return (SDL_Window*)m_window;}
+
+    #endif
 
 protected:
 
@@ -92,6 +125,10 @@ protected:
      * @brief store if closing was requested
      */
     bool m_requestedClosing = false;
+    /**
+     * @brief store an api-dependent window
+     */
+    void* m_api = nullptr;
 
     /**
      * @brief handle an event for a window

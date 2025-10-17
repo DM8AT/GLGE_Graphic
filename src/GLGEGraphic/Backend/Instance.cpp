@@ -19,6 +19,9 @@
 //include the windows for the window event types
 #include "../Frontend/Window/Window.h"
 
+//include all backends
+#include "API_Implementations/AllImplementations.h"
+
 //locally use the backend namespace
 using namespace GLGE::Graphic::Backend;
 
@@ -64,6 +67,29 @@ void Instance::registerWindow(Window* window) noexcept
         //fatal error
         GLGE_ABORT("[CRITICAL ERROR] Failed to register the window as an event layer to the base instance");
     }
+
+    //check if this was the first window
+    if (m_activeWindowCount == 0) {
+        //check if a new instance must created (this should be the case)
+        GLGE_ASSERT("No window exists, but the graphic API is initialized. This should not be the case. ", 
+                    (m_inst != nullptr) && (m_inst != (GLGE::Graphic::Backend::API::Instance*)1));
+
+        //create teh new instance
+        //first, get rid of the auto api
+        resolveAPI();
+
+        //switch over the api and select the correct one
+        switch (m_api)
+        {
+        case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
+            m_inst = new GLGE::Graphic::Backend::OGL::Instance(window);
+            break;
+        
+        default:
+            break;
+        }
+    }
+
     //increase the amount of known windows
     ++m_activeWindowCount;
 }
@@ -83,7 +109,46 @@ void Instance::deregisterWindow(Window* window) noexcept
     m_windowEventStack.removeLayer(id);
     //decrease the amount of known windows
     --m_activeWindowCount;
+
+    //check if this was the last window
+    if (m_activeWindowCount == 0) {
+        //de-register the graphic API
+        if (m_inst) {
+            delete m_inst;
+        }
+    }
 }
+
+uint32_t Instance::getWindowFlags() noexcept
+{
+    //if the instance is NULL, set it to 1 to lock the API
+    if (!m_inst) {m_inst = (GLGE::Graphic::Backend::API::Instance*)1;}
+    //if the API is auto, resolve the API
+    resolveAPI();
+    //switch over the API
+    switch (m_api)
+    {
+    case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
+        //return the OpenGL window flags
+        return GLGE::Graphic::Backend::OGL::Instance::getWidnowFlags();
+        break;
+    
+    default:
+        break;
+    }
+    //just use no flags
+    return 0;
+}
+
+void Instance::resolveAPI() noexcept
+{
+    //if the API is not auto, just stop
+    if (m_api != GLGE_GRAPHIC_INSTANCE_API_AUTO) {return;}
+
+    //for now, just use OpenGL
+    m_api = GLGE_GRAPHIC_INSTANCE_API_OPEN_GL;
+}
+
 
 
 //initialize the global graphic instance
@@ -94,8 +159,8 @@ Instance GLGE::Graphic::Backend::INSTANCE = Instance();
  * @brief store a direct mapping from API enum value to 
  */
 static bool GLGE_SUPPORTED_API_MAP[] = {
-    false,
-    false,
+    true,
+    true,
     false,
     false
 };

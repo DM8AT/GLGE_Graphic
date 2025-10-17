@@ -3,7 +3,9 @@
         "*.tpp": "cpp"
     },
     "cSpell.words": [
+        "GLEW",
         "GLGE",
+        "OPENGL",
         "uivec"
     ]
 }

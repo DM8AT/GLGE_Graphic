@@ -1,15 +1,25 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(GLGE_GRAPHIC_PROJ)
+project(GLGE_GRAPHIC_PROJ LANGUAGES CXX C)
 
 set(SRC 
     Backend/Instance.cpp
+    Backend/API_Implementations/OpenGL/OGL_Instance.cpp
+    Backend/API_Implementations/OpenGL/OGL_Window.cpp
 
     Frontend/Window/Window.cpp
     Frontend/Common.cpp
 )
 
+## add GLAD
+set(SRC
+    ${SRC}
+
+    external/glad/src/glad.c
+)
+
 add_library(GLGE_GRAPHIC ${SRC})
+target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/glad/include)
 
 ## BG submodule
 # add_subdirectory(${PROJECT_SOURCE_DIR}/../GLGE_BG ${PROJECT_BINARY_DIR}/../GLGE_BG)
