@@ -112,8 +112,50 @@ struct CommandContainer
      */
     ~CommandContainer() {destroy();}
 
+    /**
+     * @brief Construct a new Command Container by moving from another one
+     * 
+     * @param other the container to move from
+     */
+    CommandContainer(CommandContainer&& other) noexcept {
+        if (other.ptr) {
+            //copy the storage over
+            memcpy(storage, other.storage, sizeof(storage));
+            ptr = (GLGE::Graphic::Backend::OGL::Command*)storage;
+            //nullify the other pointer to stop deletion
+            other.ptr = nullptr;
+        }
+    }
+
+    //explicitly delete the copy constructor
+    CommandContainer(CommandContainer&) = delete;
+
     //simple constructor
     CommandContainer() = default;
+};
+
+/**
+ * @brief implement a custom command
+ */
+struct Command_Custom final : public Command
+{
+    /**
+     * @brief Construct a new custom command
+     * 
+     * @param _func the function to call back to
+     * @param _userData the user data to pass to the function
+     */
+    Command_Custom(void (*_func)(void*), void* _userData)
+     : func(_func), userData(_userData)
+    {}
+
+    //store the function to call
+    void (*func)(void*);
+    //store the user data to pass to the function
+    void* userData;
+
+    //run the custom command
+    virtual void execute() noexcept override;
 };
 
 /**

@@ -161,7 +161,17 @@ public:
      * 
      * @return const std::map<String, RenderPipelineStage> a constant reference to the render pipeline
      */
-    inline const std::map<String, RenderPipelineStage> getStages() const noexcept {return m_stages;}
+    inline const std::map<String, RenderPipelineStage>& getStages() const noexcept {return m_stages;}
+
+    /**
+     * @brief record the whole command buffer
+     */
+    void record() noexcept;
+
+    /**
+     * @brief play the command buffer
+     */
+    void play() noexcept;
 
 protected:
 

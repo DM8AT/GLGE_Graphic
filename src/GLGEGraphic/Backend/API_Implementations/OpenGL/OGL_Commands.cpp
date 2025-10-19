@@ -21,6 +21,12 @@
 //also OpenGL windows
 #include "OGL_Window.h"
 
+void GLGE::Graphic::Backend::OGL::Command_Custom::execute() noexcept
+{
+    //just run the function
+    (*func)(userData);
+}
+
 void GLGE::Graphic::Backend::OGL::Command_Clear::execute() noexcept
 {
     //just run the clear command

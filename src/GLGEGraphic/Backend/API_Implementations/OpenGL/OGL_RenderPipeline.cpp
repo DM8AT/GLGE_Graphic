@@ -28,6 +28,9 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::record() noexcept
     //just iterate over all stages and play them
     for (auto it = m_pipeline->getStages().begin(); it != m_pipeline->getStages().end(); ++it)
     {execute(it->second);}
+
+    //recording done
+    m_cmdBuff.markRecorded();
 }
 
 void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineStage& stage) noexcept
@@ -39,15 +42,24 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineSt
         executeStage_Custom(stage.data.customStage);
         break;
     
+    case GLGE_RENDER_PIPELINE_STAGE_START_WINDOW_FRAME:
+        executeStage_WindowFrameStart(stage.data.windowFrameStart);
+        break;
+
+    case GLGE_RENDER_PIPELINE_STAGE_END_WINDOW_FRAME:
+        executeStage_WindowFrameEnd(stage.data.windowFrameEnd);
+        break;
+
     default:
+        GLGE_DEBUG_ABORT("Unknown render pipeline stage");
         break;
     }
 }
 
 void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Custom(const RenderPipelineStageData::CustomStage& stage) noexcept
 {
-    //simply run the given function
-    (*stage.custom_func)(stage.userData);
+    //add the custom stage
+    m_cmdBuff.record<Command_Custom>(stage.custom_func, stage.userData);
 }
 
 void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_WindowFrameStart(const RenderPipelineStageData::WindowFrameStart& stage) noexcept

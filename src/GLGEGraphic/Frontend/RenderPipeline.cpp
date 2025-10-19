@@ -61,6 +61,18 @@ RenderPipeline::~RenderPipeline() noexcept
     }
 }
 
+void RenderPipeline::record() noexcept
+{
+    //just record the API pipeline
+    ((GLGE::Graphic::Backend::API::RenderPipeline*)m_api)->record();
+}
+
+void RenderPipeline::play() noexcept
+{
+    //just play back the API pipeline
+    ((GLGE::Graphic::Backend::API::RenderPipeline*)m_api)->play();
+}
+
 void RenderPipeline::initializeAPI() noexcept
 {
     //switch over the used API
