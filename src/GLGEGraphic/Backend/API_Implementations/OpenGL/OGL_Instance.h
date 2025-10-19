@@ -40,7 +40,7 @@ public:
      * 
      * @param window a pointer to the window that was just created
      */
-    Instance(Window* window);
+    Instance(::Window* window);
 
     /**
      * @brief Destroy the Instance
