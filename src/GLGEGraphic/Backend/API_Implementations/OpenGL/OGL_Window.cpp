@@ -45,3 +45,22 @@ void GLGE::Graphic::Backend::OGL::Window::makeCurrent() noexcept
     //make this the current window
     SDL_GL_MakeCurrent(m_window->getSDLWindow(), (SDL_GLContext)((Instance*)GLGE::Graphic::Backend::INSTANCE.getInstance())->getContext());
 }
+
+void GLGE::Graphic::Backend::OGL::Window::beginFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept
+{
+    //make the command buffer an OpenGL command buffer
+    OGL::CommandBuffer* _cmdBuff = (OGL::CommandBuffer*)cmdBuff;
+    //make sure to make this the current window
+    _cmdBuff->record<Command_MakeCurrent>(m_window);
+    //make sure to clear the frame with the correct clear color
+    _cmdBuff->record<Command_Clear>(m_window->getClearColor().r, m_window->getClearColor().g, m_window->getClearColor().b, m_window->getClearColor().a,
+                                    0, GL_COLOR, 0);
+}
+
+void GLGE::Graphic::Backend::OGL::Window::endFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept
+{
+    //make the command buffer an OpenGL command buffer
+    OGL::CommandBuffer* _cmdBuff = (OGL::CommandBuffer*)cmdBuff;
+    //swap the buffers
+    _cmdBuff->record<Command_Swap>(m_window);
+}

@@ -17,5 +17,7 @@
 #include "OGL_Instance.h"
 //include the window
 #include "OGL_Window.h"
+//add render pipelines
+#include "OGL_RenderPipeline.h"
 
 #endif

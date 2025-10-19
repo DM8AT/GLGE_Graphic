@@ -17,5 +17,7 @@
 #include "Window/Window.h"
 //include the common functionality
 #include "Common.h"
+//add render pipelines
+#include "RenderPipeline.h"
 
 #endif

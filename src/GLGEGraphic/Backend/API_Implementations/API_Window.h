@@ -13,6 +13,9 @@
 #ifndef _GLGE_GRAPHIC_BACKEND_API_IMPL_API_WINDOW_
 #define _GLGE_GRAPHIC_BACKEND_API_IMPL_API_WINDOW_
 
+//command buffer are required
+#include "API_CommandBuffer.h"
+
 //only available for C++
 #if __cplusplus
 
@@ -49,6 +52,20 @@ public:
      * @brief make this the current window
      */
     virtual void makeCurrent() noexcept = 0;
+
+    /**
+     * @brief prepare the window for the begining of a frame
+     * 
+     * @param CommandBuffer* the command buffer to record the beginning to
+     */
+    virtual void beginFrame(CommandBuffer*) noexcept = 0;
+
+    /**
+     * @brief end the frame for the window
+     * 
+     * @param CommandBuffer* the command buffer to record the ending to
+     */
+    virtual void endFrame(CommandBuffer*) noexcept = 0;
 
 protected:
 

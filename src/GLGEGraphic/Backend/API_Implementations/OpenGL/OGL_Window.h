@@ -15,6 +15,8 @@
 
 //add the API window
 #include "../API_Window.h"
+//add command buffers (needed to add commands)
+#include "OGL_CommandBuffer.h"
 
 //only available for C++
 #if __cplusplus
@@ -49,6 +51,20 @@ public:
      * @brief make this the current window
      */
     virtual void makeCurrent() noexcept override;
+
+    /**
+     * @brief prepare the window for the begining of a frame
+     * 
+     * @param cmdBuff the command buffer to store the command to
+     */
+    virtual void beginFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept override;
+
+    /**
+     * @brief end the frame for the window
+     * 
+     * @param cmdBuff the command buffer to store the command to
+     */
+    virtual void endFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept override;
 
 };
 

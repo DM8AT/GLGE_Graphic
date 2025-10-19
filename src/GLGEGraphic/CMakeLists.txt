@@ -6,9 +6,13 @@ set(SRC
     Backend/Instance.cpp
     Backend/API_Implementations/OpenGL/OGL_Instance.cpp
     Backend/API_Implementations/OpenGL/OGL_Window.cpp
+    Backend/API_Implementations/OpenGL/OGL_CommandBuffer.cpp
+    Backend/API_Implementations/OpenGL/OGL_Commands.cpp
+    Backend/API_Implementations/OpenGL/OGL_RenderPipeline.cpp
 
     Frontend/Window/Window.cpp
     Frontend/Common.cpp
+    Frontend/RenderPipeline.cpp
 )
 
 ## add GLAD

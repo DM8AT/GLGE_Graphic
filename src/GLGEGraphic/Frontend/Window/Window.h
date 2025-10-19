@@ -85,13 +85,27 @@ public:
     inline const uivec2& getSize() const noexcept {return m_size;}
 
     /**
+     * @brief Set the Clear Color for the window
+     * 
+     * @param clearColor the clear color in RGBA for the window
+     */
+    inline void setClearColor(const vec4& clearColor) noexcept {m_clearColor = clearColor;}
+
+    /**
+     * @brief Get the Clear Color of the window
+     * 
+     * @return const vec4& a constant reference to the clear color
+     */
+    inline const vec4& getClearColor() const noexcept {return m_clearColor;}
+
+    /**
      * @brief Get the amount of currently known active windows
      * 
      * @return uint64_t the amount of registered active windows
      */
     static uint64_t getActiveWindowCount() noexcept;
 
-    //define SDL stuff
+    //define SDL / backend stuff
     #ifdef SDL_h_
 
     /**
@@ -100,6 +114,13 @@ public:
      * @return SDL_Window* a pointer to the SDL window
      */
     inline SDL_Window* getSDLWindow() const noexcept {return (SDL_Window*)m_window;}
+
+    /**
+     * @brief get the API window implementation
+     * 
+     * @return void* a simple pointer to the API implementation
+     */
+    inline void* getAPI() const noexcept {return m_api;}
 
     #endif
 
@@ -129,6 +150,10 @@ protected:
      * @brief store an api-dependent window
      */
     void* m_api = nullptr;
+    /**
+     * @brief store the clear color of the window
+     */
+    vec4 m_clearColor = vec4(0.5,0.5,0.5,1);
 
     /**
      * @brief handle an event for a window
