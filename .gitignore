@@ -3,3 +3,5 @@ build
 build.sh
 # ignore the vs code settings
 .vscode
+# ignore renderdoc stuff
+*.cap
