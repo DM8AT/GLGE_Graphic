@@ -2,7 +2,12 @@
     "files.associations": {
         "*.h": "cpp",
         "*.tpp": "cpp",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "memory": "cpp",
+        "format": "cpp",
+        "future": "cpp",
+        "istream": "cpp",
+        "functional": "cpp"
     },
     "cSpell.words": [
         "GLEW",

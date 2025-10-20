@@ -190,69 +190,6 @@ struct Command_Clear final : public Command
     virtual void execute() noexcept override;
 };
 
-/**
- * @brief store a command to swap a window
- */
-struct Command_Swap final : public Command
-{
-    /**
-     * @brief Construct a new swap command
-     * 
-     * @param _window a pointer to the window to swap
-     */
-    Command_Swap(::Window* _window)
-     : window(_window)
-    {}
-
-    //store the window to swap
-    ::Window* window;
-
-    //swap the stored window
-    virtual void execute() noexcept override;
-};
-
-/**
- * @brief make a window the current window to work on
- */
-struct Command_MakeCurrent final : public Command
-{
-    /**
-     * @brief Construct a new make current command
-     * 
-     * @param _window a pointer to the window to make current
-     */
-    Command_MakeCurrent(::Window* _window)
-     : window(_window)
-    {}
-
-    //store the window to make the current window
-    ::Window* window;
-
-    //make this the current window
-    virtual void execute() noexcept override;
-};
-
-/**
- * @brief update the window for the next frame
- */
-struct Command_UpdateWindow final : public Command
-{
-    /**
-     * @brief Construct a new update window command
-     * 
-     * @param _window a pointer to the window to upgrade
-     */
-    Command_UpdateWindow(::Window* _window)
-     : window(_window)
-    {}
-
-    //store the window to update
-    ::Window* window;
-
-    //actually update the window
-    virtual void execute() noexcept override;
-};
-
 }
 
 #endif

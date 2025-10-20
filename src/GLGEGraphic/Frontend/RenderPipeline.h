@@ -18,6 +18,8 @@
 
 //add string types
 #include "../../GLGE_BG/CBinding/String.h"
+//add windows to the render pipeline (pipelines operate on windows)
+#include "Window/Window.h"
 
 /**
  * @brief define all types of stages a render pipeline may include
@@ -28,15 +30,7 @@ typedef enum e_RenderPipelineStageType {
      * 
      * Do not write your whole program using this stage, it will be slow
      */
-    GLGE_RENDER_PIPELINE_STAGE_CUSTOM = 0,
-    /**
-     * @brief start a frame for a specific window
-     */
-    GLGE_RENDER_PIPELINE_STAGE_START_WINDOW_FRAME,
-    /**
-     * @brief end the frame for a specific window
-     */
-    GLGE_RENDER_PIPELINE_STAGE_END_WINDOW_FRAME,
+    GLGE_RENDER_PIPELINE_STAGE_CUSTOM = 0
 } RenderPipelineStageType;
 
 /**
@@ -56,24 +50,6 @@ typedef union u_RenderPipelineStageData {
          */
         void* userData;
     } customStage;
-    /**
-     * @brief store the data for the stage that starts the frame for a window
-     */
-    struct WindowFrameStart {
-        /**
-         * @brief store a pointer to the window to start
-         */
-        void* window;
-    } windowFrameStart;
-    /**
-     * @brief store the data used to end a frame
-     */
-    struct WindowFrameEnd {
-        /**
-         * @brief the window to end the frame for
-         */
-        void* window;
-    } windowFrameEnd;
 } RenderPipelineStageData;
 
 /**
@@ -126,17 +102,19 @@ public:
     /**
      * @brief Construct a new Render Pipeline from a list of stages. Order is important and retained. 
      * 
-     * @param stages 
+     * @param stages a map of stages to execute in the given order
+     * @param window the window to operate on (null = the pipeline operates on no windows, but may still operate on framebuffers or buffers)
      */
-    RenderPipeline(const std::map<String, RenderPipelineStage> stages);
+    RenderPipeline(const std::map<String, RenderPipelineStage> stages, Window* window);
 
     /**
      * @brief Construct a new Render Pipeline from a list of named stages. Order is important. 
      * 
      * @param namedStages a C array of named render pipeline stages
      * @param namedStageCount the amount of elements in the list
+     * @param window the window to operate on (null = the pipeline operates on no windows, but may still operate on framebuffers or buffers)
      */
-    RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount);
+    RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount, Window* window);
 
     /**
      * @brief Destroy the Render Pipeline
@@ -175,9 +153,21 @@ public:
     void record() noexcept;
 
     /**
+     * @brief wait for all recordings to end
+     */
+    void waitForRecording() noexcept;
+
+    /**
      * @brief play the command buffer
      */
     void play() noexcept;
+
+    /**
+     * @brief Get the Window the pipeline operates on
+     * 
+     * @return Window* a pointer to the window the pipeline operates on or NULL if it does not operate on a window
+     */
+    inline ::Window* getWindow() const noexcept {return m_window;}
 
 protected:
 
@@ -213,6 +203,8 @@ protected:
     std::condition_variable m_cond;
     //store if the render pipeline is recording
     std::atomic_bool m_isRecording = false;
+    //store the window the render pipeline operates on
+    ::Window* m_window = nullptr;
 
 };
 

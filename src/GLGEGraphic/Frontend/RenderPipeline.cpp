@@ -19,15 +19,16 @@
 //add all API implementations
 #include "../Backend/API_Implementations/AllImplementations.h"
 
-RenderPipeline::RenderPipeline(const std::map<String, RenderPipelineStage> stages)
+RenderPipeline::RenderPipeline(const std::map<String, RenderPipelineStage> stages, Window* window)
  : //just copy the stages over
-   m_stages(stages)
+   m_stages(stages), m_window(window)
 {
     //add the backend API
     initializeAPI();
 }
 
-RenderPipeline::RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount)
+RenderPipeline::RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount, Window* window)
+ : m_window(window)
 {
     //iterate over all stages and unpack the named stage structure
     for (size_t i = 0; i < namedStageCount; ++i) 
@@ -73,6 +74,13 @@ void RenderPipeline::record() noexcept
     m_thread = std::thread(&RenderPipeline::asyncRecord, this);
 }
 
+void RenderPipeline::waitForRecording() noexcept {
+    //wait for the recording state
+    waitForRecordingState(false);
+    //if the thread can be joined, join it
+    if (m_thread.joinable()) {m_thread.join();}
+}
+
 void RenderPipeline::play() noexcept
 {
     //make sure the the recording is not running
@@ -87,6 +95,8 @@ void RenderPipeline::updateRecordingState(bool state) noexcept
     std::lock_guard<std::mutex> lock(m_mut);
     //and set the recording to true
     m_isRecording = state;
+    //notify the change
+    m_cond.notify_one();
 }
 
 void RenderPipeline::waitForRecordingState(bool state) noexcept

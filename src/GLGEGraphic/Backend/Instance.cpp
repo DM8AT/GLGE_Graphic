@@ -38,6 +38,7 @@ Instance::Instance()
     SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "0");
     SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_SCALE_TO_DISPLAY, "1");
     SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "1");
+    SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "0");
     //initialize SDL3 (this thread is the main thread as this is a static type)
     SDL_InitSubSystem(SDL_INIT_VIDEO);
 }
@@ -61,7 +62,23 @@ void Instance::update() noexcept
             //handle the window close request event
             m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_CLOSE_REQUEST, EventData(&e.window.windowID, sizeof(e.window.windowID))));
             break;
-        
+        case SDL_EVENT_WINDOW_MINIMIZED:
+            //handle the minimized event
+            m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_MINIMIZED, EventData(&e.window.windowID, sizeof(e.window.windowID))));
+            break;
+        case SDL_EVENT_WINDOW_RESTORED:
+            //handle the window restoring
+            m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_RESTORED, EventData(&e.window.windowID, sizeof(e.window.windowID))));
+            break;
+        case SDL_EVENT_WINDOW_MAXIMIZED: 
+            //handle the window maximizing
+            m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_MAXIMIZED, EventData(&e.window.windowID, sizeof(e.window.windowID))));
+            break;
+        case SDL_EVENT_WINDOW_RESIZED:
+            //handle the window resizing
+            m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_SIZE_CHANGE, EventData(&e.window.windowID, sizeof(e.window.windowID))));
+            break;
+
         default:
             break;
         }

@@ -22,13 +22,35 @@
 //add all api implementations
 #include "../../Backend/API_Implementations/AllImplementations.h"
 
-Window::Window(const String& name, const uivec2 size) noexcept
+Window::Window(const String& name, const uivec2 size, const WindowSettings& settings) noexcept
  : m_name(name), m_size(size), LayerBase(LayerType(WINDOW_LIBRARY_NAME.data(), "INVALID"), Window::staticEventHandler, this, false)
 {
     //get the window flags
     uint32_t flags = 0;
     //add all API dependant flags
     flags |= GLGE::Graphic::Backend::INSTANCE.getWindowFlags();
+
+    //add all flags related to the window settings
+    flags |= settings.fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+    flags |= settings.hidden ? SDL_WINDOW_HIDDEN : 0;
+    flags |= settings.borderless ? SDL_WINDOW_BORDERLESS : 0;
+    flags |= settings.resizable ? SDL_WINDOW_RESIZABLE : 0;
+    flags |= settings.minimized ? SDL_WINDOW_MINIMIZED : 0;
+    flags |= settings.maximized ? SDL_WINDOW_MAXIMIZED : 0;
+    flags |= settings.mouse_grabbed ? SDL_WINDOW_MOUSE_GRABBED : 0;
+    flags |= settings.input_focus ? SDL_WINDOW_INPUT_FOCUS : 0;
+    flags |= settings.mouse_focus ? SDL_WINDOW_MOUSE_FOCUS : 0;
+    flags |= settings.modal ? SDL_WINDOW_MODAL : 0;
+    flags |= settings.high_DPI ? SDL_WINDOW_HIGH_PIXEL_DENSITY : 0;
+    flags |= settings.mouse_capture ? SDL_WINDOW_MOUSE_CAPTURE : 0;
+    flags |= settings.always_on_top ? SDL_WINDOW_ALWAYS_ON_TOP : 0;
+    flags |= settings.utility ? SDL_WINDOW_UTILITY : 0;
+    flags |= settings.tooltip ? SDL_WINDOW_TOOLTIP : 0;
+    flags |= settings.popup_menu ? SDL_WINDOW_POPUP_MENU : 0;
+    flags |= settings.keyboard_grabbed ? SDL_WINDOW_KEYBOARD_GRABBED : 0;
+    flags |= settings.transparent ? SDL_WINDOW_TRANSPARENT : 0;
+    flags |= settings.can_not_focus ? SDL_WINDOW_NOT_FOCUSABLE : 0;
+
     //create and sanity check the SDL window
     m_window = SDL_CreateWindow(m_name.c_str(), m_size.x, m_size.y, flags);
     GLGE_ASSERT("Failed to create SDL3 window", !m_window);
@@ -44,7 +66,7 @@ Window::Window(const String& name, const uivec2 size) noexcept
     switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
     {
     case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
-        m_api = new GLGE::Graphic::Backend::OGL::Window(this);
+        m_api = new GLGE::Graphic::Backend::OGL::Window(this, settings);
         break;
     
     default:
@@ -83,6 +105,44 @@ void Window::handleEvent(const Event* event)
         if (*((uint32_t*)event->data.data) == m_windowID) {
             m_requestedClosing = true;
         }
+    }
+    else if (*event == Event(WINDOW_EVENT_TYPE_MINIMIZED, EventData(nullptr, 0))) {
+        //check if this is the correct window. Only if this is the correct window, continue
+        if (*((uint32_t*)event->data.data) != m_windowID) {
+            return;
+        }
+        //update the minimized state
+        m_api->m_settings.minimized = true;
+        m_api->m_settings_requested.minimized = true;
+    }
+    else if (*event == Event(WINDOW_EVENT_TYPE_RESTORED, EventData(nullptr, 0))) {
+        //check if this is the correct window. Only if this is the correct window, continue
+        if (*((uint32_t*)event->data.data) != m_windowID) {
+            return;
+        }
+        //restore the window correctly
+        SDL_WindowFlags flags = SDL_GetWindowFlags((SDL_Window*)m_window);
+        m_api->m_settings.minimized = (bool)(flags & SDL_WINDOW_MINIMIZED);
+        m_api->m_settings_requested.minimized = m_api->m_settings.minimized;
+        m_api->m_settings.maximized = (bool)(flags & SDL_WINDOW_MAXIMIZED);
+        m_api->m_settings_requested.maximized = m_api->m_settings.maximized;
+    }
+    else if (*event == Event(WINDOW_EVENT_TYPE_MINIMIZED, EventData(nullptr, 0))) {
+        //check if this is the correct window. Only if this is the correct window, continue
+        if (*((uint32_t*)event->data.data) != m_windowID) {
+            return;
+        }
+        //update the maximized state
+        m_api->m_settings.maximized = true;
+        m_api->m_settings_requested.maximized = true;
+    }
+    else if (*event == Event(WINDOW_EVENT_TYPE_SIZE_CHANGE, EventData(nullptr, 0))) {
+        //check if this is the correct window. Only if this is the correct window, continue
+        if (*((uint32_t*)event->data.data) != m_windowID) {
+            return;
+        }
+        //send the resizing to the API
+        m_api->onResize();
     }
 }
 

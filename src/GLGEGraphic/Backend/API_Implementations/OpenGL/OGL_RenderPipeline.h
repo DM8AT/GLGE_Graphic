@@ -60,7 +60,14 @@ public:
     /**
      * @brief play back a recorded render pipeline
      */
-    inline virtual void play() noexcept override {m_cmdBuff.play();}
+    virtual void play() noexcept override;
+
+    /**
+     * @brief Get the Clear Color of the pipeline
+     * 
+     * @return const vec4& the clear color of the window
+     */
+    inline const vec4& getClearColor() const noexcept {return m_clearColor;}
 
 protected:
 
@@ -72,23 +79,13 @@ protected:
     void executeStage_Custom(const RenderPipelineStageData::CustomStage& stage) noexcept;
 
     /**
-     * @brief run a stage that starts a new frame for a window
-     * 
-     * @param stage the data for the stage
-     */
-    void executeStage_WindowFrameStart(const RenderPipelineStageData::WindowFrameStart& stage) noexcept;
-
-    /**
-     * @brief run a stage that ends a frame of a window
-     * 
-     * @param stage the data for the stage
-     */
-    void executeStage_WindowFrameEnd(const RenderPipelineStageData::WindowFrameEnd& stage) noexcept;
-
-    /**
      * @brief store the OpenGL command buffer
      */
     CommandBuffer m_cmdBuff;
+    /**
+     * @brief store the clear color of the parent window
+     */
+    vec4 m_clearColor;
 
 };
 

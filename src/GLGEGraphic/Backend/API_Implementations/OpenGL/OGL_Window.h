@@ -17,9 +17,14 @@
 #include "../API_Window.h"
 //add command buffers (needed to add commands)
 #include "OGL_CommandBuffer.h"
+//add math types
+#include "../../../../GLGE_Math/GLGEMath.h"
 
 //only available for C++
 #if __cplusplus
+
+//add atomic stuff for thread safe access
+#include <atomic>
 
 //use the namespace GLGE::Graphic::Backend::OGL
 namespace GLGE::Graphic::Backend::OGL
@@ -33,8 +38,9 @@ public:
      * @brief Construct a new OpenGL window
      * 
      * @param window a pointer to the actual window the OpenGL window will belong to
+     * @param settings the current settings of the window
      */
-    Window(::Window* window);
+    Window(::Window* window, const WindowSettings& settings);
 
     /**
      * @brief Destroy the OpenGL window
@@ -54,23 +60,32 @@ public:
 
     /**
      * @brief prepare the window for the begining of a frame
-     * 
-     * @param cmdBuff the command buffer to store the command to
      */
-    virtual void beginFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept override;
+    virtual void beginFrame() noexcept override;
+
+    /**
+     * @brief clear the window with a clear color
+     * 
+     * @param clearColor the color to clear with
+     */
+    void clearWindow(const vec4& clearColor) noexcept;
 
     /**
      * @brief end the frame for the window
-     * 
-     * @param cmdBuff the command buffer to store the command to
      */
-    virtual void endFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept override;
+    virtual void endFrame() noexcept override;
 
     /**
      * @brief update the window at the beginning of the graphics tick
      */
     void update() noexcept;
 
+protected:
+
+    /**
+     * @brief store if the window was resized
+     */
+    std::atomic_bool m_didResize = true;
 };
 
 }

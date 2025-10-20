@@ -20,6 +20,9 @@
 //add the layer system
 #include "../../../GLGE_Core/Layers/Layers.h"
 
+//add the window settings
+#include "WindowSettings.h"
+
 //add the window API
 #include "../../Backend/API_Implementations/API_Window.h"
 
@@ -33,6 +36,10 @@ constexpr std::string_view WINDOW_LIBRARY_NAME = "GLGE_GRAPHIC_WINDOW";
 
 //define the identifiers for the different events for a window
 constexpr EventType WINDOW_EVENT_TYPE_CLOSE_REQUEST(WINDOW_LIBRARY_NAME.data(), (1ul << 48ul | 1ul));
+constexpr EventType WINDOW_EVENT_TYPE_MINIMIZED(WINDOW_LIBRARY_NAME.data(), (1ul << 48ul | 2ul));
+constexpr EventType WINDOW_EVENT_TYPE_RESTORED(WINDOW_LIBRARY_NAME.data(), (1ul << 48 | 3ul));
+constexpr EventType WINDOW_EVENT_TYPE_MAXIMIZED(WINDOW_LIBRARY_NAME.data(), (1ul << 48 | 4ul));
+constexpr EventType WINDOW_EVENT_TYPE_SIZE_CHANGE(WINDOW_LIBRARY_NAME.data(), (1ul << 48 | 5ul));
 
 /**
  * @brief store what a simple window is
@@ -45,8 +52,9 @@ public:
      * 
      * @param name the name of the window
      * @param size the size of the window in pixels
+     * @param settings the default settings for the window
      */
-    Window(const String& name, const uivec2 size) noexcept;
+    Window(const String& name, const uivec2 size, const WindowSettings& settings = GLGE_WINDOW_SETTINGS_DEFAULT) noexcept;
 
     /**
      * @brief Destroy the Window
@@ -123,6 +131,114 @@ public:
      * @return VSync the currently used VSync mode
      */
     inline VSync getVSync() const noexcept {return m_api->getVsync();}
+
+    /**
+     * @brief Set the Fullscreen state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param fullscreen the new fullscreen state
+     */
+    inline void setFullscreen(bool fullscreen) noexcept {m_api->setFullscreen(fullscreen);}
+
+    /**
+     * @brief Set the Hidden state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param hidden say if the window is hidden or shown
+     */
+    inline void setHidden(bool hidden) noexcept {m_api->setHidden(hidden);}
+
+    /**
+     * @brief Set the Borderless state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param borderless say if the window has decorations (border + 'x' button, usw) or not
+     */
+    inline void setBorderless(bool borderless) noexcept {m_api->setBorderless(borderless);}
+
+    /**
+     * @brief Set the Resizable state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param resizable say if the user can change the window size or not
+     */
+    inline void setResizable(bool resizable) noexcept {m_api->setResizable(resizable);}
+
+    /**
+     * @brief Set the Minimized state of the window
+     * 
+     * If the window is minimized the pipeline will only execute custom stages as well as the window update
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param minimized say if the window is minimized or not
+     */
+    inline void setMinimized(bool minimized) noexcept {m_api->setMinimized(minimized);}
+
+    /**
+     * @brief Set the Maximized state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param maximized say if the window is maximized or not
+     */
+    inline void setMaximized(bool maximized) noexcept {m_api->setMaximized(maximized);}
+
+    /**
+     * @brief Set the Mouse Grabbed state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param hidden say if the window is has the mouse grabbed or not
+     */
+    inline void setMouseGrabbed(bool mouseGrabbed) noexcept {m_api->setMouseGrabbed(mouseGrabbed);}
+
+    /**
+     * @brief Set the Modal state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param modal say if the window is a modal window or not
+     */
+    inline void setModal(bool modal) noexcept {m_api->setModal(modal);}
+
+    /**
+     * @brief Set the always on top state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param alwaysOnTop say if the window is always on top or not
+     */
+    inline void setAlwaysOnTop(bool alwaysOnTop) noexcept {m_api->setAlwaysOnTop(alwaysOnTop);}
+
+    /**
+     * @brief Set the Keyboard grabbed state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param keyboardGrabbed say if the window has the keyboard input grabbed or not
+     */
+    inline void setKeyboardGrabbed(bool keyboardGrabbed) noexcept {m_api->setKeyboardGrabbed(keyboardGrabbed);}
+
+    /**
+     * @brief Set the Focusable state of the window
+     * 
+     * @warning will update after the next window tick
+     * 
+     * @param notFocusable say if the window can not be focused or if it can
+     */
+    inline void setNotFocusable(bool notFocusable) noexcept {m_api->setNotFocusable(notFocusable);}
+
+    /**
+     * @brief Get the current state of the window settings
+     * 
+     * @return const WindowSettings& the current window setting state
+     */
+    inline const WindowSettings& getSettings() const noexcept {return m_api->getSettings();}
 
     //define SDL / backend stuff
     #ifdef SDL_h_
