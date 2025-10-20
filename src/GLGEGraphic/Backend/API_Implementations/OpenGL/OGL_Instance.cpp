@@ -25,9 +25,15 @@ using namespace GLGE::Graphic::Backend::OGL;
 Instance::Instance(Window* window)
  : GLGE::Graphic::Backend::API::Instance()
 {
+    //set some values for the context (4.6 Core)
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     //create the gl context
     m_glContext = SDL_GL_CreateContext(window->getSDLWindow());
     GLGE_ASSERT((std::string("Failed to create OpenGL context, info: ") + SDL_GetError() + " |"), !m_glContext);
+    //no vsync by default
+    SDL_GL_SetSwapInterval(0);
 
     //initialize GLEW
     GLGE_ASSERT("Failed to initialize GLEW", gladLoadGL() == 0);

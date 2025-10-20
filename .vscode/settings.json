@@ -1,6 +1,8 @@
 {
     "files.associations": {
-        "*.tpp": "cpp"
+        "*.h": "cpp",
+        "*.tpp": "cpp",
+        "atomic": "cpp"
     },
     "cSpell.words": [
         "GLEW",

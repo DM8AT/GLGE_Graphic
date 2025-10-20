@@ -232,6 +232,27 @@ struct Command_MakeCurrent final : public Command
     virtual void execute() noexcept override;
 };
 
+/**
+ * @brief update the window for the next frame
+ */
+struct Command_UpdateWindow final : public Command
+{
+    /**
+     * @brief Construct a new update window command
+     * 
+     * @param _window a pointer to the window to upgrade
+     */
+    Command_UpdateWindow(::Window* _window)
+     : window(_window)
+    {}
+
+    //store the window to update
+    ::Window* window;
+
+    //actually update the window
+    virtual void execute() noexcept override;
+};
+
 }
 
 #endif

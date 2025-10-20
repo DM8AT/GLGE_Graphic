@@ -109,6 +109,12 @@ typedef struct s_RenderPipelineStageNamed {
 
 //add maps for the storage of render pipeline stages
 #include <map>
+//atomic stuff is required
+#include <atomic>
+//threading required
+#include <thread>
+//conditional variable is required for synchronization
+#include <condition_variable>
 
 /**
  * @brief define a render pipeline
@@ -175,14 +181,38 @@ public:
 
 protected:
 
+    /**
+     * @brief change the state of the is recording boolean
+     * 
+     * @param state the new state for the recording
+     */
+    void updateRecordingState(bool state) noexcept;
+
+    /**
+     * @brief wait till the recording state has reached a specific state
+     * 
+     * @param state the state to wait for
+     */
+    void waitForRecordingState(bool state) noexcept;
+
     //initialize the backend API
     void initializeAPI() noexcept;
+
+    //async recording function
+    void asyncRecord() noexcept;
 
     //store a map of the render pipeline stages to the names
     std::map<String, RenderPipelineStage> m_stages;
 
     //store the API implementation for the render pipeline
     void* m_api = nullptr;
+    //store the thread for recording
+    std::thread m_thread;
+    //sync stuff
+    std::mutex m_mut;
+    std::condition_variable m_cond;
+    //store if the render pipeline is recording
+    std::atomic_bool m_isRecording = false;
 
 };
 

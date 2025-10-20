@@ -30,6 +30,14 @@ using namespace GLGE::Graphic::Backend;
 Instance::Instance()
  : m_windowEventStack(std::vector<LayerBase*>())
 {
+    //set the default hints for GLGE
+    SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "0");
+    SDL_SetHint(SDL_HINT_MAC_CTRL_CLICK_EMULATE_RIGHT_CLICK, "1");
+    SDL_SetHint(SDL_HINT_WINDOW_ACTIVATE_WHEN_RAISED, "1");
+    SDL_SetHint(SDL_HINT_MOUSE_TOUCH_EVENTS, "1");
+    SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "0");
+    SDL_SetHint(SDL_HINT_VIDEO_WAYLAND_SCALE_TO_DISPLAY, "1");
+    SDL_SetHint(SDL_HINT_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR, "1");
     //initialize SDL3 (this thread is the main thread as this is a static type)
     SDL_InitSubSystem(SDL_INIT_VIDEO);
 }

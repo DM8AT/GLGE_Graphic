@@ -47,3 +47,9 @@ void GLGE::Graphic::Backend::OGL::Command_MakeCurrent::execute() noexcept
     //make the window the current window using the built-in function
     ((GLGE::Graphic::Backend::OGL::Window*)window->getAPI())->makeCurrent();
 }
+
+void GLGE::Graphic::Backend::OGL::Command_UpdateWindow::execute() noexcept
+{
+    //call the update function for the window
+    ((GLGE::Graphic::Backend::OGL::Window*)window->getAPI())->update();
+}

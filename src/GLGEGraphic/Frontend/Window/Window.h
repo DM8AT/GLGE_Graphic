@@ -20,6 +20,9 @@
 //add the layer system
 #include "../../../GLGE_Core/Layers/Layers.h"
 
+//add the window API
+#include "../../Backend/API_Implementations/API_Window.h"
+
 //for C++ add a class
 #if __cplusplus
 
@@ -105,6 +108,22 @@ public:
      */
     static uint64_t getActiveWindowCount() noexcept;
 
+    /**
+     * @brief set the type of vsync to use for the window
+     * 
+     * @warning the change will only take effect after the next window update
+     * 
+     * @param vsync the new vsync state to use
+     */
+    inline void setVSync(VSync vsync) noexcept {m_api->setVsync(vsync);}
+
+    /**
+     * @brief get the type of VSync currently used for the window
+     * 
+     * @return VSync the currently used VSync mode
+     */
+    inline VSync getVSync() const noexcept {return m_api->getVsync();}
+
     //define SDL / backend stuff
     #ifdef SDL_h_
 
@@ -149,7 +168,7 @@ protected:
     /**
      * @brief store an api-dependent window
      */
-    void* m_api = nullptr;
+    GLGE::Graphic::Backend::API::Window* m_api = nullptr;
     /**
      * @brief store the clear color of the window
      */

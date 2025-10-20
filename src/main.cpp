@@ -3,6 +3,7 @@
 int main()
 {
     Window win("Hello World!", uivec2(600,600));
+    win.setVSync(GLGE_VSYNC_ADAPTIVE);
 
     RenderPipeline pipe({
         {"Init Frame", RenderPipelineStage{

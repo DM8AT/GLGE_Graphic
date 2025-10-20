@@ -16,6 +16,19 @@
 //command buffer are required
 #include "API_CommandBuffer.h"
 
+/**
+ * @brief define the type of VSync to use
+ */
+typedef enum e_VSync {
+    //vsync is disabled
+    GLGE_VSYNC_OFF = 0,
+    //vsync is enabled
+    GLGE_VSYNC_ON,
+    //use adaptive vsync if available
+    //defaults to vsync if adaptive vsync is not available
+    GLGE_VSYNC_ADAPTIVE
+} VSync;
+
 //only available for C++
 #if __cplusplus
 
@@ -67,12 +80,32 @@ public:
      */
     virtual void endFrame(CommandBuffer*) noexcept = 0;
 
+    /**
+     * @brief Set the Vsync state of the window
+     * 
+     * @warning the change will only take effect after the next begin frame event on the window
+     * 
+     * @param vsync the new vsync state
+     */
+    inline void setVsync(VSync vsync) noexcept {m_vsync = vsync;}
+
+    /**
+     * @brief Get the Vsync state
+     * 
+     * @return VSync the current vsync state
+     */
+    inline VSync getVsync() const noexcept {return m_vsync;}
+
 protected:
 
     /**
      * @brief store a pointer to the frontend window
      */
     ::Window* m_window = nullptr;
+    /**
+     * @brief store if the window is set to vsync
+     */
+    VSync m_vsync = GLGE_VSYNC_OFF;
 
 };
 

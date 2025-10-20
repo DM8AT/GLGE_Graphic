@@ -55,6 +55,8 @@ void GLGE::Graphic::Backend::OGL::Window::beginFrame(GLGE::Graphic::Backend::API
     //make sure to clear the frame with the correct clear color
     _cmdBuff->record<Command_Clear>(m_window->getClearColor().r, m_window->getClearColor().g, m_window->getClearColor().b, m_window->getClearColor().a,
                                     0, GL_COLOR, 0);
+    //update the window
+    _cmdBuff->record<Command_UpdateWindow>(m_window);
 }
 
 void GLGE::Graphic::Backend::OGL::Window::endFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept
@@ -63,4 +65,13 @@ void GLGE::Graphic::Backend::OGL::Window::endFrame(GLGE::Graphic::Backend::API::
     OGL::CommandBuffer* _cmdBuff = (OGL::CommandBuffer*)cmdBuff;
     //swap the buffers
     _cmdBuff->record<Command_Swap>(m_window);
+}
+
+void GLGE::Graphic::Backend::OGL::Window::update() noexcept
+{
+    //set the new vsync mode
+    if (!SDL_GL_SetSwapInterval((m_vsync == GLGE_VSYNC_OFF) ? 0 : ((m_vsync == GLGE_VSYNC_ON) ? 1 : -1))) {
+        //adaptive VSync not available, use vsync
+        SDL_GL_SetSwapInterval(1);
+    }
 }

@@ -66,6 +66,11 @@ public:
      */
     virtual void endFrame(GLGE::Graphic::Backend::API::CommandBuffer* cmdBuff) noexcept override;
 
+    /**
+     * @brief update the window at the beginning of the graphics tick
+     */
+    void update() noexcept;
+
 };
 
 }

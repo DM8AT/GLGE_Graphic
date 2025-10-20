@@ -43,6 +43,8 @@ RenderPipeline::RenderPipeline(const RenderPipelineStageNamed* namedStages, size
 
 RenderPipeline::~RenderPipeline() noexcept
 {
+    //make sure to join back any lingering threads
+    if (m_thread.joinable()) {m_thread.join();}
     //only delete if the API is set up
     if (m_api)
     {
@@ -63,14 +65,49 @@ RenderPipeline::~RenderPipeline() noexcept
 
 void RenderPipeline::record() noexcept
 {
-    //just record the API pipeline
-    ((GLGE::Graphic::Backend::API::RenderPipeline*)m_api)->record();
+    //if any recording is lingering, re-join it
+    if (m_thread.joinable()) {m_thread.join();}
+    //lock the recording
+    updateRecordingState(true);
+    //start the async recording
+    m_thread = std::thread(&RenderPipeline::asyncRecord, this);
 }
 
 void RenderPipeline::play() noexcept
 {
+    //make sure the the recording is not running
+    waitForRecordingState(false);
     //just play back the API pipeline
     ((GLGE::Graphic::Backend::API::RenderPipeline*)m_api)->play();
+}
+
+void RenderPipeline::updateRecordingState(bool state) noexcept
+{
+    //lock the mutex
+    std::lock_guard<std::mutex> lock(m_mut);
+    //and set the recording to true
+    m_isRecording = state;
+}
+
+void RenderPipeline::waitForRecordingState(bool state) noexcept
+{
+    //lock the mutex to sync the conditional variable
+    std::unique_lock<std::mutex> lock(m_mut);
+
+    //only waite if the state is mismatched
+    if (m_isRecording != state)
+    {
+        //wait for the conditional variable to be in the correct state
+        m_cond.wait(lock, [this, state]{ return (m_isRecording.load() == state);});
+    }
+}
+
+void RenderPipeline::asyncRecord() noexcept
+{
+    //just record the API pipeline
+    ((GLGE::Graphic::Backend::API::RenderPipeline*)m_api)->record();
+    //done
+    updateRecordingState(false);
 }
 
 void RenderPipeline::initializeAPI() noexcept
