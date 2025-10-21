@@ -41,7 +41,12 @@ Instance::Instance(Window* window)
 
 Instance::~Instance()
 {
-    
+    //clean up the OpenGL context
+    if (m_glContext) {
+        //clean up the OpenGL context
+        SDL_GL_DestroyContext((SDL_GLContext)m_glContext);
+        m_glContext = nullptr;
+    }
 }
 
 uint32_t Instance::getWidnowFlags() noexcept

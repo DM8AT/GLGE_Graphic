@@ -23,7 +23,7 @@
 #include "../../Backend/API_Implementations/AllImplementations.h"
 
 Window::Window(const String& name, const uivec2 size, const WindowSettings& settings) noexcept
- : m_name(name), m_size(size), LayerBase(LayerType(WINDOW_LIBRARY_NAME.data(), "INVALID"), Window::staticEventHandler, this, false)
+ : m_name(name), m_size(size), LayerBase(LayerType(WINDOW_LIBRARY_NAME.data(), "INVALID_NAME"), Window::staticEventHandler, this, false)
 {
     //get the window flags
     uint32_t flags = 0;
@@ -57,7 +57,10 @@ Window::Window(const String& name, const uivec2 size, const WindowSettings& sett
     m_windowID = SDL_GetWindowID((SDL_Window*)m_window);
     
     //set the name correctly
-    m_type.name = std::to_string(m_windowID).c_str();
+    std::string name_str = std::to_string(m_windowID);
+    char* t_name = new char[name_str.length() + 1];
+    memcpy(t_name, name_str.c_str(), name_str.length() + 1);
+    m_type.name = t_name;
 
     //register to the instance
     GLGE::Graphic::Backend::INSTANCE.registerWindow(this);
@@ -88,6 +91,10 @@ Window::~Window()
     GLGE::Graphic::Backend::INSTANCE.deregisterWindow(this);
     //close the SDL window
     SDL_DestroyWindow((SDL_Window*)m_window);
+
+    //free the type name (it is dynamically allocated)
+    delete[] (char*)m_type.name;
+    m_type.name = 0;
 }
 
 void Window::rename(const String& name) noexcept {
