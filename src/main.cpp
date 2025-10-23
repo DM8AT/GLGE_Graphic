@@ -3,7 +3,7 @@
 
 class Test {};
 
-template <typename T> class tmpTest {};
+template <typename T, typename J> class tmpTest {};
 
 int main()
 {
@@ -14,7 +14,7 @@ int main()
     std::cout << AssetTypeRegistry::type_name<int>() << "\n";
     std::cout << AssetTypeRegistry::type_name<float>() << "\n";
     std::cout << AssetTypeRegistry::type_name<Test>() << "\n";
-    std::cout << AssetTypeRegistry::type_name<tmpTest<int>>() << "\n";
+    std::cout << AssetTypeRegistry::type_name<tmpTest<int, float>>() << "\n";
 
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
