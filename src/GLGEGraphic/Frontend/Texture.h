@@ -1,0 +1,167 @@
+/**
+ * @file Texture.h
+ * @author DM8AT
+ * @brief define textures for GLGE
+ * @version 0.1
+ * @date 2025-10-21
+ * 
+ * @copyright Copyright (c) 2025
+ * 
+ */
+//header guard
+#ifndef _GLGE_GRAPHIC_FRONTEND_TEXTURE_
+#define _GLGE_GRAPHIC_FRONTEND_TEXTURE_
+
+//add simple types
+#include "../../GLGE_Core/Types.h"
+
+//add vector types for color storage
+#include "../../GLGE_Math/GLGEMath.h"
+//add bools for C
+#include <stdbool.h>
+
+/**
+ * @brief define the type of texture that is used
+ * 
+ * Only the GPU side layout, the texture may be stored differently on the CPU
+ */
+typedef enum e_TextureType {
+    //invalid / error value
+    GLGE_TEXTURE_UNDEFINED = 0,
+    //the texture has 1 channel and uses uint8_t for the channel
+    GLGE_TEXTURE_R,
+    //the texture has 2 channels and uses uint8_t per channel (or uint16_t per texel)
+    GLGE_TEXTURE_RG,
+    //the texture has 3 channels and uses uint8_t per channel (or uint24_t per texel)
+    GLGE_TEXTURE_RGB,
+    //the texture has 4 channels and uses uint8_t per channel (or uint32_t per texel)
+    GLGE_TEXTURE_RGBA,
+
+    //the texture has 1 channel and uses a 32-bit float for the channel
+    GLGE_TEXTURE_R_F,
+    //the texture has 2 channels and uses a 32-bit float per channel
+    GLGE_TEXTURE_RG_F,
+    //the texture has 3 channels and uses a 32-bit float per channel
+    GLGE_TEXTURE_RGB_F,
+    //the texture has 4 channels and uses a 32-bit float per channel
+    GLGE_TEXTURE_RGBA_F,
+
+    //the texture has 1 channel and uses a 16-bit float (half) for the channel
+    GLGE_TEXTURE_R_H,
+    //the texture has 2 channels and uses a 16-bit float (half) per channel
+    GLGE_TEXTURE_RG_H,
+    //the texture has 3 channels and uses a 16-bit float (half) per channel
+    GLGE_TEXTURE_RGB_H,
+    //the texture has 4 channels and uses a 16-bit float (half) per channel
+    GLGE_TEXTURE_RGBA_H
+} TextureType;
+
+//define a holding type for a uint8_t[3] (uint24_t) to use if needed
+//thanks to MSVC to make this more complicated than it needs to be
+#if defined(_MSC_VER)
+    #pragma pack(push, 1)
+    typedef struct {
+        uint8_t bytes[3];
+    } uint24_t;
+    #pragma pack(pop)
+#else
+    typedef struct __attribute__((packed)) {
+        uint8_t bytes[3];
+    } uint24_t;
+#endif
+
+/**
+ * @brief define a union that holds the data for a texture
+ */
+typedef union u_TextureData {
+    //storage of a 1 channel not-hdr image
+    uint8_t*  n_hdr_1;
+    //storage of a 2 channel not-hdr image
+    uint16_t* n_hdr_2;
+    //storage of a 3 channel not-hdr image
+    uint24_t* n_hdr_3;
+    //storage of a 4 channel not-hdr image
+    uint32_t* n_hdr_4;
+    //storage of a 1 channel hdr image
+    float*    hdr_1;
+    //storage of a 2 channel hdr image
+    vec2*     hdr_2;
+    //storage of a 3 channel hdr image
+    vec3*     hdr_3;
+    //storage of a 4 channel hdr image
+    vec4*     hdr_4;
+} TextureData;
+
+/**
+ * @brief define a structure to store texture data on the CPU
+ */
+typedef struct s_TextureStorage {
+    //store the dimensions of the texture
+    uivec2 extent;
+    //store if the texture is in high dynamic range or not
+    bool isHDR;
+    //store the amount of used channels (must be in range 1 to 4)
+    uint8_t channels;
+    //store the actual texture data
+    TextureData data;
+} TextureStorage;
+
+//define the texture
+#if __cplusplus
+    class Texture;
+#else
+    /**
+     * @brief a simple opaque structure for a texture
+     */
+    typedef struct s_Texture { byte opaque; } Texture;
+#endif
+
+//add the class only for C++ and use an opaque container for C
+#if __cplusplus
+
+/**
+ * @brief store the user handle for a texture
+ */
+class Texture
+{
+public:
+
+    /**
+     * @brief Get the texture data storage of the texture
+     * 
+     * @return const TextureStorage& the storage of the texture object
+     */
+    inline const TextureStorage& getData() const noexcept {return m_texStorage;}
+
+    /**
+     * @brief print the texture into an output stream
+     * 
+     * @param os the output stream to print to
+     * @param tex the texture to print
+     * @return std::ostream& the filled output stream
+     */
+    friend std::ostream& operator<<(std::ostream& os, const Texture& tex) noexcept;
+
+protected:
+
+    /**
+     * @brief store the storage for the texture
+     */
+    TextureStorage m_texStorage = {
+        .extent = uivec2(0,0),
+        .isHDR = false,
+        .channels = 0,
+        .data{.n_hdr_1{0}}
+    };
+
+    /**
+     * @brief store the GPU side type of the texture
+     * 
+     * GLGE_TEXTURE_UNDEFINED means that the texture is CPU-Only
+     */
+    TextureType m_type = GLGE_TEXTURE_UNDEFINED;
+};
+
+#endif
+
+#endif

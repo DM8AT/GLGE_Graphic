@@ -22,6 +22,10 @@
 //add the common stuff
 #include "../Frontend/Common.h"
 
+//add textures
+//all textures are owned by the instance
+#include "../Frontend/Texture.h"
+
 //include the layer system from the core - the instance contains a layer stack
 #include "../../GLGE_Core/Layers/Layers.h"
 //strings are required - interfacing with the windows

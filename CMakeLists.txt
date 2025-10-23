@@ -7,6 +7,7 @@ set(SRC
 project(MAIN_PROJ LANGUAGES CXX)
 
 add_executable(MAIN ${SRC})
+set_property(TARGET MAIN PROPERTY CXX_STANDARD 20)
 
 add_subdirectory(src/GLGEGraphic)
 target_link_libraries(MAIN GLGE_GRAPHIC)

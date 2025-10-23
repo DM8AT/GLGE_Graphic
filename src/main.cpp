@@ -1,12 +1,26 @@
 #include "GLGEGraphic/GLGEGraphic.h"
+#include "GLGE_Core/Assets/Assets.h"
+
+class Test {};
+
+template <typename T> class tmpTest {};
 
 int main()
 {
+    std::cout << AssetTypeRegistry::getID<int>() << "\n";
+    std::cout << AssetTypeRegistry::getID<float>() << "\n";
+    std::cout << AssetTypeRegistry::getID<Test>() << "\n";
+
+    std::cout << AssetTypeRegistry::type_name<int>() << "\n";
+    std::cout << AssetTypeRegistry::type_name<float>() << "\n";
+    std::cout << AssetTypeRegistry::type_name<Test>() << "\n";
+    std::cout << AssetTypeRegistry::type_name<tmpTest<int>>() << "\n";
+
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
 
     RenderPipeline pipe({}, &win);
-
+    
     pipe.record();
 
     while (!win.isClosingRequested()) {

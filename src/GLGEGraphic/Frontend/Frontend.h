@@ -19,5 +19,7 @@
 #include "Common.h"
 //add render pipelines
 #include "RenderPipeline.h"
+//add textures
+#include "Texture.h"
 
 #endif
