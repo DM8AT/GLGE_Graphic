@@ -1,5 +1,5 @@
 #include "GLGEGraphic/GLGEGraphic.h"
-#include "GLGE_Core/Assets/Assets.h"
+#include "GLGE_Core/GLGECore.h"
 
 #include <fstream>
 
@@ -50,10 +50,12 @@ protected:
 
 int main()
 {
-    AssetHandle file = AssetManager::create<AssetFile>("Test.txt");
-    AssetManager::waitForLoad(file);
-
-    std::cout << AssetManager::getAsset<AssetFile>(file)->getContents() << "\n";
+    String p = MeshAsset::import("assets/mesh/Suzane.fbx");
+    AssetHandle mesh = AssetManager::create<MeshAsset>(p);
+    AssetManager::waitForLoad(mesh);
+    
+    MeshAsset* m = AssetManager::getAsset<MeshAsset>(mesh);
+    Mesh& m_mesh = m->mesh();
 
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
