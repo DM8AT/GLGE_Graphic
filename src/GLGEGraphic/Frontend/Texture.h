@@ -127,11 +127,37 @@ class Texture
 public:
 
     /**
+     * @brief Construct a new Texture
+     * 
+     * @param storage the storeage for the CPU-Side data for the texture
+     * @param type the type for the GPU-Side texture (this may NOT match with the CPU-Side type!)
+     */
+    Texture(const TextureStorage& storage, TextureType type);
+
+    /**
      * @brief Get the texture data storage of the texture
      * 
      * @return const TextureStorage& the storage of the texture object
      */
     inline const TextureStorage& getData() const noexcept {return m_texStorage;}
+
+    /**
+     * @brief Get the Type for the GPU data
+     * 
+     * @return const TextureType& a reference to the GPU data
+     */
+    inline const TextureType& getType() const noexcept {return m_type;}
+
+    /**
+     * @brief change the size of the texture
+     * 
+     * This is often used for resizing render textures
+     * 
+     * @warning this is free to re-create the backend texture
+     * 
+     * @param size the new size of the texture
+     */
+    void resizeAndClear(const uivec2& size) noexcept;
 
     /**
      * @brief print the texture into an output stream
@@ -160,6 +186,10 @@ protected:
      * GLGE_TEXTURE_UNDEFINED means that the texture is CPU-Only
      */
     TextureType m_type = GLGE_TEXTURE_UNDEFINED;
+    /**
+     * @brief store a pointer to the backend texture
+     */
+    void* m_tex = nullptr;
 };
 
 #endif

@@ -60,6 +60,14 @@ int main()
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
 
+    uint32_t cols[] = {
+        0x000000ff, 0x0000ff00,
+        0x00ff0000, 0x00ff00ff
+    };
+
+    AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/Sample-HDR_640×426.hdr", true, GLGE_TEXTURE_RGBA_H);
+    AssetManager::waitForLoad(tex);
+
     RenderPipeline pipe({}, &win);
     
     pipe.record();

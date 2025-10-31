@@ -21,5 +21,6 @@
 #include "RenderPipeline.h"
 //add textures
 #include "Texture.h"
+#include "TextureAsset.h"
 
 #endif

@@ -61,6 +61,11 @@ public:
      */
     static uint32_t getWidnowFlags() noexcept;
 
+    /**
+     * @brief tick the instance
+     */
+    virtual void onUpdate() noexcept override {}
+
 protected:
 
     /**

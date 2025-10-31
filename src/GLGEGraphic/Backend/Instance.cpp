@@ -83,6 +83,10 @@ void Instance::update() noexcept
             break;
         }
     }
+
+    //tick the backend instance
+    m_inst->tick();
+    m_inst->onUpdate();
 }
 
 void Instance::registerWindow(Window* window) noexcept

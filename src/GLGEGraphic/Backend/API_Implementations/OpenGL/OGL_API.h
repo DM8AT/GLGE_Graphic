@@ -19,5 +19,7 @@
 #include "OGL_Window.h"
 //add render pipelines
 #include "OGL_RenderPipeline.h"
+//add textures
+#include "OGL_Texture.h"
 
 #endif

@@ -52,9 +52,7 @@
 class Window;
 
 //use a custom namespace for the backend: GLGE::Graphic::Backend
-namespace GLGE {
-namespace Graphic {
-namespace Backend {
+namespace GLGE::Graphic::Backend {
 
 /**
  * @brief define what a graphic instance is
@@ -168,8 +166,6 @@ protected:
 //store a global instance
 extern Instance INSTANCE;
 
-}
-}
 }
 
 #endif

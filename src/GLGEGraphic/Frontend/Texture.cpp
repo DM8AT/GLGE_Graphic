@@ -11,13 +11,15 @@
 
 //include the texture
 #include "Texture.h"
-//add STB image with the implementation
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 //include the file stuff
 #include <filesystem>
 #include <fstream>
+
+//add the backend instance
+#include "../Backend/Instance.h"
+//also add the full backend API
+#include "../Backend/API_Implementations/AllImplementations.h"
 
 //add debugging stuff
 #include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
@@ -101,6 +103,30 @@
 //     }
 // }
 
+Texture::Texture(const TextureStorage& storage, TextureType type)
+ : m_texStorage(storage), m_type(type)
+{
+    //create the backend texture
+    switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
+    {
+    case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
+        m_tex = new GLGE::Graphic::Backend::OGL::Texture(this);
+        break;
+    
+    default:
+        break;
+    }
+}
+
+void Texture::resizeAndClear(const uivec2& size) noexcept
+{
+    //clear all the stored data (set to NULL)
+    *((void**)&m_texStorage.data) = nullptr;
+    m_texStorage.extent = size;
+    //notify the backend texture of the size change
+    ((GLGE::Graphic::Backend::API::Texture*)m_tex)->notifySizeChange();
+}
+
 //special printing stuff
 #include <iomanip>
 #include <algorithm> //std::clamp
@@ -169,6 +195,11 @@ std::ostream& operator<<(std::ostream& os, const Texture& tex) noexcept
     if (data.extent.x == 0 || data.extent.y == 0 || data.channels == 0) {
         os << "Empty texture.\n";
         return os;
+    }
+    //sanity check the data
+    if (!data.data.hdr_1) {
+        //GPU only data
+        return (os << "GPU Only texture\n");
     }
 
     //get access to the important data (like dimensions)

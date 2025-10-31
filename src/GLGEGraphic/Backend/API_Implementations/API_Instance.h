@@ -37,6 +37,16 @@ public:
      */
     virtual ~Instance() {}
 
+    /**
+     * @brief tick the whole graphic stuff
+     */
+    void tick() noexcept;
+
+    /**
+     * @brief update the own instance
+     */
+    virtual void onUpdate() noexcept = 0;
+
 };
 
 };
