@@ -1,8 +1,6 @@
 #include "GLGEGraphic/GLGEGraphic.h"
 #include "GLGE_Core/GLGECore.h"
 
-#include <fstream>
-
 int main()
 {
     String p = MeshAsset::import("assets/mesh/Suzane.fbx");
