@@ -31,6 +31,9 @@ class Window;
 namespace GLGE::Graphic::Backend::OGL
 {
 
+//add materials
+class Material;
+
 /**
  * @brief define what an OpenGL command is
  */
@@ -191,47 +194,23 @@ struct Command_Clear final : public Command
 };
 
 /**
- * @brief define a command that is used to bind a shader
+ * @brief a command to bind a material in OpenGL
  */
-struct Command_BindShader final : public Command
+struct Command_BindMaterial final : public Command
 {
     /**
-     * @brief Construct a new Bind Shader Command
+     * @brief Construct a new Bind Material command
      * 
-     * @param _program the `GLuint` identifier of the program to bind
+     * @param mat a pointer to the material to bind
      */
-    Command_BindShader(uint32_t _program) noexcept
-     : program(_program)
+    Command_BindMaterial(OGL::Material* mat)
+     : material(mat)
     {}
 
-    //store the program of the shader to bind
-    uint32_t program = 0;
+    //store the material to bind
+    OGL::Material* material;
 
-    //run the actual OpenGL command
-    virtual void execute() noexcept override;
-};
-
-/**
- * @brief define a command that is used to bind a texture
- */
-struct Command_BindTexture final : public Command
-{
-    /**
-     * @brief Construct a new Bind Texture Command
-     * 
-     * @param tex the GLuint identifier of the texture to bind
-     * @param _unit the unit to bind the texture to
-     */
-    Command_BindTexture(uint32_t tex, uint8_t _unit)
-     : texture(tex), unit(_unit)
-    {}
-
-    //store the texture to bind
-    uint32_t texture = 0;
-    //store the unit to bind the texture to
-    uint8_t unit = 0;
-    
-    //run the actual OpenGL command
+    //run the actual bind command
     virtual void execute() noexcept override;
 };
 

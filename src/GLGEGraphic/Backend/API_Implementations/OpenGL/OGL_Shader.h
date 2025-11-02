@@ -41,11 +41,11 @@ public:
     }
 
     /**
-     * @brief record the binding to a command buffer
+     * @brief Get the Program
      * 
-     * @param cmdBuff the command buffer to record the binding to
+     * @return uint32_t the OpenGL program
      */
-    virtual void bind(API::CommandBuffer* cmdBuff) noexcept override;
+    inline uint32_t getProgram() const noexcept {return m_prog;}
 
 protected:
 

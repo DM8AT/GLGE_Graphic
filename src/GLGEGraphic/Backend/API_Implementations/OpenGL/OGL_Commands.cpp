@@ -18,8 +18,173 @@
 #include "SDL3/SDL.h"
 //include the actual window
 #include "../../../Frontend/Window/Window.h"
+//add the instance
+#include "../../Instance.h"
+#include "OGL_Instance.h"
 //also OpenGL windows
 #include "OGL_Window.h"
+//add OpenGL materials
+#include "OGL_Material.h"
+//add OpenGL textures
+#include "OGL_Texture.h"
+//add OpenGL shaders
+#include "OGL_Shader.h"
+//add frontend materials
+#include "../../../Frontend/Material.h"
+
+static GLenum getType(VertexElementDataType type) noexcept
+{
+    //switch over the type and return the correct enum type
+    switch (type)
+    {
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT:
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT_VEC4:
+        return GL_FLOAT;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE_VEC4:
+        return GL_DOUBLE;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_HALF:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF_VEC4:
+        return GL_HALF_FLOAT;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_INT8:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8_VEC4:
+        return GL_BYTE;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_INT16:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16_VEC4:
+        return GL_SHORT;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_INT32:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32_VEC4:
+        return GL_INT;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_INT64:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64_VEC4:
+        //check if 64 bit integers are supported
+        GLGE_ASSERT("64 bit integers not supported, but usage requested", 
+                    !((GLGE::Graphic::Backend::OGL::Instance*)GLGE::Graphic::Backend::INSTANCE.getInstance())->getExtensions().int64);
+        return GL_INT64_ARB;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8_VEC4:
+        return GL_UNSIGNED_BYTE;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16_VEC4:
+        return GL_UNSIGNED_SHORT;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32_VEC4:
+        return GL_UNSIGNED_INT;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64_VEC4:
+        //check if 64 bit integers are supported
+        GLGE_ASSERT("64 bit integers not supported, but usage requested", 
+                    !((GLGE::Graphic::Backend::OGL::Instance*)GLGE::Graphic::Backend::INSTANCE.getInstance())->getExtensions().int64);
+        return GL_UNSIGNED_INT64_ARB;
+        break;
+    
+    default:
+        return 0;
+        break;
+    }
+}
+
+/**
+ * @brief Get the element count of a type
+ * 
+ * @param type the type to quarry the element count for
+ * @return uint8_t the element count of the type
+ */
+static uint8_t getCount(VertexElementDataType type) noexcept
+{
+    //switch over the type to get the element count
+    switch (type)
+    {
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64:
+        return 1;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32_VEC2:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64_VEC2:
+        return 2;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32_VEC3:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64_VEC3:
+        return 3;
+        break;
+    case VERTEX_ELEMENT_DATA_TYPE_FLOAT_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_DOUBLE_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_HALF_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_INT8_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_INT16_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_INT32_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_INT64_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT8_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT16_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT32_VEC4:
+    case VERTEX_ELEMENT_DATA_TYPE_UINT64_VEC4:
+        return 4;
+        break;
+    
+    default:
+        return 0;
+        break;
+    }
+}
 
 void GLGE::Graphic::Backend::OGL::Command_Custom::execute() noexcept
 {
@@ -33,14 +198,40 @@ void GLGE::Graphic::Backend::OGL::Command_Clear::execute() noexcept
     glClearNamedFramebufferfv(fbuff, buffType, buffId, &r);
 }
 
-void GLGE::Graphic::Backend::OGL::Command_BindShader::execute() noexcept
+void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
 {
-    //bind the OpenGL shader
-    glUseProgram(program);
-}
+    //get the frontend material
+    ::Material* mat = material->getMaterial();
 
-void GLGE::Graphic::Backend::OGL::Command_BindTexture::execute() noexcept
-{
-    //bind the OpenGL texture
-    glBindTextureUnit(unit, texture);
+    //check if the material's VAO is valid
+    if (material->getVAO() == 0) {
+        //if not, create the new VAO
+        glCreateVertexArrays(1, &material->getVAO());
+        //iterate over all elements of the vertex layout
+        for (size_t i = 0; i < VERTEX_ELEMENT_TYPE_COUNT; ++i) {
+            //get the informatin about the current element
+            VertexElement element = mat->getVertexLayout().m_elements[i];
+            uint64_t offset = mat->getVertexLayout().getOffsetOf(i);
+            //convert it to the information format required for OpenGL
+            GLenum type = getType(element.data);
+            uint8_t elements = getCount(element.data);
+            //setup the vertex element attribute format
+            glVertexArrayAttribFormat(material->getVAO(), i, elements, type, GL_FALSE, mat->getVertexLayout().getOffsetOf(i));
+            //bind to the VBO for the element
+            glVertexArrayAttribBinding(material->getVAO(), i, 
+                                       ((OGL::Buffer*)((OGL::Instance*)Backend::INSTANCE.getInstance())->getVertexBuffer())->getBuffer());
+            //activate the element
+            glEnableVertexArrayAttrib(material->getVAO(), i);
+        }
+    }
+
+    //bind the VAO
+    glBindVertexArray(material->getVAO());
+    //bind the shader
+    glUseProgram(((OGL::Shader*)mat->getShader()->getBackend())->getProgram());
+    //iterate over all textures of the material
+    for (uint8_t i = 0; i < mat->getUsedTextureCount(); ++i) {
+        //bind the texture to the current unit
+        glBindTextureUnit(i, ((OGL::Texture*)((::Texture*) mat->getUsedTextures()[i])->getBackend())->getTexture());
+    }
 }

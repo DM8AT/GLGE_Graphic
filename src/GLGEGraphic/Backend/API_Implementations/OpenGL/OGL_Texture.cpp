@@ -172,12 +172,6 @@ void GLGE::Graphic::Backend::OGL::Texture::enqueue() noexcept
     m_toUpdate.push_back(this);
 }
 
-void GLGE::Graphic::Backend::OGL::Texture::bind(API::CommandBuffer* cmdBuff, uint8_t unit) noexcept
-{
-    //enqueue the binding
-    ((OGL::CommandBuffer*)cmdBuff)->record<Command_BindTexture>(unit, m_glTex);
-}
-
 void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept
 {
     //switch over the flags

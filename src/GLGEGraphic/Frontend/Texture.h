@@ -168,6 +168,18 @@ public:
      */
     friend std::ostream& operator<<(std::ostream& os, const Texture& tex) noexcept;
 
+    //define SDL / backend stuff
+    #ifdef SDL_h_
+
+    /**
+     * @brief Get the Backend texture
+     * 
+     * @return void* a pointer to the backend texture
+     */
+    inline void* getBackend() noexcept {return m_tex;}
+
+    #endif //end of backend section
+
 protected:
 
     /**

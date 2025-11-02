@@ -13,8 +13,8 @@
 //add memcpy
 #include <cstring>
 
-Material::Material(Shader* shader, Texture** textures, uint8_t textureCount) noexcept
- : m_shader(shader)
+Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout) noexcept
+ : m_shader(shader), m_layout(layout)
 {
     //copy over the texture data
     if (textureCount > GLGE_MAX_MATERIAL_TEXTURE_BINDING) {

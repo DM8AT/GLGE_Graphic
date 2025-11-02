@@ -26,7 +26,7 @@ using namespace GLGE::Graphic::Backend::OGL;
 #include "../../../Frontend/Material.h"
 
 Instance::Instance(Window* window)
- : GLGE::Graphic::Backend::API::Instance()
+ : GLGE::Graphic::Backend::API::Instance(&m_vertexBuffer, &m_indexBuffer)
 {
     //set some values for the context (4.6 Core)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -41,6 +41,13 @@ Instance::Instance(Window* window)
     //initialize GLEW
     GLGE_ASSERT("Failed to initialize GLEW", gladLoadGL() == 0);
 
+    //check for the support
+    if (GLAD_GL_ARB_gpu_shader_int64) {
+        //supported
+    } else {
+        //not supported
+    }
+
     //sanity-check the GPU
     GLint units = 0;
     glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &units);
@@ -48,6 +55,10 @@ Instance::Instance(Window* window)
         //print a warning
         std::cerr << "[WARNING] GLGE expexts a GPU to support " << GLGE_MAX_MATERIAL_TEXTURE_BINDING << " texture units. The current GPU supports only " << units << " texture units. Some pipelines may not work correctly.\n"; 
     }
+
+    //force the vertex and index buffer to create itself
+    m_vertexBuffer.forceCreate();
+    m_indexBuffer.forceCreate();
 }
 
 Instance::~Instance()

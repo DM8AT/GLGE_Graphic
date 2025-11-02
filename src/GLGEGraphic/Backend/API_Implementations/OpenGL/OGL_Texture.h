@@ -53,12 +53,11 @@ public:
     virtual void notifySizeChange() noexcept;
 
     /**
-     * @brief bind the texture to a specific texture unit
+     * @brief Get the Texture
      * 
-     * @param cmdBuff the command buffer to queue the binding to
-     * @param unit the unit to bind the texture to
+     * @return uint32_t the OpenGL texture
      */
-    virtual void bind(API::CommandBuffer* cmdBuff, uint8_t unit) noexcept override;
+    inline uint32_t getTexture() const noexcept {return m_glTex;}
 
 protected:
 

@@ -16,9 +16,6 @@
 //only available for C++
 #if __cplusplus
 
-//add the command buffer
-#include "API_CommandBuffer.h"
-
 //add a vector as a dynamic resizable array
 #include <vector>
 //add a mutex for thread safety
@@ -55,14 +52,6 @@ public:
      * @brief notify the api texture for a resizing
      */
     virtual void notifySizeChange() noexcept = 0;
-
-    /**
-     * @brief bind the texture to a specific texture unit
-     * 
-     * @param cmdBuff the command buffer to queue the binding to
-     * @param unit the unit to bind the texture to
-     */
-    virtual void bind(API::CommandBuffer* cmdBuff, uint8_t unit) noexcept = 0;
 
 protected:
 

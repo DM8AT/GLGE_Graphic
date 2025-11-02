@@ -20,6 +20,8 @@
 #include "../API_Instance.h"
 //add all types
 #include "../../../../GLGE_Core/Types.h"
+//add buffers
+#include "OGL_Buffer.h"
 
 //a window is required to create graphic stuff
 class Window;
@@ -34,6 +36,13 @@ namespace GLGE::Graphic::Backend::OGL
 class Instance final : public GLGE::Graphic::Backend::API::Instance
 {
 public:
+
+    /**
+     * @brief store all loaded extensions
+     */
+    struct LoadedExtensions {
+        bool int64 = false;
+    };
 
     /**
      * @brief Construct a new Instance
@@ -66,12 +75,27 @@ public:
      */
     virtual void onUpdate() noexcept override {}
 
+    /**
+     * @brief Get the loaded Extensions
+     * 
+     * @return const LoadedExtensions& a reference to all loaded extensions
+     */
+    inline const LoadedExtensions& getExtensions() const noexcept {return m_extensions;}
+
 protected:
 
     /**
      * @brief store the OpenGL context
      */
     void* m_glContext = nullptr;
+
+    //store the vertex buffer for the instance
+    OGL::Buffer m_vertexBuffer{nullptr, 0, Buffer::Type::VERTEX_BUFFER};
+    //store the index buffer for the instance
+    OGL::Buffer m_indexBuffer{nullptr, 0, Buffer::Type::INDEX_BUFFER};
+
+    //store the loaded extensions
+    LoadedExtensions m_extensions;
 
 };
 

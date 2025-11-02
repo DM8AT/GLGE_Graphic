@@ -114,6 +114,18 @@ public:
      */
     inline const ShaderStage* getShaderStages() const noexcept {return m_stages.data();}
 
+    //define SDL / backend stuff
+    #ifdef SDL_h_
+
+    /**
+     * @brief Get the Backend texture
+     * 
+     * @return void* a pointer to the backend texture
+     */
+    inline void* getBackend() noexcept {return m_shader;}
+
+    #endif //end of backend section
+
 protected:
 
     //store all shader stages just in-place (good for RAM layout)

@@ -23,5 +23,9 @@
 #include "OGL_Texture.h"
 //add shader
 #include "OGL_Shader.h"
+//add buffer
+#include "OGL_Buffer.h"
+//add materials
+#include "OGL_Material.h"
 
 #endif

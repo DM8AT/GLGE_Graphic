@@ -47,7 +47,7 @@ void main() {
 
     AssetManager::waitForLoad(tex);
     Texture* textures[] = {AssetManager::getAsset<TextureAsset>(tex)->getTexture()};
-    Material mat(&shader, textures, sizeof(textures)/sizeof(*textures));
+    Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
 
     RenderPipeline pipe({}, &win);
     
