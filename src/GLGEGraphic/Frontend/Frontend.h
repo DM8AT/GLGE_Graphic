@@ -22,5 +22,7 @@
 //add textures
 #include "Texture.h"
 #include "TextureAsset.h"
+//add shader
+#include "Shader.h"
 
 #endif

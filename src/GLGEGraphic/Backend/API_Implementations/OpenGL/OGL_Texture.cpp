@@ -216,7 +216,6 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
         glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, getGLTextureLayout(m_texture->getData()), 
                             m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE, *((void**)&m_texture->getData().data));
     }
-    glBindTexture(GL_TEXTURE_2D, m_glTex);
 }
 
 void GLGE::Graphic::Backend::OGL::Texture::resize() noexcept

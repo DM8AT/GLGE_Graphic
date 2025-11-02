@@ -21,5 +21,7 @@
 #include "OGL_RenderPipeline.h"
 //add textures
 #include "OGL_Texture.h"
+//add shader
+#include "OGL_Shader.h"
 
 #endif

@@ -6,19 +6,24 @@ set(GLGE_GRAPHIC_VERSION 0.1.0)
 
 set(SRC 
     Backend/Instance.cpp
+    
     Backend/API_Implementations/API_Instance.cpp
+    Backend/API_Implementations/API_Shader.cpp
+
     Backend/API_Implementations/OpenGL/OGL_Instance.cpp
     Backend/API_Implementations/OpenGL/OGL_Window.cpp
     Backend/API_Implementations/OpenGL/OGL_CommandBuffer.cpp
     Backend/API_Implementations/OpenGL/OGL_Commands.cpp
     Backend/API_Implementations/OpenGL/OGL_RenderPipeline.cpp
     Backend/API_Implementations/OpenGL/OGL_Texture.cpp
+    Backend/API_Implementations/OpenGL/OGL_Shader.cpp
 
     Frontend/Window/Window.cpp
     Frontend/Common.cpp
     Frontend/RenderPipeline.cpp
     Frontend/Texture.cpp
     Frontend/TextureAsset.cpp
+    Frontend/Shader.cpp
 )
 
 ## add GLAD

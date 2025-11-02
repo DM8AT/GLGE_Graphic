@@ -52,7 +52,6 @@ int main()
 {
     String p = MeshAsset::import("assets/mesh/Suzane.fbx");
     AssetHandle mesh = AssetManager::create<MeshAsset>(p);
-    AssetManager::waitForLoad(mesh);
     
     MeshAsset* m = AssetManager::getAsset<MeshAsset>(mesh);
     Mesh& m_mesh = m->mesh();
@@ -60,13 +59,40 @@ int main()
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
 
-    uint32_t cols[] = {
-        0x000000ff, 0x0000ff00,
-        0x00ff0000, 0x00ff00ff
+    AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/qwantani_sunrise_puresky_8k.hdr", true, GLGE_TEXTURE_RGBA_H);
+
+    const char* vertexShader = R"(
+#version 450 core
+
+layout (location = 0) in vec3 v_pos;
+
+void main() {
+    gl_Position = vec4(v_pos, 1);
+})";
+
+    const char* fragmentShader = R"(
+#version 450 core
+
+layout (location = 0) out vec4 FragColor;
+
+void main() {
+    FragColor = vec4(1,0,0,1);
+})";
+
+    Shader shader = {
+        ShaderStage{
+            .sourceCode = vertexShader,
+            .srcType = SHADER_SOURCE_GLSL,
+            .stage = SHADER_STAGE_VERTEX
+        },
+        ShaderStage{
+            .sourceCode = fragmentShader,
+            .srcType = SHADER_SOURCE_GLSL,
+            .stage = SHADER_STAGE_FRAGMENT
+        }
     };
 
-    AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/Sample-HDR_640×426.hdr", true, GLGE_TEXTURE_RGBA_H);
-    AssetManager::waitForLoad(tex);
+    glge_Shader_Compile();
 
     RenderPipeline pipe({}, &win);
     
