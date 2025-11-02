@@ -52,6 +52,14 @@ public:
      */
     virtual void notifySizeChange() noexcept;
 
+    /**
+     * @brief bind the texture to a specific texture unit
+     * 
+     * @param cmdBuff the command buffer to queue the binding to
+     * @param unit the unit to bind the texture to
+     */
+    virtual void bind(API::CommandBuffer* cmdBuff, uint8_t unit) noexcept override;
+
 protected:
 
     /**

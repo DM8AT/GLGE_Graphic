@@ -16,6 +16,9 @@
 //only available for C++
 #if __cplusplus
 
+//add command buffer
+#include "API_CommandBuffer.h"
+
 //add the opaque frontend shader class
 class Shader;
 
@@ -86,6 +89,13 @@ public:
      * @warning this should be called from the main thread
      */
     static void compileAll() noexcept;
+
+    /**
+     * @brief record the binding to a command buffer
+     * 
+     * @param cmdBuff the command buffer to record the binding to
+     */
+    virtual void bind(API::CommandBuffer* cmdBuff) noexcept = 0;
 
 protected:
 

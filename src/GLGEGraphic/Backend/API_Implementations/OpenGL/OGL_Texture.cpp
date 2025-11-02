@@ -11,6 +11,8 @@
 
 //include the OpenGL texture interface
 #include "OGL_Texture.h"
+//add the OpenGL command buffer
+#include "OGL_CommandBuffer.h"
 //access the frontend texture
 #include "../../../Frontend/Texture.h"
 //add OpenGL
@@ -168,6 +170,12 @@ void GLGE::Graphic::Backend::OGL::Texture::enqueue() noexcept
     std::shared_lock lock(m_updateMutex);
     m_queued.store(true, std::memory_order_relaxed);
     m_toUpdate.push_back(this);
+}
+
+void GLGE::Graphic::Backend::OGL::Texture::bind(API::CommandBuffer* cmdBuff, uint8_t unit) noexcept
+{
+    //enqueue the binding
+    ((OGL::CommandBuffer*)cmdBuff)->record<Command_BindTexture>(unit, m_glTex);
 }
 
 void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept

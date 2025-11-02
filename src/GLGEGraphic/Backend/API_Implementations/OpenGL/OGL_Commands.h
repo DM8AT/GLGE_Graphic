@@ -190,6 +190,51 @@ struct Command_Clear final : public Command
     virtual void execute() noexcept override;
 };
 
+/**
+ * @brief define a command that is used to bind a shader
+ */
+struct Command_BindShader final : public Command
+{
+    /**
+     * @brief Construct a new Bind Shader Command
+     * 
+     * @param _program the `GLuint` identifier of the program to bind
+     */
+    Command_BindShader(uint32_t _program) noexcept
+     : program(_program)
+    {}
+
+    //store the program of the shader to bind
+    uint32_t program = 0;
+
+    //run the actual OpenGL command
+    virtual void execute() noexcept override;
+};
+
+/**
+ * @brief define a command that is used to bind a texture
+ */
+struct Command_BindTexture final : public Command
+{
+    /**
+     * @brief Construct a new Bind Texture Command
+     * 
+     * @param tex the GLuint identifier of the texture to bind
+     * @param _unit the unit to bind the texture to
+     */
+    Command_BindTexture(uint32_t tex, uint8_t _unit)
+     : texture(tex), unit(_unit)
+    {}
+
+    //store the texture to bind
+    uint32_t texture = 0;
+    //store the unit to bind the texture to
+    uint8_t unit = 0;
+    
+    //run the actual OpenGL command
+    virtual void execute() noexcept override;
+};
+
 }
 
 #endif

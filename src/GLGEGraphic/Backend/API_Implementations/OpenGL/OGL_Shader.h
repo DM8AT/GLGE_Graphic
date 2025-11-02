@@ -40,6 +40,13 @@ public:
         m_compileQueue.push_back(this);
     }
 
+    /**
+     * @brief record the binding to a command buffer
+     * 
+     * @param cmdBuff the command buffer to record the binding to
+     */
+    virtual void bind(API::CommandBuffer* cmdBuff) noexcept override;
+
 protected:
 
     /**

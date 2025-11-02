@@ -11,6 +11,9 @@
 //add the OpenGL shader
 #include "OGL_Shader.h"
 
+//add OpenGL command buffer
+#include "OGL_CommandBuffer.h"
+
 //add OpenGL
 #include "glad/glad.h"
 //for error printing
@@ -261,4 +264,10 @@ void GLGE::Graphic::Backend::OGL::Shader::compile() noexcept
 
     //update the program state to indicate successful compilation
     m_state.store(CompileState::COMPILE_SUCCESS, std::memory_order_release);
+}
+
+void GLGE::Graphic::Backend::OGL::Shader::bind(API::CommandBuffer* cmdBuff) noexcept
+{
+    //queue the command
+    ((OGL::CommandBuffer*)cmdBuff)->record<Command_BindShader>(m_prog);
 }

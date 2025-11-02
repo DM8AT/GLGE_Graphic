@@ -24,6 +24,7 @@ set(SRC
     Frontend/Texture.cpp
     Frontend/TextureAsset.cpp
     Frontend/Shader.cpp
+    Frontend/Material.cpp
 )
 
 ## add GLAD

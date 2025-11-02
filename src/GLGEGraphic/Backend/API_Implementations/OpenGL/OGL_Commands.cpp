@@ -32,3 +32,15 @@ void GLGE::Graphic::Backend::OGL::Command_Clear::execute() noexcept
     //just run the clear command
     glClearNamedFramebufferfv(fbuff, buffType, buffId, &r);
 }
+
+void GLGE::Graphic::Backend::OGL::Command_BindShader::execute() noexcept
+{
+    //bind the OpenGL shader
+    glUseProgram(program);
+}
+
+void GLGE::Graphic::Backend::OGL::Command_BindTexture::execute() noexcept
+{
+    //bind the OpenGL texture
+    glBindTextureUnit(unit, texture);
+}

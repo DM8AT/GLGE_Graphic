@@ -12,7 +12,7 @@ int main()
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
 
-    AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/qwantani_sunrise_puresky_8k.hdr", true, GLGE_TEXTURE_RGBA_H);
+    AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/cubeTexture.png", false, GLGE_TEXTURE_RGB);
 
     const char* vertexShader = R"(
 #version 450 core
@@ -45,10 +45,13 @@ void main() {
         }
     };
 
-    glge_Shader_Compile();
+    AssetManager::waitForLoad(tex);
+    Texture* textures[] = {AssetManager::getAsset<TextureAsset>(tex)->getTexture()};
+    Material mat(&shader, textures, sizeof(textures)/sizeof(*textures));
 
     RenderPipeline pipe({}, &win);
     
+    glge_Shader_Compile();
     pipe.record();
 
     while (!win.isClosingRequested()) {

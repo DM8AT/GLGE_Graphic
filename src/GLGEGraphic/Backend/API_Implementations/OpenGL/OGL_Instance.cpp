@@ -22,6 +22,9 @@ using namespace GLGE::Graphic::Backend::OGL;
 //add glad
 #include "glad/glad.h"
 
+//add the frontend material to sanity check the validity
+#include "../../../Frontend/Material.h"
+
 Instance::Instance(Window* window)
  : GLGE::Graphic::Backend::API::Instance()
 {
@@ -37,6 +40,14 @@ Instance::Instance(Window* window)
 
     //initialize GLEW
     GLGE_ASSERT("Failed to initialize GLEW", gladLoadGL() == 0);
+
+    //sanity-check the GPU
+    GLint units = 0;
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &units);
+    if (units < GLGE_MAX_MATERIAL_TEXTURE_BINDING) {
+        //print a warning
+        std::cerr << "[WARNING] GLGE expexts a GPU to support " << GLGE_MAX_MATERIAL_TEXTURE_BINDING << " texture units. The current GPU supports only " << units << " texture units. Some pipelines may not work correctly.\n"; 
+    }
 }
 
 Instance::~Instance()
