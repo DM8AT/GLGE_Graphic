@@ -38,6 +38,9 @@ int main()
             .data{.simpleDrawRenderMesh=&rMesh}
         }}
     }, &win);
+
+    Scene scene = "Main";
+    Object obj = scene.createObject("Hello");
     
     glge_Shader_Compile();
     pipe.record();
