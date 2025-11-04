@@ -1,8 +1,29 @@
+#if 0
 #include "GLGEGraphic/GLGEGraphic.h"
 #include "GLGE_Core/GLGECore.h"
 
+class SimpleUpdate : public System<SimpleUpdate> {
+public:
+    
+    SimpleUpdate()
+     : System<SimpleUpdate>({
+            .parallel = true,
+            .active = true
+        })
+    {}
+
+    void operator()(Transform& trans) {
+        trans.pos.x = 5;
+    }
+
+    virtual void onInit() noexcept override {}
+    virtual void onUpdate() noexcept override {}
+    virtual void onDeinit() noexcept override {}
+};
+
 int main()
 {
+    Scene scene = "Main";
     String p = MeshAsset::import("assets/mesh/Suzane.fbx");
     AssetHandle mesh = AssetManager::create<MeshAsset>(p);
 
@@ -38,9 +59,6 @@ int main()
             .data{.simpleDrawRenderMesh=&rMesh}
         }}
     }, &win);
-
-    Scene scene = "Main";
-    Object obj = scene.createObject("Hello");
     
     glge_Shader_Compile();
     pipe.record();
@@ -56,4 +74,13 @@ int main()
         color.b = (color.b + 5) % 256;
         pipe.record();
     }
+}
+#endif
+
+#include "GLGE_Core/GLGECore.h"
+
+int main()
+{
+    Scene scene = "Main";
+    Object obj = scene.createObject("Hello");
 }
