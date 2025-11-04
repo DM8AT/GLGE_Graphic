@@ -27,6 +27,8 @@ Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, con
     }
     //copy the data over
     memcpy(m_textures, textures, textureCount*sizeof(*textures));
+    //store the amount of used textures
+    m_usedTextureCount = textureCount;
 
     //switch over the API to create the correct material type
     switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
