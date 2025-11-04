@@ -11,49 +11,14 @@ int main()
 
     AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/cubeTexture.png", true, GLGE_TEXTURE_RGBA_H);
 
-    const char* vertexShader = R"(
-#version 450 core
-
-layout (location = 0) in vec3 v_pos;
-layout (location = 1) in vec3 v_norm;
-layout (location = 2) in vec2 v_tex;
-
-layout (location = 0) out vec3 f_pos;
-layout (location = 1) out vec3 f_norm;
-layout (location = 2) out vec2 f_tex;
-
-void main() {
-    gl_Position = vec4(v_pos.x, v_pos.y, 0, 1);
-    f_pos = v_pos;
-    f_norm = v_norm;
-    f_tex = v_tex;
-})";
-
-    const char* fragmentShader = R"(
-#version 450 core
-
-layout (location = 0) out vec4 FragColor;
-
-layout (location = 0) in vec3 f_pos;
-layout (location = 1) in vec3 f_norm;
-layout (location = 2) in vec2 f_tex;
-
-layout (binding = 0) uniform sampler2D tex;
-
-void main() {
-    vec3 col = texture(tex, f_tex).rgb;
-    col *= dot(f_norm, vec3(0,1,0))*0.5f+0.5f;
-    FragColor = vec4(col,1);
-})";
-
     Shader shader = {
         ShaderStage{
-            .sourceCode = vertexShader,
+            .sourceCode = File("assets/shader/main.vs",false).getContents(),
             .srcType = SHADER_SOURCE_GLSL,
             .stage = SHADER_STAGE_VERTEX
         },
         ShaderStage{
-            .sourceCode = fragmentShader,
+            .sourceCode = File("assets/shader/main.fs",false).getContents(),
             .srcType = SHADER_SOURCE_GLSL,
             .stage = SHADER_STAGE_FRAGMENT
         }
