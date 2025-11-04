@@ -42,7 +42,7 @@ public:
     /**
      * @brief Destroy the Material
      */
-    virtual ~Material() = default;
+    virtual ~Material() {}
 
     /**
      * @brief bind the material as the currently active one

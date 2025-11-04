@@ -76,7 +76,7 @@ void Instance::update() noexcept
             break;
         case SDL_EVENT_WINDOW_RESIZED:
             //handle the window resizing
-            m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_SIZE_CHANGE, EventData(&e.window.windowID, sizeof(e.window.windowID))));
+            m_windowEventStack.sendEvent(Event(WINDOW_EVENT_TYPE_SIZE_CHANGE, EventData(&e.window, sizeof(e.window))));
             break;
 
         default:

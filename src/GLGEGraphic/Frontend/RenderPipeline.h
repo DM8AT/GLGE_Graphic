@@ -30,7 +30,13 @@ typedef enum e_RenderPipelineStageType {
      * 
      * Do not write your whole program using this stage, it will be slow
      */
-    GLGE_RENDER_PIPELINE_STAGE_CUSTOM = 0
+    GLGE_RENDER_PIPELINE_STAGE_CUSTOM = 0,
+    /**
+     * @brief a stage that draws a simple render mesh
+     * 
+     * This should be used for debugging only as it is not really optimized to draw a lot
+     */
+    GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH,
 } RenderPipelineStageType;
 
 /**
@@ -50,6 +56,8 @@ typedef union u_RenderPipelineStageData {
          */
         void* userData;
     } customStage;
+    //store a pointer to the render mesh used for simple rendering
+    void* simpleDrawRenderMesh;
 } RenderPipelineStageData;
 
 /**
@@ -105,7 +113,7 @@ public:
      * @param stages a map of stages to execute in the given order
      * @param window the window to operate on (null = the pipeline operates on no windows, but may still operate on framebuffers or buffers)
      */
-    RenderPipeline(const std::map<String, RenderPipelineStage> stages, Window* window);
+    RenderPipeline(const std::map<String, RenderPipelineStage> stages, ::Window* window);
 
     /**
      * @brief Construct a new Render Pipeline from a list of named stages. Order is important. 
@@ -114,7 +122,7 @@ public:
      * @param namedStageCount the amount of elements in the list
      * @param window the window to operate on (null = the pipeline operates on no windows, but may still operate on framebuffers or buffers)
      */
-    RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount, Window* window);
+    RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount, ::Window* window);
 
     /**
      * @brief Destroy the Render Pipeline

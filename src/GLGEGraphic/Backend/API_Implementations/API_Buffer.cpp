@@ -64,6 +64,32 @@ void GLGE::Graphic::Backend::API::Buffer::set(void* data, uint64_t dataSize) noe
     queueUpdate();
 }
 
+void GLGE::Graphic::Backend::API::Buffer::write(void* data, uint64_t dataSize, uint64_t offset) noexcept
+{
+    //make sure the data is not moved during the write
+    std::shared_lock lock(m_dataMtx);
+    //copy the data to the internal storage
+    memcpy((uint8_t*)m_data + offset, data, dataSize);
+    //queue an data update
+    queueUpdate();
+}
+
+void GLGE::Graphic::Backend::API::Buffer::resize(uint64_t newSize) noexcept
+{
+    //make sure this is the only thread that writes to the data
+    std::unique_lock lock(m_dataMtx);
+    //allocate the new data
+    void* newData = new uint8_t[newSize](0);
+    GLGE_ASSERT("Failed to allocate the new data for the resizing of a CPU side buffer", !newData);
+    //copy the old data over
+    memcpy(newData, m_data, (m_size > newSize) ? newSize : m_size);
+    m_data = newData;
+    //store the new size
+    m_size = newSize;
+    //queue an update
+    queueUpdate();
+}
+
 void GLGE::Graphic::Backend::API::Buffer::append(void* data, uint64_t dataSize) noexcept
 {
     //make sure this is the only thread that writes to the data
@@ -75,6 +101,7 @@ void GLGE::Graphic::Backend::API::Buffer::append(void* data, uint64_t dataSize) 
     memcpy(newData, m_data, m_size);
     //copy the new data
     memcpy(((uint8_t*)newData) + m_size, data, dataSize);
+    m_data = newData;
     //increase the size
     m_size += dataSize;
     //queue an update

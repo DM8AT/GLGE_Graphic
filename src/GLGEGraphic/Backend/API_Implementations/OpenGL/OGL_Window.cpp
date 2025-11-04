@@ -59,6 +59,8 @@ void GLGE::Graphic::Backend::OGL::Window::beginFrame() noexcept
     if (m_didResize) {
         //update the viewport settings
         glViewport(0,0,m_window->getSize().x,m_window->getSize().y);
+        //resize handled
+        m_didResize.store(false, std::memory_order_relaxed);
     }
 }
 

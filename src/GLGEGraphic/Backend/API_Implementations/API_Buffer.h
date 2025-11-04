@@ -73,12 +73,44 @@ public:
     void set(void* data, uint64_t dataSize) noexcept;
 
     /**
+     * @brief write some data to a region of the buffer
+     * 
+     * @param data a pointer to the data to write
+     * @param dataSize the size of the data to write
+     * @param offset the offset into the buffer to write to
+     */
+    void write(void* data, uint64_t dataSize, uint64_t offset) noexcept;
+
+    /**
+     * @brief change the size of the buffer to a new size
+     * 
+     * @warning this may truncate the stored data
+     * 
+     * @param newSize the new size for the buffer
+     */
+    void resize(uint64_t newSize) noexcept;
+
+    /**
      * @brief add some data to the currently stored data
      * 
      * @param data the data to add to the currently stored data
      * @param dataSize the size of the data to append
      */
     void append(void* data, uint64_t dataSize) noexcept;
+
+    /**
+     * @brief Get the Type of the buffer
+     * 
+     * @return const Type& a constant reference to the type of the buffer
+     */
+    inline const Type& getType() const noexcept {return m_type;}
+
+    /**
+     * @brief Get the Raw data of the buffer
+     * 
+     * @return const void* a pointer to the raw data
+     */
+    inline void* getRaw() const noexcept {return m_data;}
 
 protected:
 

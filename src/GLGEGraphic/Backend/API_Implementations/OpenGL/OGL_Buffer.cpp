@@ -64,16 +64,17 @@ void GLGE::Graphic::Backend::OGL::Buffer::update() noexcept
     //if the size is not correct, resize
     if (m_size != m_currSize) {
         //re-size the data
-        glNamedBufferData(m_buff, m_size, m_data, getUsageHint(m_type));
+        glNamedBufferStorage(m_buff, m_size, m_data, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
         //store the new size
         m_currSize = m_size;
-    }
-
-    //fill the buffer with the new data
-    void* data = glMapNamedBuffer(m_buff, GL_WRITE_ONLY);
-    //only copy data if the mapping was successful
-    if (data) {
-        memcpy(data, m_data, m_currSize);
-        glUnmapNamedBuffer(m_buff);
+    } else 
+    {
+        //fill the buffer with the new data
+        void* data = glMapNamedBuffer(m_buff, GL_WRITE_ONLY);
+        //only copy data if the mapping was successful
+        if (data) {
+            memcpy(data, m_data, m_currSize);
+            glUnmapNamedBuffer(m_buff);
+        }
     }
 }

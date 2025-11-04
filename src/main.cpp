@@ -5,9 +5,6 @@ int main()
 {
     String p = MeshAsset::import("assets/mesh/Suzane.fbx");
     AssetHandle mesh = AssetManager::create<MeshAsset>(p);
-    
-    MeshAsset* m = AssetManager::getAsset<MeshAsset>(mesh);
-    Mesh& m_mesh = m->mesh();
 
     Window win("Hello World!", uivec2(600,600));
     win.setVSync(GLGE_VSYNC_ON);
@@ -18,9 +15,18 @@ int main()
 #version 450 core
 
 layout (location = 0) in vec3 v_pos;
+layout (location = 1) in vec3 v_norm;
+layout (location = 2) in vec2 v_tex;
+
+layout (location = 0) out vec3 f_pos;
+layout (location = 1) out vec3 f_norm;
+layout (location = 2) out vec2 f_tex;
 
 void main() {
-    gl_Position = vec4(v_pos, 1);
+    gl_Position = vec4(v_pos.x, v_pos.y, 0, 1);
+    f_pos = v_pos;
+    f_norm = v_norm;
+    f_tex = v_tex;
 })";
 
     const char* fragmentShader = R"(
@@ -28,8 +34,13 @@ void main() {
 
 layout (location = 0) out vec4 FragColor;
 
+layout (location = 0) in vec3 f_pos;
+layout (location = 1) in vec3 f_norm;
+layout (location = 2) in vec2 f_tex;
+
 void main() {
-    FragColor = vec4(1,0,0,1);
+    vec3 col = vec3(1,0,0) * dot(f_norm, vec3(0,1,0))*0.5f+0.5f;
+    FragColor = vec4(col,1);
 })";
 
     Shader shader = {
@@ -48,8 +59,17 @@ void main() {
     AssetManager::waitForLoad(tex);
     Texture* textures[] = {AssetManager::getAsset<TextureAsset>(tex)->getTexture()};
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
+    AssetManager::waitForLoad(mesh);
+    MeshAsset* m = AssetManager::getAsset<MeshAsset>(mesh);
+    Mesh& m_mesh = m->mesh();
+    RenderMesh rMesh(&m_mesh, &mat);
 
-    RenderPipeline pipe({}, &win);
+    RenderPipeline pipe({
+        {"Draw", RenderPipelineStage{
+            .type = GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH,
+            .data{.simpleDrawRenderMesh=&rMesh}
+        }}
+    }, &win);
     
     glge_Shader_Compile();
     pipe.record();

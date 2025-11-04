@@ -15,6 +15,8 @@
 
 //add the render pipeline API
 #include "../API_RenderPipeline.h"
+//add frontend render materials
+#include "../../../Frontend/RenderMesh.h"
 
 //only available for C++
 #if __cplusplus
@@ -77,6 +79,13 @@ protected:
      * @param stage the data of the custom stage to execute
      */
     void executeStage_Custom(const RenderPipelineStageData::CustomStage& stage) noexcept;
+
+    /**
+     * @brief draw a simple render mesh
+     * 
+     * @param stage a pointer to the render mesh to draw
+     */
+    void executeStage_SimpleDrawRenderMesh(::RenderMesh* stage) noexcept;
 
     /**
      * @brief store the OpenGL command buffer

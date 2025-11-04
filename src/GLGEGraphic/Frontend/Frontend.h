@@ -26,5 +26,7 @@
 #include "Shader.h"
 //add materials
 #include "Material.h"
+//add render meshes
+#include "RenderMesh.h"
 
 #endif

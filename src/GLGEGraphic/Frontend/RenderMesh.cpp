@@ -13,6 +13,8 @@
 #include "RenderMesh.h"
 //add debugging
 #include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
+//add the API
+#include "../Backend/API_Implementations/API_RenderMesh.h"
 
 RenderMesh::RenderMesh(Mesh* mesh, Material* material) noexcept
  : m_mesh(mesh), m_material(material)
@@ -20,4 +22,16 @@ RenderMesh::RenderMesh(Mesh* mesh, Material* material) noexcept
     //sanity check the combination
     GLGE_DEBUG_ASSERT("Incompatible layouts for a mesh and a material when used in a render mesh", 
                       m_mesh->getVertexLayout() != m_material->getVertexLayout());
+    //sanity check
+    static_assert(sizeof(m_impl) == sizeof(GLGE::Graphic::Backend::API::RenderMesh), "Invalid size for the render mesh data storage");
+    //create the API implementation
+    m_backend = new (m_impl) GLGE::Graphic::Backend::API::RenderMesh(this);
+}
+
+RenderMesh::~RenderMesh() noexcept
+{
+    if (m_backend) {
+        ((GLGE::Graphic::Backend::API::RenderMesh*)m_backend)->~RenderMesh();
+        m_backend = nullptr;
+    }
 }

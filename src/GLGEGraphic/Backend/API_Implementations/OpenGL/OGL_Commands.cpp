@@ -25,6 +25,8 @@
 #include "OGL_Window.h"
 //add OpenGL materials
 #include "OGL_Material.h"
+//add core meshes
+#include "../../../../GLGE_Core/Geometry/Surface/Mesh.h"
 //add OpenGL textures
 #include "OGL_Texture.h"
 //add OpenGL shaders
@@ -207,10 +209,17 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
     if (material->getVAO() == 0) {
         //if not, create the new VAO
         glCreateVertexArrays(1, &material->getVAO());
+        glVertexArrayVertexBuffer(material->getVAO(), 0, 
+                                  ((OGL::Buffer*)Backend::INSTANCE.getInstance()->getVertexBuffer()->getBuffer())->getBuffer(),
+                                  0, material->getMaterial()->getVertexLayout().getVertexSize());
+        //bind the index buffer
+        glVertexArrayElementBuffer(material->getVAO(), ((OGL::Buffer*)Backend::INSTANCE.getInstance()->getIndexBuffer()->getBuffer())->getBuffer());
         //iterate over all elements of the vertex layout
         for (size_t i = 0; i < VERTEX_ELEMENT_TYPE_COUNT; ++i) {
             //get the informatin about the current element
             VertexElement element = mat->getVertexLayout().m_elements[i];
+            //if a undefined element is found, skip it
+            if (element.data == VERTEX_ELEMENT_DATA_TYPE_UNDEFINED) {continue;}
             uint64_t offset = mat->getVertexLayout().getOffsetOf(i);
             //convert it to the information format required for OpenGL
             GLenum type = getType(element.data);
@@ -218,8 +227,7 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
             //setup the vertex element attribute format
             glVertexArrayAttribFormat(material->getVAO(), i, elements, type, GL_FALSE, mat->getVertexLayout().getOffsetOf(i));
             //bind to the VBO for the element
-            glVertexArrayAttribBinding(material->getVAO(), i, 
-                                       ((OGL::Buffer*)((OGL::Instance*)Backend::INSTANCE.getInstance())->getVertexBuffer())->getBuffer());
+            glVertexArrayAttribBinding(material->getVAO(), i, 0);
             //activate the element
             glEnableVertexArrayAttrib(material->getVAO(), i);
         }
@@ -234,4 +242,10 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
         //bind the texture to the current unit
         glBindTextureUnit(i, ((OGL::Texture*)((::Texture*) mat->getUsedTextures()[i])->getBackend())->getTexture());
     }
+}
+
+void GLGE::Graphic::Backend::OGL::Command_DrawMesh::execute() noexcept
+{
+    //run the draw command
+    glDrawElements(GL_TRIANGLES, rMesh->getIndexPointer().size / sizeof(index_t), GL_UNSIGNED_INT, (void*)rMesh->getIndexPointer().startIdx);
 }

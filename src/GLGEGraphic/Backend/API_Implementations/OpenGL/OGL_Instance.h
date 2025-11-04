@@ -20,8 +20,8 @@
 #include "../API_Instance.h"
 //add all types
 #include "../../../../GLGE_Core/Types.h"
-//add buffers
-#include "OGL_Buffer.h"
+//add memory arenas
+#include "OGL_MemoryArena.h"
 
 //a window is required to create graphic stuff
 class Window;
@@ -90,9 +90,9 @@ protected:
     void* m_glContext = nullptr;
 
     //store the vertex buffer for the instance
-    OGL::Buffer m_vertexBuffer{nullptr, 0, Buffer::Type::VERTEX_BUFFER};
+    OGL::MemoryArena m_vertexBuffer{0,true,Buffer::Type::VERTEX_BUFFER};
     //store the index buffer for the instance
-    OGL::Buffer m_indexBuffer{nullptr, 0, Buffer::Type::INDEX_BUFFER};
+    OGL::MemoryArena m_indexBuffer{0,true,Buffer::Type::INDEX_BUFFER};
 
     //store the loaded extensions
     LoadedExtensions m_extensions;

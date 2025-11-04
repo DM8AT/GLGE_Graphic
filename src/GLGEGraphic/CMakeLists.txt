@@ -10,6 +10,8 @@ set(SRC
     Backend/API_Implementations/API_Instance.cpp
     Backend/API_Implementations/API_Shader.cpp
     Backend/API_Implementations/API_Buffer.cpp
+    Backend/API_Implementations/API_MemoryArena.cpp
+    Backend/API_Implementations/API_RenderMesh.cpp
 
     Backend/API_Implementations/OpenGL/OGL_Instance.cpp
     Backend/API_Implementations/OpenGL/OGL_Window.cpp
@@ -18,6 +20,7 @@ set(SRC
     Backend/API_Implementations/OpenGL/OGL_RenderPipeline.cpp
     Backend/API_Implementations/OpenGL/OGL_Texture.cpp
     Backend/API_Implementations/OpenGL/OGL_Shader.cpp
+    Backend/API_Implementations/OpenGL/OGL_Material.cpp
     Backend/API_Implementations/OpenGL/OGL_Buffer.cpp
 
     Frontend/Window/Window.cpp
@@ -27,6 +30,7 @@ set(SRC
     Frontend/TextureAsset.cpp
     Frontend/Shader.cpp
     Frontend/Material.cpp
+    Frontend/RenderMesh.cpp
 )
 
 ## add GLAD

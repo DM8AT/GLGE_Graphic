@@ -16,6 +16,9 @@
 //only available for C++
 #if __cplusplus
 
+//add render meshes
+#include "../API_RenderMesh.h"
+
 //add a lot of the STD lib for the implementation
 #include <iostream>
 #include <vector>
@@ -211,6 +214,27 @@ struct Command_BindMaterial final : public Command
     OGL::Material* material;
 
     //run the actual bind command
+    virtual void execute() noexcept override;
+};
+
+/**
+ * @brief a command that is used to draw a simple mesh
+ */
+struct Command_DrawMesh final : public Command
+{
+    /**
+     * @brief Construct a new Draw Mesh command
+     * 
+     * @param _rMesh a pointer to the render mesh to draw
+     */
+    Command_DrawMesh(API::RenderMesh* _rMesh)
+     : rMesh(_rMesh)
+    {}
+
+    //store a pointer to the render mesh to draw
+    API::RenderMesh* rMesh;
+
+    //run the actual drawing command
     virtual void execute() noexcept override;
 };
 

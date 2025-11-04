@@ -47,7 +47,7 @@ static GLenum getGLTextureFormat(TextureType type) noexcept
         return GL_RG16F;
         break;
     case GLGE_TEXTURE_RGB:
-        return GL_RGB8UI;
+        return GL_RGB8;
         break;
     case GLGE_TEXTURE_RGB_F:
         return GL_RGB32F;
@@ -56,7 +56,7 @@ static GLenum getGLTextureFormat(TextureType type) noexcept
         return GL_RGB16F;
         break;
     case GLGE_TEXTURE_RGBA:
-        return GL_RGBA8UI;
+        return GL_RGBA8;
         break;
     case GLGE_TEXTURE_RGBA_F:
         return GL_RGBA32F;
@@ -211,12 +211,15 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
 
     //create the texture
     glCreateTextures(GL_TEXTURE_2D, 1, &m_glTex);
-    glTextureStorage2D(m_glTex, 1, getGLTextureFormat(m_texture->getType()), m_texture->getData().extent.x, m_texture->getData().extent.y);
+    GLenum format = getGLTextureFormat(m_texture->getType());
+    glTextureStorage2D(m_glTex, 1, format, m_texture->getData().extent.x, m_texture->getData().extent.y);
     //only update valid data
     if (*((void**)&m_texture->getData().data))
     {
-        glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, getGLTextureLayout(m_texture->getData()), 
-                            m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE, *((void**)&m_texture->getData().data));
+        GLenum glTextureLayout = getGLTextureLayout(m_texture->getData());
+        GLenum type = m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_INT;
+        glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, glTextureLayout, 
+                            type, *((void**)&m_texture->getData().data));
     }
 }
 

@@ -46,6 +46,11 @@ public:
     Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout) noexcept;
 
     /**
+     * @brief Destroy the Material
+     */
+    ~Material() noexcept;
+
+    /**
      * @brief Get the Shader of the material
      * 
      * @return Shader* a pointer to the shader of the material
@@ -73,6 +78,18 @@ public:
      */
     inline const VertexLayout& getVertexLayout() const noexcept {return m_layout;}
 
+    //define SDL / backend stuff
+    #ifdef SDL_h_
+
+    /**
+     * @brief Get the Backend texture
+     * 
+     * @return void* a pointer to the backend texture
+     */
+    inline void* getBackend() noexcept {return m_material;}
+
+    #endif //end of backend section
+
 protected:
 
     //store the own shader
@@ -83,6 +100,8 @@ protected:
     uint8_t m_usedTextureCount = 0;
     //store the vertex layout for the material
     VertexLayout m_layout;
+    //store the backend material
+    void* m_material = nullptr;
 };
 
 #endif

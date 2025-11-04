@@ -17,6 +17,8 @@
 //add the window
 #include "../../../Frontend/Window/Window.h"
 #include "OGL_Window.h"
+//add frontend materials
+#include "../../../Frontend/Material.h"
 
 //use the namespace
 using namespace GLGE::Graphic::Backend::OGL;
@@ -43,6 +45,10 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineSt
     case GLGE_RENDER_PIPELINE_STAGE_CUSTOM:
         executeStage_Custom(stage.data.customStage);
         break;
+
+    case GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH:
+        executeStage_SimpleDrawRenderMesh((::RenderMesh*)stage.data.simpleDrawRenderMesh);
+        break;
     
     default:
         GLGE_DEBUG_ABORT("Unknown render pipeline stage");
@@ -54,6 +60,14 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Custom(const Rend
 {
     //add the custom stage
     m_cmdBuff.record<Command_Custom>(stage.custom_func, stage.userData);
+}
+
+void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_SimpleDrawRenderMesh(::RenderMesh* stage) noexcept
+{
+    //bind the material of the render mesh
+    m_cmdBuff.record<Command_BindMaterial>((OGL::Material*)stage->getMaterial()->getBackend());
+    //draw the render mesh
+    m_cmdBuff.record<Command_DrawMesh>((API::RenderMesh*)stage->getBackend());
 }
 
 

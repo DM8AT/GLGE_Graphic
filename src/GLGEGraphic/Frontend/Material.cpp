@@ -10,6 +10,9 @@
  */
 //add the frontend material system
 #include "Material.h"
+//add the API implementation
+#include "../Backend/API_Implementations/AllImplementations.h"
+#include "../Backend/Instance.h"
 //add memcpy
 #include <cstring>
 
@@ -24,4 +27,25 @@ Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, con
     }
     //copy the data over
     memcpy(m_textures, textures, textureCount*sizeof(*textures));
+
+    //switch over the API to create the correct material type
+    switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
+    {
+    case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
+        m_material = new GLGE::Graphic::Backend::OGL::Material(this);
+        break;
+    
+    default:
+        break;
+    }
+}
+
+Material::~Material() noexcept
+{
+    //if the material exits, delete it
+    if (m_material) {
+        //clean up
+        delete (GLGE::Graphic::Backend::OGL::Material*)m_material;
+        m_material = nullptr;
+    }
 }

@@ -25,6 +25,16 @@ using namespace GLGE::Graphic::Backend::OGL;
 //add the frontend material to sanity check the validity
 #include "../../../Frontend/Material.h"
 
+// Debug callback function for OpenGL
+void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
+                                    GLsizei length, const GLchar* message, const void* userParam) {
+    // Only handle the error messages
+    if (severity == GL_DEBUG_SEVERITY_HIGH || severity == GL_DEBUG_SEVERITY_MEDIUM || type == GL_DEBUG_TYPE_PERFORMANCE || type == GL_DEBUG_TYPE_ERROR) {
+        std::cerr << "OpenGL Debug Message: " << message << "\n";
+        std::cerr << "Source: " << source << ", Type: " << type << ", Severity: " << severity << "\n";
+    }
+}
+
 Instance::Instance(Window* window)
  : GLGE::Graphic::Backend::API::Instance(&m_vertexBuffer, &m_indexBuffer)
 {
@@ -41,12 +51,14 @@ Instance::Instance(Window* window)
     //initialize GLEW
     GLGE_ASSERT("Failed to initialize GLEW", gladLoadGL() == 0);
 
-    //check for the support
-    if (GLAD_GL_ARB_gpu_shader_int64) {
-        //supported
-    } else {
-        //not supported
-    }
+    //when debugging is enabled, enable debugging
+    //#if GLGE_BG_DEBUG
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(OpenGLDebugCallback, nullptr);
+    //#endif
+
+    //supported
+    m_extensions.int64 = GLAD_GL_ARB_gpu_shader_int64;
 
     //sanity-check the GPU
     GLint units = 0;
@@ -57,8 +69,8 @@ Instance::Instance(Window* window)
     }
 
     //force the vertex and index buffer to create itself
-    m_vertexBuffer.forceCreate();
-    m_indexBuffer.forceCreate();
+    ((OGL::Buffer*)m_vertexBuffer.getBuffer())->forceCreate();
+    ((OGL::Buffer*)m_indexBuffer.getBuffer())->forceCreate();
 }
 
 Instance::~Instance()

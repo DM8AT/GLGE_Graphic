@@ -16,8 +16,8 @@
 //only available for C++
 #if __cplusplus
 
-//add buffer
-#include "API_Buffer.h"
+//add memory arenas
+#include "API_MemoryArena.h"
 
 //use the GLGE::Graphic::Backend::API namespace
 namespace GLGE::Graphic::Backend::API
@@ -33,10 +33,10 @@ public:
     /**
      * @brief Construct a new Instance
      * 
-     * @param vbuff a pointer to the abstract vertex buffer
-     * @param ibuff a pointer to the abstract index buffer
+     * @param vbuff a pointer to the abstract vertex Memory Arena
+     * @param ibuff a pointer to the abstract index Memory Arena
      */
-    Instance(API::Buffer* vbuff, API::Buffer* ibuff)
+    Instance(API::MemoryArena* vbuff, API::MemoryArena* ibuff)
      : m_abs_vertexBuffer(vbuff), m_abs_indexBuffer(ibuff)
     {}
 
@@ -56,25 +56,25 @@ public:
     virtual void onUpdate() noexcept = 0;
 
     /**
-     * @brief Get the Vertex Buffer of the instance
+     * @brief Get the Vertex Memory Arena of the instance
      * 
-     * @return `API::Buffer*` a pointer to the vertex buffer
+     * @return `API::MemoryArena*` a pointer to the vertex buffer
      */
-    inline API::Buffer* getVertexBuffer() noexcept {return m_abs_vertexBuffer;}
+    inline API::MemoryArena* getVertexBuffer() noexcept {return m_abs_vertexBuffer;}
 
     /**
-     * @brief Get the Index Buffer of the instance
+     * @brief Get the Index Memory Arena of the instance
      * 
-     * @return `API::Buffer*` a pointer to the index buffer
+     * @return `API::MemoryArena*` a pointer to the index buffer
      */
-    inline API::Buffer* getIndexBuffer() noexcept {return m_abs_indexBuffer;}
+    inline API::MemoryArena* getIndexBuffer() noexcept {return m_abs_indexBuffer;}
 
 protected:
 
     //store a pointer to the abstract vertex buffer
-    API::Buffer* m_abs_vertexBuffer = nullptr;
+    API::MemoryArena* m_abs_vertexBuffer = nullptr;
     //store a pointer to the abstract index buffer
-    API::Buffer* m_abs_indexBuffer = nullptr;
+    API::MemoryArena* m_abs_indexBuffer = nullptr;
 
 };
 

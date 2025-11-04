@@ -17,6 +17,8 @@
 
 //add the API
 #include "../API_Material.h"
+//add types
+#include <stdint.h>
 
 //use the namespace GLGE::Graphic::Backend::OGL
 namespace GLGE::Graphic::Backend::OGL
@@ -35,6 +37,11 @@ public:
      * @param material a pointer to the frontend material to create from
      */
     Material(::Material* material) noexcept : API::Material(material) {}
+
+    /**
+     * @brief Destroy the Material
+     */
+    virtual ~Material();
 
     /**
      * @brief bind the material as the currently active one
