@@ -19,6 +19,13 @@
 #include "OGL_Window.h"
 //add frontend materials
 #include "../../../Frontend/Material.h"
+//add scenes
+#include "../../../../GLGE_Core/Geometry/Structure/ECS/Scene.h"
+//add renderers to access render-related data
+#include "../../../Frontend/RenderAPI/Renderer.h"
+
+//unordered maps are used to store the mapping from material -> list of meshes
+#include <unordered_map>
 
 //use the namespace
 using namespace GLGE::Graphic::Backend::OGL;
@@ -49,6 +56,10 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineSt
     case GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH:
         executeStage_SimpleDrawRenderMesh(stage.data.simpleDrawRenderMesh);
         break;
+
+    case GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE:
+        executeStage_DrawScene(stage.data.drawScene);
+        break;
     
     default:
         GLGE_DEBUG_ABORT("Unknown render pipeline stage");
@@ -68,6 +79,47 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_SimpleDrawRenderM
     m_cmdBuff.record<Command_BindMaterial>((OGL::Material*)((::Material*)stage.material)->getBackend());
     //draw the render mesh
     m_cmdBuff.record<Command_DrawMesh>((API::RenderMesh*)(RenderMeshRegistry::get(stage.handle))->getBackend());
+}
+
+void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_DrawScene(const RenderPipelineStageData::DrawScene& stage) noexcept
+{
+    //BATCHING STEP
+
+    //store all the batches
+    //the batches are stored by mapping a material pointer to an std::vector of render mesh handles
+    std::unordered_map<::Material*, std::vector<RenderMeshHandle>> batches;
+
+    //get all objects from the scene that have a renderer component
+    std::vector<std::pair<Object, Renderer*>> toBatch = ((Scene*)stage.scene)->get<Renderer>();
+    //iterate over all object - renderer pairs
+    for (auto& pair : toBatch) {
+        //iterate over all mesh - material pairs in the renderer
+        for (size_t i = 0; i < pair.second->getElementCount(); ++i) {
+            //check if the material is known
+            const RenderObject& obj = pair.second->getObject(i);
+            auto pos = batches.find(obj.material);
+            if (pos == batches.end()) {
+                //if not, create a new entry
+                batches.emplace(obj.material, std::initializer_list{obj.handle});
+            } else {
+                //if it exists, just add the handle to the map
+                pos->second.push_back(obj.handle);
+            }
+        }
+    }
+
+    //DRAWING STEP
+
+    //iterate over all computed batches
+    for (auto& batch : batches) {
+        //bind the material
+        m_cmdBuff.record<Command_BindMaterial>((OGL::Material*)batch.first->getBackend());
+
+        //iterate over all meshes in the batch
+        for (auto& mesh : batch.second) {
+            m_cmdBuff.record<Command_DrawMesh>((API::RenderMesh*)RenderMeshRegistry::get(mesh)->getBackend());
+        }
+    }
 }
 
 

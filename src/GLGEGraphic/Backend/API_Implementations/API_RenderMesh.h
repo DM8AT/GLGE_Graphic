@@ -60,6 +60,13 @@ public:
      */
     inline const MemoryArena::GraphicPointer& getIndexPointer() const noexcept {return m_iboPointer;}
 
+    /**
+     * @brief Get the Render Mesh that belongs to the render mesh API
+     * 
+     * @return ::RenderMesh* a pointer to the frontend render mesh
+     */
+    inline ::RenderMesh* getRenderMesh() const noexcept {return m_rMesh;}
+
 protected:
 
     //store a pointer to the frontend render mesh

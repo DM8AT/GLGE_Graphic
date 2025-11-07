@@ -33,6 +33,8 @@
 #include "OGL_Shader.h"
 //add frontend materials
 #include "../../../Frontend/Material.h"
+//add frontend render meshes
+#include "../../../Frontend/RenderAPI/RenderMesh.h"
 
 static GLenum getType(VertexElementDataType type) noexcept
 {
@@ -247,5 +249,6 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
 void GLGE::Graphic::Backend::OGL::Command_DrawMesh::execute() noexcept
 {
     //run the draw command
-    glDrawElements(GL_TRIANGLES, rMesh->getIndexPointer().size / sizeof(index_t), GL_UNSIGNED_INT, (void*)rMesh->getIndexPointer().startIdx);
+    glDrawElementsBaseVertex(GL_TRIANGLES, rMesh->getIndexPointer().size / sizeof(index_t), GL_UNSIGNED_INT, (void*)rMesh->getIndexPointer().startIdx, 
+                             rMesh->getVertexPointer().startIdx/rMesh->getRenderMesh()->getMesh()->getVertexLayout().getVertexSize());
 }

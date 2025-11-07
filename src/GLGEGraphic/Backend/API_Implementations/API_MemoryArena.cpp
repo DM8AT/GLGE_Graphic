@@ -215,4 +215,6 @@ void GLGE::Graphic::Backend::API::MemoryArena::resize(uint64_t size) noexcept
 {
     //just resize the underlying buffer
     m_buff->resize(size);
+    //and store the new size
+    m_size = size;
 }

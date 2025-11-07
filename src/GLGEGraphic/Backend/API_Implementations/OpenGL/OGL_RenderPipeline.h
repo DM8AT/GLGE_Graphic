@@ -83,9 +83,16 @@ protected:
     /**
      * @brief draw a simple render mesh
      * 
-     * @param stage a pointer to the render mesh to draw
+     * @param stage the stage data to execute on
      */
     void executeStage_SimpleDrawRenderMesh(const RenderPipelineStageData::SimpleDrawRenderMesh& stage) noexcept;
+
+    /**
+     * @brief draw a whole scene
+     * 
+     * @param stage the stage data to execute on
+     */
+    void executeStage_DrawScene(const RenderPipelineStageData::DrawScene& stage) noexcept;
 
     /**
      * @brief store the OpenGL command buffer

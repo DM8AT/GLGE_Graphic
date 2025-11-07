@@ -18,7 +18,15 @@
 #include "../../../GLGE_BG/CBinding/String.h"
 
 //add render meshes
-#include "RenderMesh.h"
+#include "RenderMeshRegistry.h"
+
+//define a structure that combins a render mesh handle and a material
+typedef struct s_RenderObject {
+    //store the handle to the render mesh to draw
+    RenderMeshHandle handle;
+    //store a pointer to the material to handle
+    ::Material* material;
+} RenderObject;
 
 //class is only available for C++
 #if __cplusplus
@@ -50,17 +58,17 @@ public:
     /**
      * @brief Construct a new Renderer
      * 
-     * @param meshes a list of meshes to create the renderer from
+     * @param objs a initializer list of render objects (Render Mesh - material combinations) to draw at the transform of the object
      */
-    Renderer(std::initializer_list<RenderMesh> meshes) noexcept;
+    Renderer(std::initializer_list<RenderObject> objs) noexcept : Renderer(objs.begin(), objs.size()) {}
 
     /**
      * @brief Construct a new Renderer
      * 
-     * @param meshes a pointer to a C array of meshes
-     * @param meshCount the amount of meshes in the C array
+     * @param objs a pointer to a C-Array of RenderObjects (Render Mesh - material combinations) to draw at the transform of the object
+     * @param objCount the amount of render objects in the C array
      */
-    Renderer(const RenderMesh* meshes, size_t meshCount) noexcept;
+    Renderer(const RenderObject* objs, size_t objCount) noexcept;
 
     /**
      * @brief Set if the renderer is shown
@@ -77,16 +85,29 @@ public:
      */
     inline bool isShown() const noexcept {return m_shown;}
 
+    /**
+     * @brief Get the Element count
+     * 
+     * @return size_t the amount of render objects the renderer contains
+     */
+    inline size_t getElementCount() const noexcept {return m_objs.size();}
+
+    /**
+     * @brief Get a specific object from the renderer
+     * 
+     * @warning this function is not safe and may index out of bounds
+     * 
+     * @param i the index to quarry the object from
+     * @return const RenderObject& a constant reference to the object stored at that index
+     */
+    inline const RenderObject& getObject(size_t i) const noexcept {return m_objs[i];}
+
 protected:
 
     //store if the object is shown
     bool m_shown = true;
-    //store the actual render meshes
-    std::vector<RenderMesh> m_meshes;
-    //store the mapping from names to the indices
-    std::unordered_map<String, std::atomic_size_t> m_indexMap;
-    //store a mutex to limit map access
-    std::shared_mutex m_mutex;
+    //store the actual render objects
+    std::vector<RenderObject> m_objs{};
 
 };
 

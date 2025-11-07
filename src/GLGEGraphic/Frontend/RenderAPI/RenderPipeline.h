@@ -39,6 +39,10 @@ typedef enum e_RenderPipelineStageType {
      * This should be used for debugging only as it is not really optimized to draw a lot
      */
     GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH,
+    /**
+     * @brief draw an entire scene
+     */
+    GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE
 } RenderPipelineStageType;
 
 /**
@@ -65,6 +69,11 @@ typedef union u_RenderPipelineStageData {
         //store the material to use for rendering
         void* material;
     } simpleDrawRenderMesh;
+    //store the data that is needed to draw an entire scene
+    struct DrawScene {
+        //store a pointer to the scene object to draw
+        void* scene;
+    } drawScene;
 } RenderPipelineStageData;
 
 /**

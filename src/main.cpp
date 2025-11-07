@@ -6,6 +6,7 @@ int main()
     Window win = Window("Hello World!", 600);
 
     AssetHandle mesh = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Suzane.fbx"));
+    AssetHandle mesh2 = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Cube.glb"));
     AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/cubeTexture.png", true, GLGE_TEXTURE_RGBA_H);
     Shader shader = {
         ShaderStage{
@@ -23,12 +24,20 @@ int main()
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
     AssetManager::waitForLoad(mesh);
     RenderMeshHandle rMesh = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh)->mesh());
+    AssetManager::waitForLoad(mesh2);
+    RenderMeshHandle rMesh2 = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh2)->mesh());
+
+    Scene scene = "Main";
+    Object obj = scene.createObject<Renderer>("Hello");
+    scene.initialize<Renderer>(obj, std::initializer_list{RenderObject{.handle=rMesh,.material=&mat}});
+    Object obj2 = scene.createObject<Renderer>("Other");
+    scene.initialize<Renderer>(obj2, std::initializer_list{RenderObject{.handle=rMesh2,.material=&mat}});
 
     RenderPipeline pipe({{
             "Draw", 
             RenderPipelineStage{
-                .type = GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH,
-                .data{.simpleDrawRenderMesh{.handle=rMesh,.material=&mat}}}
+                .type = GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE,
+                .data{.drawScene{.scene = &scene}}}
         }
     }, &win);
 

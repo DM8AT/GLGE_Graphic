@@ -27,6 +27,7 @@ set(SRC
     Frontend/RenderAPI/RenderPipeline.cpp
     Frontend/RenderAPI/RenderMesh.cpp
     Frontend/RenderAPI/RenderMeshRegistry.cpp
+    Frontend/RenderAPI/Renderer.cpp
     Frontend/Common.cpp
     Frontend/Texture.cpp
     Frontend/TextureAsset.cpp

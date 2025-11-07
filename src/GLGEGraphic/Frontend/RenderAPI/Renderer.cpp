@@ -10,3 +10,11 @@
  */
 //add the renderer
 #include "Renderer.h"
+
+Renderer::Renderer(const RenderObject* objs, size_t objCount) noexcept 
+{
+    //make enough space for the objects
+    m_objs.resize(objCount);
+    //iterate over all objects and just copy them over
+    memcpy(m_objs.data(), objs, objCount * sizeof(RenderObject));
+}
