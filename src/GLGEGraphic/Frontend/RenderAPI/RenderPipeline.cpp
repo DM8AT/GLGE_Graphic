@@ -12,12 +12,12 @@
 //include the render pipeline
 #include "RenderPipeline.h"
 //add debugging
-#include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
+#include "../../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 
 //add instances
-#include "../Backend/Instance.h"
+#include "../../Backend/Instance.h"
 //add all API implementations
-#include "../Backend/API_Implementations/AllImplementations.h"
+#include "../../Backend/API_Implementations/AllImplementations.h"
 
 RenderPipeline::RenderPipeline(const std::map<String, RenderPipelineStage> stages, Window* window)
  : //just copy the stages over

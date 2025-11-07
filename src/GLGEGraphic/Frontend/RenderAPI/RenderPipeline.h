@@ -13,13 +13,15 @@
  */
 
 //header guard
-#ifndef _GLGE_GRAPHICS_FRONTEND_RENDER_PIPELINE_
-#define _GLGE_GRAPHICS_FRONTEND_RENDER_PIPELINE_
+#ifndef _GLGE_GRAPHICS_FRONTEND_RENDER_API_RENDER_PIPELINE_
+#define _GLGE_GRAPHICS_FRONTEND_RENDER_API_RENDER_PIPELINE_
 
 //add string types
-#include "../../GLGE_BG/CBinding/String.h"
+#include "../../../GLGE_BG/CBinding/String.h"
 //add windows to the render pipeline (pipelines operate on windows)
-#include "Window/Window.h"
+#include "../Window/Window.h"
+//render mesh registries required for render mesh handles
+#include "RenderMeshRegistry.h"
 
 /**
  * @brief define all types of stages a render pipeline may include
@@ -56,8 +58,13 @@ typedef union u_RenderPipelineStageData {
          */
         void* userData;
     } customStage;
-    //store a pointer to the render mesh used for simple rendering
-    void* simpleDrawRenderMesh;
+    //store a reference of the render mesh to draw
+    struct SimpleDrawRenderMesh {
+        //store the actual mesh to draw
+        RenderMeshHandle handle;
+        //store the material to use for rendering
+        void* material;
+    } simpleDrawRenderMesh;
 } RenderPipelineStageData;
 
 /**

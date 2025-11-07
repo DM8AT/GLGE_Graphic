@@ -1,86 +1,42 @@
-#if 0
 #include "GLGEGraphic/GLGEGraphic.h"
 #include "GLGE_Core/GLGECore.h"
 
-class SimpleUpdate : public System<SimpleUpdate> {
-public:
-    
-    SimpleUpdate()
-     : System<SimpleUpdate>({
-            .parallel = true,
-            .active = true
-        })
-    {}
-
-    void operator()(Transform& trans) {
-        trans.pos.x = 5;
-    }
-
-    virtual void onInit() noexcept override {}
-    virtual void onUpdate() noexcept override {}
-    virtual void onDeinit() noexcept override {}
-};
-
 int main()
 {
-    Scene scene = "Main";
-    String p = MeshAsset::import("assets/mesh/Suzane.fbx");
-    AssetHandle mesh = AssetManager::create<MeshAsset>(p);
+    Window win = Window("Hello World!", 600);
 
-    Window win("Hello World!", uivec2(600,600));
-    win.setVSync(GLGE_VSYNC_ON);
-
+    AssetHandle mesh = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Suzane.fbx"));
     AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/cubeTexture.png", true, GLGE_TEXTURE_RGBA_H);
-
     Shader shader = {
         ShaderStage{
-            .sourceCode = File("assets/shader/main.vs",false).getContents(),
+            .sourceCode = File("assets/shader/main.vs").getContents(),
             .srcType = SHADER_SOURCE_GLSL,
             .stage = SHADER_STAGE_VERTEX
         },
         ShaderStage{
-            .sourceCode = File("assets/shader/main.fs",false).getContents(),
+            .sourceCode = File("assets/shader/main.fs").getContents(),
             .srcType = SHADER_SOURCE_GLSL,
             .stage = SHADER_STAGE_FRAGMENT
-        }
-    };
-
+        }};
     AssetManager::waitForLoad(tex);
     Texture* textures[] = {AssetManager::getAsset<TextureAsset>(tex)->getTexture()};
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
     AssetManager::waitForLoad(mesh);
-    MeshAsset* m = AssetManager::getAsset<MeshAsset>(mesh);
-    Mesh& m_mesh = m->mesh();
-    RenderMesh rMesh(&m_mesh, &mat);
+    RenderMeshHandle rMesh = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh)->mesh());
 
-    RenderPipeline pipe({
-        {"Draw", RenderPipelineStage{
-            .type = GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH,
-            .data{.simpleDrawRenderMesh=&rMesh}
-        }}
+    RenderPipeline pipe({{
+            "Draw", 
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH,
+                .data{.simpleDrawRenderMesh{.handle=rMesh,.material=&mat}}}
+        }
     }, &win);
-    
-    glge_Shader_Compile();
+
     pipe.record();
+    glge_Shader_Compile();
 
     while (!win.isClosingRequested()) {
-        static uivec3 color = uivec3(0,0,0);
-
         glge_Graphic_MainTick();
         pipe.play();
-        win.setClearColor(vec4(color.r, color.g, color.b, 255.f) / 255.f);
-        color.r = (color.r + 1) % 256;
-        color.g = (color.g + 3) % 256;
-        color.b = (color.b + 5) % 256;
-        pipe.record();
     }
-}
-#endif
-
-#include "GLGE_Core/GLGECore.h"
-
-int main()
-{
-    Scene scene = "Main";
-    Object obj = scene.createObject("Hello");
 }

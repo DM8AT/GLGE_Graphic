@@ -12,16 +12,13 @@
 //add the render mesh frontend API
 #include "RenderMesh.h"
 //add debugging
-#include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
+#include "../../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 //add the API
-#include "../Backend/API_Implementations/API_RenderMesh.h"
+#include "../../Backend/API_Implementations/API_RenderMesh.h"
 
-RenderMesh::RenderMesh(Mesh* mesh, Material* material) noexcept
- : m_mesh(mesh), m_material(material)
+RenderMesh::RenderMesh(Mesh* mesh) noexcept
+ : m_mesh(mesh)
 {
-    //sanity check the combination
-    GLGE_DEBUG_ASSERT("Incompatible layouts for a mesh and a material when used in a render mesh", 
-                      m_mesh->getVertexLayout() != m_material->getVertexLayout());
     //sanity check
     static_assert(sizeof(m_impl) == sizeof(GLGE::Graphic::Backend::API::RenderMesh), "Invalid size for the render mesh data storage");
     //create the API implementation

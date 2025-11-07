@@ -13,7 +13,7 @@
 //add the graphic instance
 #include "../Instance.h"
 //add the frontend render mesh
-#include "../../Frontend/RenderMesh.h"
+#include "../../Frontend/RenderAPI/RenderMesh.h"
 
 GLGE::Graphic::Backend::API::RenderMesh::RenderMesh(::RenderMesh* rMesh)
  : m_rMesh(rMesh), 
@@ -29,6 +29,8 @@ GLGE::Graphic::Backend::API::RenderMesh::RenderMesh(::RenderMesh* rMesh)
 
 GLGE::Graphic::Backend::API::RenderMesh::~RenderMesh()
 {
+    //if the instance was deleted, the GPU memory is allready freed
+    if (!Backend::INSTANCE.getInstance()) {return;}
     //free the pointer
     Backend::INSTANCE.getInstance()->getVertexBuffer()->release(m_vboPointer);
     Backend::INSTANCE.getInstance()->getIndexBuffer()->release(m_iboPointer);

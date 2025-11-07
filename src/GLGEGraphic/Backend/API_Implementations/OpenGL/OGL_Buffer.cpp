@@ -52,6 +52,8 @@ void GLGE::Graphic::Backend::OGL::Buffer::forceCreate()
 
 void GLGE::Graphic::Backend::OGL::Buffer::update() noexcept
 {
+    //sanity check that the size is not 0
+    if (m_size == 0) {return;}
     //thread safety
     std::unique_lock lock(m_dataMtx);
 

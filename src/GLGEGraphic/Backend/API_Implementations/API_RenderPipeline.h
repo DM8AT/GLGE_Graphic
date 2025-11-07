@@ -14,7 +14,7 @@
 #define _GLGE_GRAPHIC_BACKEND_API_IMPL_API_RENDER_PIPELINE_
 
 //add the frontend render pipeline
-#include "../../Frontend/RenderPipeline.h"
+#include "../../Frontend/RenderAPI/RenderPipeline.h"
 
 //only available for C++
 #if __cplusplus

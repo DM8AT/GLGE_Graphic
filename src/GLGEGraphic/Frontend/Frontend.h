@@ -17,8 +17,6 @@
 #include "Window/Window.h"
 //include the common functionality
 #include "Common.h"
-//add render pipelines
-#include "RenderPipeline.h"
 //add textures
 #include "Texture.h"
 #include "TextureAsset.h"
@@ -26,7 +24,7 @@
 #include "Shader.h"
 //add materials
 #include "Material.h"
-//add render meshes
-#include "RenderMesh.h"
+//add the rendering API
+#include "RenderAPI/RenderAPI.h"
 
 #endif

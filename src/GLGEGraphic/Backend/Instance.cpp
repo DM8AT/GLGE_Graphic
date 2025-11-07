@@ -144,6 +144,7 @@ void Instance::deregisterWindow(Window* window) noexcept
         //de-register the graphic API
         if (m_inst) {
             delete m_inst;
+            m_inst = nullptr;
         }
     }
 }

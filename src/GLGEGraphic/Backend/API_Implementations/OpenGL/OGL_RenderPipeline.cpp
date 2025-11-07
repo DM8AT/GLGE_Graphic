@@ -47,7 +47,7 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineSt
         break;
 
     case GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH:
-        executeStage_SimpleDrawRenderMesh((::RenderMesh*)stage.data.simpleDrawRenderMesh);
+        executeStage_SimpleDrawRenderMesh(stage.data.simpleDrawRenderMesh);
         break;
     
     default:
@@ -62,12 +62,12 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Custom(const Rend
     m_cmdBuff.record<Command_Custom>(stage.custom_func, stage.userData);
 }
 
-void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_SimpleDrawRenderMesh(::RenderMesh* stage) noexcept
+void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_SimpleDrawRenderMesh(const RenderPipelineStageData::SimpleDrawRenderMesh& stage) noexcept
 {
     //bind the material of the render mesh
-    m_cmdBuff.record<Command_BindMaterial>((OGL::Material*)stage->getMaterial()->getBackend());
+    m_cmdBuff.record<Command_BindMaterial>((OGL::Material*)((::Material*)stage.material)->getBackend());
     //draw the render mesh
-    m_cmdBuff.record<Command_DrawMesh>((API::RenderMesh*)stage->getBackend());
+    m_cmdBuff.record<Command_DrawMesh>((API::RenderMesh*)(RenderMeshRegistry::get(stage.handle))->getBackend());
 }
 
 

@@ -24,13 +24,14 @@ set(SRC
     Backend/API_Implementations/OpenGL/OGL_Buffer.cpp
 
     Frontend/Window/Window.cpp
+    Frontend/RenderAPI/RenderPipeline.cpp
+    Frontend/RenderAPI/RenderMesh.cpp
+    Frontend/RenderAPI/RenderMeshRegistry.cpp
     Frontend/Common.cpp
-    Frontend/RenderPipeline.cpp
     Frontend/Texture.cpp
     Frontend/TextureAsset.cpp
     Frontend/Shader.cpp
     Frontend/Material.cpp
-    Frontend/RenderMesh.cpp
 )
 
 ## add GLAD

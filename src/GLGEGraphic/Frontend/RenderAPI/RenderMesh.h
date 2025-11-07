@@ -10,16 +10,19 @@
  */
 
 //header guard
-#ifndef _GLGE_GRAPHIC_FRONTEND_RENDER_MESH_
-#define _GLGE_GRAPHIC_FRONTEND_RENDER_MESH_
+#ifndef _GLGE_GRAPHIC_FRONTEND_RENDER_API_RENDER_MESH_
+#define _GLGE_GRAPHIC_FRONTEND_RENDER_API_RENDER_MESH_
 
 //for C++ define a class
 #if __cplusplus
 
 //add the core meshes
-#include "../../GLGE_Core/Geometry/Surface/Mesh.h"
+#include "../../../GLGE_Core/Geometry/Surface/Mesh.h"
 //also add materials
-#include "Material.h"
+#include "../Material.h"
+
+//the render mesh registry will be defined later
+class RenderMeshRegistry;
 
 /**
  * @brief define the frontend API for a render mesh
@@ -30,11 +33,8 @@ public:
 
     /**
      * @brief Construct a new Render Mesh
-     * 
-     * @param mesh the core mesh to encapsulate
-     * @param material the material to use for the mesh
      */
-    RenderMesh(Mesh* mesh, ::Material* material) noexcept;
+    RenderMesh() = default;
 
     /**
      * @brief Destroy the Render Mesh
@@ -47,13 +47,6 @@ public:
      * @return Mesh* a pointer to the core mesh
      */
     inline Mesh* getMesh() const noexcept {return m_mesh;}
-
-    /**
-     * @brief Get the Material of the render mesh
-     * 
-     * @return Material* a pointer to the material of the render mesh
-     */
-    inline ::Material* getMaterial() const noexcept {return m_material;}
 
     //define SDL / backend stuff
     #ifdef SDL_h_
@@ -69,14 +62,22 @@ public:
 
 protected:
 
+    //add the render mesh registry as a friend class
+    friend class RenderMeshRegistry;
+
+    /**
+     * @brief Construct a new Render Mesh
+     * 
+     * @param mesh the core mesh to encapsulate
+     */
+    RenderMesh(Mesh* mesh) noexcept;
+
     //store a pointer to the core mesh
     Mesh* m_mesh = nullptr;
     //store the data for the backend implementation (it is fully opaque)
     uint8_t m_impl[40]{0};
     //store a pointer to the backend implementation 
     void* m_backend = nullptr;
-    //store a pointer to the used material
-    ::Material* m_material = nullptr;
 
 };
 
