@@ -58,9 +58,24 @@ public:
     /**
      * @brief Construct a new Renderer
      * 
+     * @param handle the handle for a single render object
+     * @param material the material for a single render object
+     */
+    inline Renderer(RenderMeshHandle handle, Material* material) noexcept : Renderer(RenderObject{handle, material}) {}
+
+    /**
+     * @brief Construct a new Renderer
+     * 
+     * @param obj a single render object to create the renderer from
+     */
+    inline Renderer(const RenderObject& obj) noexcept : Renderer(&obj, 1) {}
+
+    /**
+     * @brief Construct a new Renderer
+     * 
      * @param objs a initializer list of render objects (Render Mesh - material combinations) to draw at the transform of the object
      */
-    Renderer(std::initializer_list<RenderObject> objs) noexcept : Renderer(objs.begin(), objs.size()) {}
+    inline Renderer(std::initializer_list<RenderObject> objs) noexcept : Renderer(objs.begin(), objs.size()) {}
 
     /**
      * @brief Construct a new Renderer

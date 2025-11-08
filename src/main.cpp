@@ -4,6 +4,7 @@
 int main()
 {
     Window win = Window("Hello World!", 600);
+    win.setVSync(GLGE_VSYNC_ON);
 
     AssetHandle mesh = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Suzane.fbx"));
     AssetHandle mesh2 = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Cube.glb"));
@@ -28,10 +29,10 @@ int main()
     RenderMeshHandle rMesh2 = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh2)->mesh());
 
     Scene scene = "Main";
-    Object obj = scene.createObject<Renderer>("Hello");
-    scene.initialize<Renderer>(obj, std::initializer_list{RenderObject{.handle=rMesh,.material=&mat}});
-    Object obj2 = scene.createObject<Renderer>("Other");
-    scene.initialize<Renderer>(obj2, std::initializer_list{RenderObject{.handle=rMesh2,.material=&mat}});
+    Object obj = scene.createObject("Hello");
+    obj->assignOrAdd<Renderer>(rMesh, &mat);
+    Object obj2 = scene.createObject("Other");
+    obj2->assignOrAdd<Renderer>(rMesh2, &mat);
 
     RenderPipeline pipe({{
             "Draw", 
