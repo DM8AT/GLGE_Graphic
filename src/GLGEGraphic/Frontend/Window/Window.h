@@ -110,6 +110,20 @@ public:
     inline const vec4& getClearColor() const noexcept {return m_clearColor;}
 
     /**
+     * @brief Set the depth to clear the depth buffer with
+     * 
+     * @param clear the depth value to clear the depth buffer with (NAN disables clearing)
+     */
+    inline void setDepthClear(float clear) noexcept {m_depthClear = clear;}
+
+    /**
+     * @brief Get the depth to clear the depth buffer with
+     * 
+     * @return float the depth to clear the depth buffer with (NAN disables clearing)
+     */
+    inline float getDepthClear() const noexcept {return m_depthClear;}
+
+    /**
      * @brief Get the amount of currently known active windows
      * 
      * @return uint64_t the amount of registered active windows
@@ -289,6 +303,10 @@ protected:
      * @brief store the clear color of the window
      */
     vec4 m_clearColor = vec4(0.5,0.5,0.5,1);
+    /**
+     * @brief store the value to clear the depth buffer with (NAN disables the clearing)
+     */
+    float m_depthClear = 1.f;
 
     /**
      * @brief handle an event for a window

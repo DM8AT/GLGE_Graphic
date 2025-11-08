@@ -190,6 +190,41 @@ static uint8_t getCount(VertexElementDataType type) noexcept
     }
 }
 
+/**
+ * @brief Get the OpenGL compare operation enum for the specific operation
+ * 
+ * @param cmp the compare operation to get the enum for
+ * @return GLenum the enum corresponding to the depth test
+ */
+static GLenum __getCompareOp(DepthTestOperator cmp) noexcept {
+    //switch over the possible cases and return the correct value
+    switch (cmp)
+    {
+    case MATERIAL_DEPTH_TEST_LESS:
+        return GL_LESS;
+        break;
+    case MATERIAL_DEPTH_TEST_LESS_EQUALS:
+        return GL_LEQUAL;
+        break;
+    case MATERIAL_DEPTH_TEST_GREATER:
+        return GL_GREATER;
+        break;
+    case MATERIAL_DEPTH_TEST_GREATER_EQUALS:
+        return GL_GEQUAL;
+        break;
+    case MATERIAL_DEPTH_TEST_EQUALS:
+        return GL_EQUAL;
+        break;
+    case MATERIAL_DEPTH_TEST_NOT_EQUAL:
+        return GL_NOTEQUAL;
+        break;
+    
+    default:
+        return 0;
+        break;
+    }
+}
+
 void GLGE::Graphic::Backend::OGL::Command_Custom::execute() noexcept
 {
     //just run the function
@@ -234,6 +269,19 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
             glEnableVertexArrayAttrib(material->getVAO(), i);
         }
     }
+
+    //get the frontend material settings
+    MaterialSettings settings = material->getMaterial()->getSettings();
+    //set the depth test state correctly
+    if (settings & MATERIAL_SETTING_ENABLE_DEPTH_TEST) {
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }
+    //set the depth write state correctly
+    glDepthMask((settings & MATERIAL_SETTING_ENABLE_DEPTH_WRITE) ? GL_TRUE : GL_FALSE);
+    //set the depth test function correctly
+    glDepthFunc(__getCompareOp(material->getMaterial()->getDepthTestOperator()));
 
     //bind the VAO
     glBindVertexArray(material->getVAO());

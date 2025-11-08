@@ -23,6 +23,46 @@
 //define how many textures are allowed maximum
 #define GLGE_MAX_MATERIAL_TEXTURE_BINDING 48
 
+//define a simple 64 bit bitmask as the settings for a material
+typedef uint64_t MaterialSettings;
+
+/**
+ * @brief define an enum to define the settings for materials
+ */
+typedef enum e_MaterialSetting
+#if __cplusplus
+ : MaterialSettings
+#endif
+{
+    //a setting used to control if the depth is tested against the current depth buffer value
+    MATERIAL_SETTING_ENABLE_DEPTH_TEST = 0b1,
+    //a setting used to control if the z component is written to the depth buffer
+    MATERIAL_SETTING_ENABLE_DEPTH_WRITE = 0b10,
+    //define if the mixing via the alpha channel is enabled
+    MATERIAL_SETTING_ENABLE_MIXING = 0b100
+} MaterialSetting;
+
+/**
+ * @brief define an enum to describe how to test the depth test
+ */
+typedef enum e_DepthTestOperator {
+    //check if the depth value is less than the one stored in the depth buffer
+    MATERIAL_DEPTH_TEST_LESS = 0,
+    //check if the depth value is less than or equal to the one stored in the depth buffer
+    MATERIAL_DEPTH_TEST_LESS_EQUALS,
+    //check if the depth value is greater than the one stored in the depth buffer
+    MATERIAL_DEPTH_TEST_GREATER,
+    //check if the depth value is greater than or equal to the one stored in the depth buffer
+    MATERIAL_DEPTH_TEST_GREATER_EQUALS,
+    //check if the depth value is equal to the one stored in the depth buffer
+    MATERIAL_DEPTH_TEST_EQUALS,
+    //check if the depth value is not equal to the one stored in the depth buffer
+    MATERIAL_DEPTH_TEST_NOT_EQUAL
+} DepthTestOperator;
+
+//define a value for the default setings
+#define GLGE_MATERIAL_SETTINGS_DEFAULT ((MaterialSettings)(MATERIAL_SETTING_ENABLE_DEPTH_WRITE | MATERIAL_SETTING_ENABLE_DEPTH_TEST))
+
 //check for C++ to create a class
 #if __cplusplus
 
@@ -38,17 +78,56 @@ public:
     /**
      * @brief Construct a new Material
      * 
+     * @param shader 
+     * @param texture 
+     * @param layout 
+     * @param settings 
+     * @param depthOperator
+     */
+    inline Material(Shader* shader, Texture* texture, const VertexLayout& layout, 
+                    MaterialSettings settings = GLGE_MATERIAL_SETTINGS_DEFAULT, DepthTestOperator depthOperator = MATERIAL_DEPTH_TEST_LESS) noexcept
+     : Material(shader, &texture, (texture) ? 1 : 0, layout, settings, depthOperator)
+    {}
+
+    /**
+     * @brief Construct a new Material
+     * 
      * @param shader a pointer to the shader for the material
      * @param textures a pointer to an array of texture pointers for the material
      * @param textureCount store the amount of texture pointers in the `textures` array
      * @param layout the expected vertex layout
+     * @param settings 
+     * @param depthOperator 
      */
-    Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout) noexcept;
+    Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout, 
+             MaterialSettings settings = GLGE_MATERIAL_SETTINGS_DEFAULT, DepthTestOperator depthOperator = MATERIAL_DEPTH_TEST_LESS) noexcept;
 
     /**
      * @brief Destroy the Material
      */
     ~Material() noexcept;
+
+    /**
+     * @brief Set the Settings of the material
+     * 
+     * @param settings the new settings value
+     */
+    inline void setSettings(MaterialSettings settings) noexcept {m_settings = settings;}
+
+    /**
+     * @brief get a reference to the material settings
+     * This can be used to enable / disable specific settings
+     * 
+     * @return MaterialSettings& a reference to the material settings
+     */
+    inline MaterialSettings& settings() noexcept {return m_settings;}
+
+    /**
+     * @brief Set the Depth Test Operator
+     * 
+     * @param compareOperator the comparison operator to use for the depth testing
+     */
+    inline void setDepthTestOperator(DepthTestOperator compareOperator) noexcept {m_depthOperator = compareOperator;}
 
     /**
      * @brief Get the Shader of the material
@@ -78,6 +157,20 @@ public:
      */
     inline const VertexLayout& getVertexLayout() const noexcept {return m_layout;}
 
+    /**
+     * @brief Get the Settings of the material
+     * 
+     * @return MaterialSettings the setting bitmask of the material
+     */
+    inline MaterialSettings getSettings() const noexcept {return m_settings;}
+
+    /**
+     * @brief Get the Depth Test Operator
+     * 
+     * @return DepthTestOperator the operator that is used for depth testing
+     */
+    inline DepthTestOperator getDepthTestOperator() const noexcept {return m_depthOperator;}
+
     //define SDL / backend stuff
     #ifdef SDL_h_
 
@@ -102,6 +195,10 @@ protected:
     VertexLayout m_layout;
     //store the backend material
     void* m_material = nullptr;
+    //store the material settings
+    MaterialSettings m_settings = GLGE_MATERIAL_SETTINGS_DEFAULT;
+    //store the depth testing method
+    DepthTestOperator m_depthOperator = MATERIAL_DEPTH_TEST_LESS;
 };
 
 #endif

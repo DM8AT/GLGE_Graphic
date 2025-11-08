@@ -68,6 +68,9 @@ void GLGE::Graphic::Backend::OGL::Window::clearWindow(const vec4& clearColor) no
 {
     //clear the window
     glClearNamedFramebufferfv(0, GL_COLOR, 0, (float*)&clearColor);
+    if (m_window->getDepthClear() != GLGE_NAN_F) {
+        glClearNamedFramebufferfi(0, GL_DEPTH_STENCIL, 0, m_window->getDepthClear(), 0);
+    }
 }
 
 void GLGE::Graphic::Backend::OGL::Window::endFrame() noexcept

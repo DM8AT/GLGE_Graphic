@@ -21,8 +21,7 @@ int main()
             .stage = SHADER_STAGE_FRAGMENT
         }};
     AssetManager::waitForLoad(tex);
-    Texture* textures[] = {AssetManager::getAsset<TextureAsset>(tex)->getTexture()};
-    Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
+    Material mat(&shader, AssetManager::getAsset<TextureAsset>(tex)->getTexture(), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
     AssetManager::waitForLoad(mesh);
     RenderMeshHandle rMesh = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh)->mesh());
     AssetManager::waitForLoad(mesh2);

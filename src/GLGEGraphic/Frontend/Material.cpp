@@ -16,8 +16,9 @@
 //add memcpy
 #include <cstring>
 
-Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout) noexcept
- : m_shader(shader), m_layout(layout)
+Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout, 
+                   MaterialSettings settings, DepthTestOperator depthOperator) noexcept
+ : m_shader(shader), m_layout(layout), m_settings(settings), m_depthOperator(depthOperator)
 {
     //copy over the texture data
     if (textureCount > GLGE_MAX_MATERIAL_TEXTURE_BINDING) {
