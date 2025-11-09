@@ -14,15 +14,15 @@ Mesh Buffer (SHADER_STORAGE_BUFFER):
  - Holds information about where the mesh is stored
  - Stores the byte offset into the IBO where the mesh indices start (1 uint32_t)
  - Stores the amount of indices used by this object (1 uint32_t)
- - Stores the value to add to all vertices (base vertex value) (1 uint32_t)
+ - Stores the value to add to all vertices (base vertex value) (1 int32_t)
  => Each element has a size of 12 bytes (padded to 16 bytes for std430)
  -> At most 8.39 Million meshes can be loaded at once (OK, that will never actually fit in RAM with the Vertex / Index buffer)
 AABB buffer (SHADER_STORAGE_BUFFER):
  - Per Mesh (indexed by the mesh index)
  - Stores Axis-Aligned bounding boxes for all meshes
    Each AABB is stored as follows: 
-     - 1 vec3 for the minimum values
-     - 1 vec3 for the maximum values
+     - 1 vec3 for the minimum values (padded to 1 vec4)
+     - 1 vec3 for the maximum values (padded to 1 vec4)
    => 6 Floats per entry (24 bytes)
    This is padded to 32 bytes because a vec3 is interpreted as a vec4 by std430
 Batch Buffer (SHADER_STORAGE_BUFFER):
@@ -32,7 +32,24 @@ Batch Buffer (SHADER_STORAGE_BUFFER):
  - Holds a mesh handle to determine which mesh this is (1 uint32_t)
    => Each entry has a size of 8 bytes
     -> with a maximum size of 128 MiB the maximum amount of meshes drawn per batch is 16.77 Million
-Transform / Version buffer (SHADER_STORAGE_BUFFER):
+Draw Buffer (SHADER_STORAGE_BUFFER / GL_DRAW_INDIRECT_BUFFER):
+ - Holds information about what to actually draw
+ - Used for calling something like `glMultiDrawElementsIndirect` (while bound to `GL_DRAW_INDIRECT_BUFFER`)
+ Layout: 
+    Only the structure assumed by the draw command, which is:
+    ```
+    typedef  struct {
+        uint  count;
+        uint  instanceCount;
+        uint  firstIndex;
+        int  baseVertex;
+        uint  baseInstance;
+    } DrawElementsIndirectCommand;
+    ```
+    => Each element has the size of 5*uint32_t (20 Bytes), the padding MUST be 0
+    Because only integer types are used, no padding is applied. 
+Transform / Version buffer (SHADER_STORAGE_BUFFER) (3 buffers exist for tripple-Buffering : 
+  1 buffer for CPU writing, 1 that is passed to GPU, 1 that is consumed by GPU):
  - Per object (object index is used to index the data)
  - Transforms are stored as follows:
    3x float for the position (x, y, z)
@@ -86,6 +103,17 @@ Computing the sin / cos for the Euler-Angles of the transform:
    This means an object index (just a uint32_t) is build as follows:
    22 bits for the index (i) and 10 bits for the version (v):
    vvvvvvvvvviiiiiiiiiiiiiiiiiiiiii
+
+RENDER PIPELINE
+
+1. During recording, run the batching and create all batch buffers required to draw the entire scene
+2. During rendering, iterate over all batches
+3. For each batch, bind the correct batch buffer as well as the correct material buffers. Also set up the 
+   Render pipeline state (blending, depth test, depth write, ...) correctly for the material. 
+4. Cull the current batch using a GPU compute shader. This fills the draw buffer with the correct values. 
+5. use `glMultiDrawElementsIndirect` to draw the objects - the object count is assumed to be without culling. 
+   Because of this the CPU can remain oblivious to the culling step - this avoid GPU readbacks and GPU / CPU sync 
+   steps. 
 
 */
 
