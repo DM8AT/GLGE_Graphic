@@ -83,7 +83,7 @@ Computing the sin / cos for the Euler-Angles of the transform:
   This is OK since the transform is only used for rendering and not for physics
 
 => Cap out at 4.19 Million objects
-   This means an object index (just a uint32_t) is build as following:
+   This means an object index (just a uint32_t) is build as follows:
    22 bits for the index (i) and 10 bits for the version (v):
    vvvvvvvvvviiiiiiiiiiiiiiiiiiiiii
 
