@@ -29,7 +29,7 @@ static GLenum getGLTextureFormat(TextureType type) noexcept
     switch (type)
     {
     case GLGE_TEXTURE_R:
-        return GL_R8UI;
+        return GL_R8;
         break;
     case GLGE_TEXTURE_R_F:
         return GL_R32F;
@@ -38,7 +38,7 @@ static GLenum getGLTextureFormat(TextureType type) noexcept
         return GL_R16F;
         break;
     case GLGE_TEXTURE_RG:
-        return GL_RG8UI;
+        return GL_RG8;
         break;
     case GLGE_TEXTURE_RG_F:
         return GL_RG32F;
@@ -138,11 +138,31 @@ static GLenum getGLTextureLayout(const TextureStorage& data) noexcept
     }
 }
 
-GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex)
- : API::Texture(tex) 
+GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, TextureFilterMode filterMode, float anisotropy)
+ : API::Texture(tex, filterMode, anisotropy) 
 {
     //directly mark the texture data as dirty
     markDirty();
+}
+
+void GLGE::Graphic::Backend::OGL::Texture::setFilterMode(TextureFilterMode mode) noexcept
+{
+    //store the new requested filter mode
+    m_requested_filterMode = mode;
+    //update the dirty flag
+    m_dirtFlags.fetch_or(FLAG_UPDATE_FILTER, std::memory_order_acq_rel);
+    //queue this texture
+    enqueue();
+}
+
+void GLGE::Graphic::Backend::OGL::Texture::setAnisotropy(float anisotropy) noexcept
+{
+    //store the new requested anisotropy level
+    m_requested_anisotropy = anisotropy;
+    //update the dirty flag
+    m_dirtFlags.fetch_or(FLAG_UPDATE_ANISOTROPY, std::memory_order_acq_rel);
+    //queue this texture
+    enqueue();
 }
 
 void GLGE::Graphic::Backend::OGL::Texture::markDirty() noexcept
@@ -177,8 +197,28 @@ void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept
     //switch over the flags
     if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_RECREATE) {
         recreate();
-    } else if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_RESIZE) {
+    } 
+    if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_RESIZE) {
         resize();
+    } 
+    if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_UPDATE_FILTER) {
+        //set the new filter level
+        glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_requested_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+        glTextureParameteri(m_glTex, GL_TEXTURE_MAG_FILTER, (m_requested_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+        //store the new filter mode
+        m_filterMode = m_requested_filterMode;
+    } 
+    if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_UPDATE_ANISOTROPY) {
+        //if supported, enable / disable anisotropic filtering
+        if (GLAD_GL_EXT_texture_filter_anisotropic) {
+            //get the maximum supported anisotropic value
+            float maxAnisotropy = 0.f;
+            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+            //set the anisotropy value
+            glTextureParameterf(m_glTex, GL_TEXTURE_MAX_ANISOTROPY, (m_requested_anisotropy < maxAnisotropy) ? m_requested_anisotropy : maxAnisotropy);
+            //store the new anisotropy level
+            m_anisotropy = m_requested_anisotropy;
+        }
     }
 
     //reset the flags
@@ -217,9 +257,20 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
     if (*((void**)&m_texture->getData().data))
     {
         GLenum glTextureLayout = getGLTextureLayout(m_texture->getData());
-        GLenum type = m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_INT;
+        GLenum type = m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE;
         glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, glTextureLayout, 
                             type, *((void**)&m_texture->getData().data));
+    }
+    //select the correct filter state
+    glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+    glTextureParameteri(m_glTex, GL_TEXTURE_MAG_FILTER, (m_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+    //if supported and requested, enable anisotropic filtering
+    if (GLAD_GL_EXT_texture_filter_anisotropic && (m_anisotropy != 0.f)) {
+        //get the maximum supported anisotropic value
+        float maxAnisotropy = 0.f;
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
+        //set the anisotropy value
+        glTextureParameterf(m_glTex, GL_TEXTURE_MAX_ANISOTROPY, (m_anisotropy < maxAnisotropy) ? m_anisotropy : maxAnisotropy);
     }
 }
 

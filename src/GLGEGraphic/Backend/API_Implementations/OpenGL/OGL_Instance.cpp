@@ -35,6 +35,18 @@ void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
     }
 }
 
+/**
+ * @brief Get the Open GL Constant as a string
+ * 
+ * @param constantName the symbolic name of the constant
+ * @return std::string the string for the constant integer value
+ */
+static inline std::string __getOpenGLConstantAsString_I(GLenum constantName) noexcept {
+    int32_t val = 0;
+    glGetIntegerv(constantName, &val);
+    return std::to_string(val);
+}
+
 Instance::Instance(Window* window)
  : GLGE::Graphic::Backend::API::Instance(&m_vertexBuffer, &m_indexBuffer)
 {
@@ -49,13 +61,26 @@ Instance::Instance(Window* window)
     SDL_GL_SetSwapInterval(0);
 
     //initialize GLEW
-    GLGE_ASSERT("Failed to initialize GLEW", gladLoadGL() == 0);
+    GLGE_ASSERT("Failed to initialize GLEW", gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0);
 
-    //when debugging is enabled, enable debugging
-    //#if GLGE_BG_DEBUG
+    //when debugging is enabled, do some special setup
+    #if GLGE_BG_DEBUG
+    //print some debug information
+    printf("[DEBUG] OpenGL Version: %s\n", glGetString(GL_VERSION));
+    printf("[DEBUG] Renderer: %s\n", glGetString(GL_RENDERER));
+    printf("[DEBUG] UBO Bindings - Max vertex shader: %s\n", __getOpenGLConstantAsString_I(GL_MAX_VERTEX_UNIFORM_BLOCKS).c_str());
+    printf("[DEBUG] UBO Bindings - Max fragment shader: %s\n", __getOpenGLConstantAsString_I(GL_MAX_FRAGMENT_UNIFORM_BLOCKS).c_str());
+    printf("[DEBUG] SSBO Bindings - Max vertex shader: %s\n", __getOpenGLConstantAsString_I(GL_MAX_VERTEX_SHADER_STORAGE_BLOCKS).c_str());
+    printf("[DEBUG] SSBO Bindings - Max fragment shader: %s\n", __getOpenGLConstantAsString_I(GL_MAX_FRAGMENT_SHADER_STORAGE_BLOCKS).c_str());
+    printf("[DEBUG] Max UBO size: %s\n", __getOpenGLConstantAsString_I(GL_MAX_UNIFORM_BLOCK_SIZE).c_str());
+    printf("[DEBUG] Max combined UBO bindings: %s\n", __getOpenGLConstantAsString_I(GL_MAX_UNIFORM_BUFFER_BINDINGS).c_str());
+    printf("[DEBUG] Max SSBO size: %s\n", __getOpenGLConstantAsString_I(GL_MAX_SHADER_STORAGE_BLOCK_SIZE).c_str());
+    printf("[DEBUG] Max combined SSBO bindings: %s\n", __getOpenGLConstantAsString_I(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS).c_str());
+
+    //enable debugging
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(OpenGLDebugCallback, nullptr);
-    //#endif
+    #endif
 
     //supported
     m_extensions.int64 = GLAD_GL_ARB_gpu_shader_int64;
@@ -83,7 +108,7 @@ Instance::~Instance()
     }
 }
 
-uint32_t Instance::getWidnowFlags() noexcept
+uint32_t Instance::getWindowFlags() noexcept
 {
     //return the OpenGL flag
     return SDL_WINDOW_OPENGL;

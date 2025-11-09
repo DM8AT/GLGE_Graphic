@@ -68,7 +68,7 @@ public:
      * 
      * @return uint32_t the minimum window flags required
      */
-    static uint32_t getWidnowFlags() noexcept;
+    static uint32_t getWindowFlags() noexcept;
 
     /**
      * @brief tick the instance

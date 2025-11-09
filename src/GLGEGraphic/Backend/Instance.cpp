@@ -103,7 +103,7 @@ void Instance::registerWindow(Window* window) noexcept
         GLGE_ASSERT("No window exists, but the graphic API is initialized. This should not be the case. ", 
                     (m_inst != nullptr) && (m_inst != (GLGE::Graphic::Backend::API::Instance*)1));
 
-        //create teh new instance
+        //create the new instance
         //first, get rid of the auto api
         resolveAPI();
 
@@ -160,7 +160,7 @@ uint32_t Instance::getWindowFlags() noexcept
     {
     case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
         //return the OpenGL window flags
-        return GLGE::Graphic::Backend::OGL::Instance::getWidnowFlags();
+        return GLGE::Graphic::Backend::OGL::Instance::getWindowFlags();
         break;
     
     default:

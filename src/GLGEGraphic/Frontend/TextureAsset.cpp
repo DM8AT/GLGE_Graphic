@@ -91,7 +91,7 @@ void TextureAsset::load() noexcept
     }
 
     //create the actual texture
-    m_ptr = new (m_tex) Texture(m_storage, m_type);
+    m_ptr = new (m_tex) Texture(m_storage, m_type, m_filterMode, m_anisotropy);
 
     //loading finished
     updateLoadState(ASSET_STATE_LOADED);

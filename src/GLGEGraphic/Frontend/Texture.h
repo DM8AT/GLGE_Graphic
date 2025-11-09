@@ -56,6 +56,20 @@ typedef enum e_TextureType {
     GLGE_TEXTURE_RGBA_H
 } TextureType;
 
+/**
+ * @brief define an enum that is used to select the filter mode of a texture
+ */
+typedef enum e_TextureFilterMode 
+#if __cplusplus
+ : uint8_t
+#endif
+{
+    //the texture will be sampled using bi-linear interpolation between the closest texels
+    TEXTURE_FILTER_MODE_LINEAR = 0,
+    //the value of the nearest texel will be used
+    TEXTURE_FILTER_MODE_NEAREST = 1
+} TextureFilterMode;
+
 //define a holding type for a uint8_t[3] (uint24_t) to use if needed
 //thanks to MSVC to make this more complicated than it needs to be
 #if defined(_MSC_VER)
@@ -131,8 +145,10 @@ public:
      * 
      * @param storage the storeage for the CPU-Side data for the texture
      * @param type the type for the GPU-Side texture (this may NOT match with the CPU-Side type!)
+     * @param filterMode define the filter mode used for the texture
+     * @param anisotropy define the level of anisotropic sampling to use, or the closes supported
      */
-    Texture(const TextureStorage& storage, TextureType type);
+    Texture(const TextureStorage& storage, TextureType type, TextureFilterMode filterMode, float anisotropy);
 
     /**
      * @brief Get the texture data storage of the texture
@@ -158,6 +174,34 @@ public:
      * @param size the new size of the texture
      */
     void resizeAndClear(const uivec2& size) noexcept;
+
+    /**
+     * @brief Set the Filter Mode of the texture
+     * 
+     * @param mode the new filtering mode for the texture
+     */
+    void setFilterMode(TextureFilterMode mode) noexcept;
+
+    /**
+     * @brief Get the Filter Mode of the texture
+     * 
+     * @return TextureFilterMode the current filter mode of the texture
+     */
+    TextureFilterMode getFilterMode() const noexcept;
+
+    /**
+     * @brief Set the maximum anisotropy level for the texture
+     * 
+     * @param anisotropy the new maximum anisotropy level for the texture
+     */
+    void setAnisotropy(float anisotropy) noexcept;
+
+    /**
+     * @brief Get the maximum level of Anisotropy from the texture
+     * 
+     * @return float the maximum level of anisotropy that may be used to filter the texture
+     */
+    float getAnisotropy() const noexcept;
 
     /**
      * @brief print the texture into an output stream

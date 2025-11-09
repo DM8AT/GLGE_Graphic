@@ -24,93 +24,14 @@
 //add debugging stuff
 #include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 
-// Texture::Texture(const char* file, bool isHDR, TextureType type) noexcept
-// {
-//     //store the dimensions of the texture
-//     ivec2 extent;
-//     //store the channel count
-//     int channels = 0;
-//     //parse the texture data using STB image
-//     if (isHDR) {
-//         //actual file parsing
-//         float* data = stbi_loadf(file, &extent.x, &extent.y, &channels, 0);
-//         GLGE_ASSERT("Failed to load texture file " << file, !data);
-
-//         //store the data in the correct way
-//         m_texStorage.isHDR = true;
-//         m_texStorage.channels = channels;
-//         m_texStorage.extent = uivec2(extent.x, extent.y);
-//         switch (m_texStorage.channels)
-//         {
-//         case 1:
-//             m_texStorage.data.hdr_1 = data;
-//             break;
-//         case 2:
-//             m_texStorage.data.hdr_2 = (vec2*)data;
-//             break;
-//         case 3:
-//             m_texStorage.data.hdr_3 = (vec3*)data;
-//             break;
-//         case 4:
-//             m_texStorage.data.hdr_4 = (vec4*)data;
-//             break;
-        
-//         default:
-//             //error
-//             stbi_image_free(data);
-//             GLGE_ABORT("Failed to parse texture " << file << " - unsupported number of channels: " << m_texStorage.channels);
-//             break;
-//         }
-//     } else {
-//         //actual file parsing
-//         uint8_t* data = stbi_load(file, &extent.x, &extent.y, &channels, 0);
-//         GLGE_ASSERT("Failed to load texture file " << file, !data);
-
-//         //store the data in the correct way
-//         m_texStorage.isHDR = false;
-//         m_texStorage.channels = channels;
-//         m_texStorage.extent = uivec2(extent.x, extent.y);
-//         switch (m_texStorage.channels)
-//         {
-//         case 1:
-//             m_texStorage.data.n_hdr_1 = data;
-//             break;
-//         case 2:
-//             m_texStorage.data.n_hdr_2 = (uint16_t*)data;
-//             break;
-//         case 3:
-//             m_texStorage.data.n_hdr_3 = (uint24_t*)data;
-//             break;
-//         case 4:
-//             m_texStorage.data.n_hdr_4 = (uint32_t*)data;
-//             break;
-        
-//         default:
-//             //error
-//             stbi_image_free(data);
-//             GLGE_ABORT("Failed to parse texture " << file << " - unsupported number of channels: " << m_texStorage.channels);
-//             break;
-//         }
-//     }
-// }
-
-// Texture::~Texture() noexcept
-// {
-//     //if the data pointer exists, just free it
-//     if (*((int**)(&m_texStorage.data))) {
-//         //free the data (which type is free'd is not important, they all are just pointers)
-//         stbi_image_free(m_texStorage.data.hdr_1);
-//     }
-// }
-
-Texture::Texture(const TextureStorage& storage, TextureType type)
+Texture::Texture(const TextureStorage& storage, TextureType type, TextureFilterMode filterMode, float anisotropy)
  : m_texStorage(storage), m_type(type)
 {
     //create the backend texture
     switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
     {
     case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
-        m_tex = new GLGE::Graphic::Backend::OGL::Texture(this);
+        m_tex = new GLGE::Graphic::Backend::OGL::Texture(this, filterMode, anisotropy);
         break;
     
     default:
@@ -125,6 +46,26 @@ void Texture::resizeAndClear(const uivec2& size) noexcept
     m_texStorage.extent = size;
     //notify the backend texture of the size change
     ((GLGE::Graphic::Backend::API::Texture*)m_tex)->notifySizeChange();
+}
+
+void Texture::setFilterMode(TextureFilterMode mode) noexcept {
+    //pass through the call
+    ((GLGE::Graphic::Backend::API::Texture*)m_tex)->setFilterMode(mode);
+}
+
+TextureFilterMode Texture::getFilterMode() const noexcept {
+    //pass through the call
+    return ((GLGE::Graphic::Backend::API::Texture*)m_tex)->getFilterMode();
+}
+
+void Texture::setAnisotropy(float anisotropy) noexcept {
+    //pass through the call
+    ((GLGE::Graphic::Backend::API::Texture*)m_tex)->setAnisotropy(anisotropy);
+}
+
+float Texture::getAnisotropy() const noexcept {
+    //pass through the call
+    return ((GLGE::Graphic::Backend::API::Texture*)m_tex)->getAnisotropy();
 }
 
 //special printing stuff

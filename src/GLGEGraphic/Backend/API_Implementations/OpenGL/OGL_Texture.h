@@ -39,8 +39,24 @@ public:
      * @brief Construct a new Texture
      * 
      * @param tex a pointer to the frontend texture to create from
+     * @param filterMode defines how the pixel values are interpolated between the texels
+     * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
      */
-    Texture(::Texture* tex);
+    Texture(::Texture* tex, TextureFilterMode filterMode, float anisotropy);
+
+    /**
+     * @brief Set the Filter Mode of the texture
+     * 
+     * @param mode the new filtering mode for the texture
+     */
+    virtual void setFilterMode(TextureFilterMode mode) noexcept override;
+
+    /**
+     * @brief Set the maximum anisotropy level for the texture
+     * 
+     * @param anisotropy the new maximum anisotropy level for the texture
+     */
+    virtual void setAnisotropy(float anisotropy) noexcept override;
 
     /**
      * @brief mark the data stored in the GPU texture as dirty
@@ -74,7 +90,17 @@ protected:
     /**
      * @brief store the flag that is used to re-size the texture
      */
-    inline static constexpr uint64_t FLAG_RESIZE = 0b1;
+    inline static constexpr uint64_t FLAG_RESIZE = 0b10;
+
+    /**
+     * @brief store the flags that is used to state that the filter state is out of date
+     */
+    inline static constexpr uint64_t FLAG_UPDATE_FILTER = 0b100;
+
+    /**
+     * @brief store the flags that is used to state that the anisotropic filter state is out of date
+     */
+    inline static constexpr uint64_t FLAG_UPDATE_ANISOTROPY = 0b1000;
 
     /**
      * @brief store if the element is queued
