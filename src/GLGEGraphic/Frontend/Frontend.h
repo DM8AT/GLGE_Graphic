@@ -26,5 +26,7 @@
 #include "Material.h"
 //add the rendering API
 #include "RenderAPI/RenderAPI.h"
+//add buffers
+#include "Buffer.h"
 
 #endif

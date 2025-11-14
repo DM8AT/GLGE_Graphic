@@ -41,13 +41,48 @@ static GLenum getUsageHint(GLGE::Graphic::Backend::OGL::Buffer::Type type) noexc
 GLGE::Graphic::Backend::OGL::Buffer::~Buffer()
 {
     //clean up
-    glDeleteBuffers(1, &m_buff);
+    if (m_buff)
+    {glDeleteBuffers(1, &m_buff);}
+}
+
+void GLGE::Graphic::Backend::OGL::Buffer::set(void* data, uint64_t dataSize) noexcept
+{
+    //thread safety
+    std::unique_lock lock(m_dataMtx);
+
+    //store the new size
+    m_size = dataSize;
+
+    //allocate the new data and move over the new data
+    if (data && dataSize)
+    {
+        if (!m_data) { m_data = malloc(dataSize); }
+        memcpy(m_data, data, dataSize);
+    }
+    //queue a data write
+    queueUpdate();
+}
+
+void GLGE::Graphic::Backend::OGL::Buffer::write(void* data, uint64_t dataSize, uint64_t offset) noexcept
+{
+    //thread safety
+    std::unique_lock lock(m_dataMtx);
+
+    //quick bounds check
+    if (!m_data || offset + dataSize > m_size) return;
+
+    //copy over the data
+    memcpy((uint8_t*)m_data + offset, data, dataSize);
+
+    //queue a data write
+    queueUpdate();
 }
 
 void GLGE::Graphic::Backend::OGL::Buffer::forceCreate()
 {
     //create the OpenGL buffer
-    glCreateBuffers(1, &m_buff);
+    if (!m_buff)
+    {glCreateBuffers(1, &m_buff);}
 }
 
 void GLGE::Graphic::Backend::OGL::Buffer::update() noexcept
@@ -62,21 +97,21 @@ void GLGE::Graphic::Backend::OGL::Buffer::update() noexcept
         //if it does not exist, resize the buffer
         glCreateBuffers(1, &m_buff);
         m_currSize = 0;
+        m_mappedPtr = nullptr;
     }
     //if the size is not correct, resize
     if (m_size != m_currSize) {
+        //store the OpenGL flags
+        GLenum flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
         //re-size the data
-        glNamedBufferStorage(m_buff, m_size, m_data, GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT);
+        glNamedBufferStorage(m_buff, m_size, m_data, flags);
+        //map the data
+        m_mappedPtr = glMapNamedBufferRange(m_buff, 0, m_size, flags);
         //store the new size
         m_currSize = m_size;
     } else 
     {
-        //fill the buffer with the new data
-        void* data = glMapNamedBuffer(m_buff, GL_WRITE_ONLY);
-        //only copy data if the mapping was successful
-        if (data) {
-            memcpy(data, m_data, m_currSize);
-            glUnmapNamedBuffer(m_buff);
-        }
+        //just copy the data over
+        memcpy(m_mappedPtr, m_data, m_currSize);
     }
 }

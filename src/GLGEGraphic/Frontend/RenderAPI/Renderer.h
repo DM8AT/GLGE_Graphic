@@ -86,6 +86,11 @@ public:
     Renderer(const RenderObject* objs, size_t objCount) noexcept;
 
     /**
+     * @brief Destroy the Renderer
+     */
+    ~Renderer() noexcept;
+
+    /**
      * @brief Set if the renderer is shown
      * 
      * @param shown true : the renderer is shown | false : the renderer is not shown
@@ -117,10 +122,19 @@ public:
      */
     inline const RenderObject& getObject(size_t i) const noexcept {return m_objs[i];}
 
+    /**
+     * @brief Get the Render Object Handle
+     * 
+     * @return uint32_t the render object handle for this renderer
+     */
+    inline uint32_t getRenderObjectHandle() const noexcept {return m_handle;}
+
 protected:
 
     //store if the object is shown
     bool m_shown = true;
+    //store the name of the render object
+    uint32_t m_handle = 0;
     //store the actual render objects
     std::vector<RenderObject> m_objs{};
 

@@ -23,6 +23,9 @@
 //render mesh registries required for render mesh handles
 #include "RenderMeshRegistry.h"
 
+//define a value that represents unlimited iterations per second for a render pipeline
+#define GLGE_UNLIMITED 0
+
 /**
  * @brief define all types of stages a render pipeline may include
  */
@@ -115,6 +118,8 @@ typedef struct s_RenderPipelineStageNamed {
 #include <thread>
 //conditional variable is required for synchronization
 #include <condition_variable>
+//add chrono for timing
+#include <chrono>
 
 /**
  * @brief define a render pipeline
@@ -193,6 +198,28 @@ public:
      */
     inline ::Window* getWindow() const noexcept {return m_window;}
 
+    /**
+     * @brief Set the maximal Iteration Rate of the render pipeline
+     * 
+     * @param iterRate the maximum repeat rate in iterations per second (use GLGE_UNDEFINED for unlimited iterations per second)
+     */
+    inline void setIterationRate(uint64_t iterRate) noexcept
+    {m_ips = iterRate;}
+
+    /**
+     * @brief Get the maximum Iteration Rate of the render pipeline
+     * 
+     * @return uint64_t the maximum repeat rate in iterations per second (use GLGE_UNDEFINED for unlimited iterations per second)
+     */
+    inline uint64_t getIterationRate() const noexcept {return m_ips;}
+
+    /**
+     * @brief get the delta time of the render pipeline
+     * 
+     * @return double the delta time in seconds
+     */
+    inline double getDelta() const noexcept {return m_delta;}
+
 protected:
 
     /**
@@ -220,6 +247,12 @@ protected:
 
     //store the API implementation for the render pipeline
     void* m_api = nullptr;
+    //store the requested iterations per second
+    uint64_t m_ips = GLGE_UNLIMITED;
+    //store the last start
+    std::chrono::system_clock::time_point m_last;
+    //store the current delta time
+    double m_delta = 0.f;
     //store the thread for recording
     std::thread m_thread;
     //sync stuff

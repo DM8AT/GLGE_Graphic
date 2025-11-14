@@ -292,6 +292,22 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
         //bind the texture to the current unit
         glBindTextureUnit(i, ((OGL::Texture*)((::Texture*) mat->getUsedTextures()[i])->getBackend())->getTexture());
     }
+    //store how many buffers of a specific type are bound
+    uint8_t uboCount = 0;
+    uint8_t ssboCount = 0;
+    //iterate over all buffers of the material
+    for (uint8_t i = 0; i < mat->getUsedBufferCount(); ++i) {
+        //bind the correct buffer type
+        if (mat->getUsedBuffers()[i]->getType() == GLGE_BUFFER_TYPE_UNIFORM) {
+            //handle the buffer as a uniform buffer
+            glBindBufferBase(GL_UNIFORM_BUFFER, uboCount++, 
+                ((GLGE::Graphic::Backend::API::BufferChain*)mat->getUsedBuffers()[i]->getBackend())->getBuffer_GPU<OGL::Buffer>()->getBuffer());
+        } else {
+            //handle the buffer as a shader storage buffer
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboCount++, 
+                ((GLGE::Graphic::Backend::API::BufferChain*)mat->getUsedBuffers()[i]->getBackend())->getBuffer_GPU<OGL::Buffer>()->getBuffer());
+        }
+    }
 }
 
 void GLGE::Graphic::Backend::OGL::Command_DrawMesh::execute() noexcept

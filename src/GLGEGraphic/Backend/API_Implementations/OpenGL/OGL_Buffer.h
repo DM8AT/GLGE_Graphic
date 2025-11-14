@@ -44,6 +44,23 @@ public:
     virtual ~Buffer();
 
     /**
+     * @brief store the new data in the buffer
+     * 
+     * @param data a pointer to the new data
+     * @param dataSize the size of the data
+     */
+    virtual void set(void* data, uint64_t dataSize) noexcept override;
+
+    /**
+     * @brief write some data to a region of the buffer
+     * 
+     * @param data a pointer to the data to write
+     * @param dataSize the size of the data to write
+     * @param offset the offset into the buffer to write to
+     */
+    virtual void write(void* data, uint64_t dataSize, uint64_t offset) noexcept override;
+
+    /**
      * @brief Get the Buffer
      * 
      * @return uint32_t the actual OpenGL buffer
@@ -71,6 +88,8 @@ protected:
     uint32_t m_buff = 0;
     //store the current buffer size
     uint64_t m_currSize = 0;
+    //store a pointer to the mapped data
+    void* m_mappedPtr = nullptr;
 
 };
 

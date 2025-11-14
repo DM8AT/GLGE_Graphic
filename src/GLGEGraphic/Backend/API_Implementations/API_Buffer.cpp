@@ -44,36 +44,6 @@ GLGE::Graphic::Backend::API::Buffer::~Buffer() noexcept
     }
 }
 
-void GLGE::Graphic::Backend::API::Buffer::set(void* data, uint64_t dataSize) noexcept
-{
-    //make sure this is the only thread that writes to the data
-    std::unique_lock lock(m_dataMtx);
-    //check if the data is the same size
-    if (dataSize != m_size) {
-        //if not (like in most cases) create a new data storage
-        delete[] (uint8_t*)m_data;
-        m_data = new uint8_t[dataSize];
-        //sanity check
-        GLGE_ASSERT("Failed to allocate a new CPU side block for a graphic buffer", !m_data);
-        //store the size of the allocated block
-        m_size = dataSize;
-    }
-    //copy the data over
-    memcpy(m_data, data, dataSize);
-    //queue the buffer for an update
-    queueUpdate();
-}
-
-void GLGE::Graphic::Backend::API::Buffer::write(void* data, uint64_t dataSize, uint64_t offset) noexcept
-{
-    //make sure the data is not moved during the write
-    std::shared_lock lock(m_dataMtx);
-    //copy the data to the internal storage
-    memcpy((uint8_t*)m_data + offset, data, dataSize);
-    //queue an data update
-    queueUpdate();
-}
-
 void GLGE::Graphic::Backend::API::Buffer::resize(uint64_t newSize) noexcept
 {
     //make sure this is the only thread that writes to the data
@@ -118,4 +88,64 @@ void GLGE::Graphic::Backend::API::Buffer::queueUpdate() noexcept {
         //store that the buffer is queued
         m_queued.store(true, std::memory_order_relaxed);
     }
+}
+
+
+
+
+GLGE::Graphic::Backend::API::BufferChain::~BufferChain() noexcept
+{
+    //thread safety
+    std::unique_lock lock(s_newDeleteMut);
+    //remove the element from the vector
+    auto it = std::find(s_bufferChains.begin(), s_bufferChains.end(), this);
+    if (it != s_bufferChains.end()) {s_bufferChains.erase(it);}
+
+    //clean up the buffers
+    for (uint8_t i = 0; i < cm_bufferCount; ++i) {
+        delete m_buffers[i];
+        m_buffers[i] = nullptr;
+    }
+}
+
+void GLGE::Graphic::Backend::API::BufferChain::endWrite() noexcept
+{
+    //if the amount of buffers is 1, just stop
+    if (cm_bufferCount == 1) {return;}
+
+    //get and advance the index
+    uint8_t curr = m_curr.load(std::memory_order_relaxed);
+    uint8_t next = (curr + 1) % cm_bufferCount;
+
+    //avoid stepping into the buffer the GPU will consume next
+    uint8_t consume = m_consume.load(std::memory_order_acquire);
+    if (next == consume)
+    {
+        --next;
+        next = (next == 0xFFu) ? cm_bufferCount-1 : next;
+    }
+
+    //store the next index as the current one
+    m_curr.store(next, std::memory_order_release);
+}
+
+void GLGE::Graphic::Backend::API::BufferChain::advanceGPU() noexcept
+{
+    //if the amount of buffers is 1, just stop
+    if (cm_bufferCount == 1) {return;}
+    
+    //store the current and next index
+    uint8_t consume = m_consume.load(std::memory_order_relaxed);
+    uint8_t next = (consume + 1) % cm_bufferCount;
+
+    //prevent GPU from stepping onto the buffer that CPU is *currently* writing
+    uint8_t curr = m_curr.load(std::memory_order_acquire);
+    if (next == curr)
+    {
+        --next;
+        next = (next == 0xFFu) ? cm_bufferCount-1 : next;
+    }
+
+    //store the next index
+    m_consume.store(next, std::memory_order_release);
 }

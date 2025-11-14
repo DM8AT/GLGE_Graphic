@@ -16,7 +16,7 @@
 //add memcpy
 #include <cstring>
 
-Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout, 
+Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, Buffer** buffers, uint8_t bufferCount, const VertexLayout& layout, 
                    MaterialSettings settings, DepthTestOperator depthOperator) noexcept
  : m_shader(shader), m_layout(layout), m_settings(settings), m_depthOperator(depthOperator)
 {
@@ -30,6 +30,17 @@ Material::Material(Shader* shader, Texture** textures, uint8_t textureCount, con
     memcpy(m_textures, textures, textureCount*sizeof(*textures));
     //store the amount of used textures
     m_usedTextureCount = textureCount;
+    
+    //copy over the buffer data
+    if (bufferCount > GLGE_MAX_MATERIAL_BUFFER_BINDING) {
+        //warning
+        std::cerr << "[WARNING] Requested to store " << bufferCount << " buffers but a material may only bind " << GLGE_MAX_MATERIAL_BUFFER_BINDING << " buffers. Truncating data.\n";
+        bufferCount = GLGE_MAX_MATERIAL_BUFFER_BINDING;
+    }
+    //copy the data over
+    memcpy(m_buffers, buffers, bufferCount * sizeof(*buffers));
+    //store how many buffers are used
+    m_usedBuffers = bufferCount;
 
     //switch over the API to create the correct material type
     switch (GLGE::Graphic::Backend::INSTANCE.getAPI())

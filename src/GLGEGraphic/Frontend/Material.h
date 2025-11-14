@@ -17,11 +17,15 @@
 #include "Shader.h"
 //also add textures
 #include "Texture.h"
+//and buffers
+#include "Buffer.h"
 //add the vertex layout
 #include "../../GLGE_Core/Geometry/Surface/VertexLayout.h"
 
 //define how many textures are allowed maximum
 #define GLGE_MAX_MATERIAL_TEXTURE_BINDING 48
+//define how many buffers are allowed maximum
+#define GLGE_MAX_MATERIAL_BUFFER_BINDING 48
 
 //define a simple 64 bit bitmask as the settings for a material
 typedef uint64_t MaterialSettings;
@@ -80,13 +84,14 @@ public:
      * 
      * @param shader 
      * @param texture 
+     * @param buffer 
      * @param layout 
      * @param settings 
      * @param depthOperator
      */
-    inline Material(Shader* shader, Texture* texture, const VertexLayout& layout, 
+    inline Material(Shader* shader, Texture* texture, ::Buffer* buffer, const VertexLayout& layout, 
                     MaterialSettings settings = GLGE_MATERIAL_SETTINGS_DEFAULT, DepthTestOperator depthOperator = MATERIAL_DEPTH_TEST_LESS) noexcept
-     : Material(shader, &texture, (texture) ? 1 : 0, layout, settings, depthOperator)
+     : Material(shader, &texture, texture ? 1 : 0, &buffer, buffer ? 1 : 0, layout, settings, depthOperator)
     {}
 
     /**
@@ -95,11 +100,13 @@ public:
      * @param shader a pointer to the shader for the material
      * @param textures a pointer to an array of texture pointers for the material
      * @param textureCount store the amount of texture pointers in the `textures` array
+     * @param buffers 
+     * @param bufferCount 
      * @param layout the expected vertex layout
      * @param settings 
      * @param depthOperator 
      */
-    Material(Shader* shader, Texture** textures, uint8_t textureCount, const VertexLayout& layout, 
+    Material(Shader* shader, Texture** textures, uint8_t textureCount, ::Buffer** buffers, uint8_t bufferCount, const VertexLayout& layout, 
              MaterialSettings settings = GLGE_MATERIAL_SETTINGS_DEFAULT, DepthTestOperator depthOperator = MATERIAL_DEPTH_TEST_LESS) noexcept;
 
     /**
@@ -151,6 +158,20 @@ public:
     inline const Texture** getUsedTextures() const noexcept {return (const Texture**)m_textures;}
 
     /**
+     * @brief Get the Used Buffer Count
+     * 
+     * @return uint8_t the amount of used buffers
+     */
+    inline uint8_t getUsedBufferCount() const noexcept {return m_usedBuffers;}
+
+    /**
+     * @brief Get the Used Buffers
+     * 
+     * @return const Buffer** a pointer to a C array that contains pointers to the buffers
+     */
+    inline const ::Buffer** getUsedBuffers() const noexcept {return (const ::Buffer**)m_buffers;}
+
+    /**
      * @brief Get the Vertex Layout of the material
      * 
      * @return const VertexLayout& a reference to the vertex layout of the material
@@ -191,6 +212,10 @@ protected:
     Texture* m_textures[GLGE_MAX_MATERIAL_TEXTURE_BINDING] = { nullptr };
     //store the amount of used textures
     uint8_t m_usedTextureCount = 0;
+    //store all the buffers
+    ::Buffer* m_buffers[GLGE_MAX_MATERIAL_BUFFER_BINDING] = { nullptr };
+    //store the amount of bound buffers
+    uint8_t m_usedBuffers = 0;
     //store the vertex layout for the material
     VertexLayout m_layout;
     //store the backend material

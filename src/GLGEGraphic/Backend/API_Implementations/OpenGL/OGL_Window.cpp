@@ -75,6 +75,14 @@ void GLGE::Graphic::Backend::OGL::Window::clearWindow(const vec4& clearColor) no
 
 void GLGE::Graphic::Backend::OGL::Window::endFrame() noexcept
 {
+    {
+        //thread safety
+        std::shared_lock lock(API::BufferChain::s_newDeleteMut);
+
+        //tick all the buffers
+        for (auto& buff : API::BufferChain::s_bufferChains) 
+        {buff->advanceGPU();}
+    }
     //swap the window buffer
     SDL_GL_SwapWindow(m_window->getSDLWindow());
 }
