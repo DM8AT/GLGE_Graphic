@@ -11,6 +11,8 @@
 //add the render object system
 #include "RenderObjectSystem.h"
 
+using namespace GLGE::Graphic::Backend;
+
 RenderObjectHandle GLGE::Graphic::Backend::RenderObjectSystem::create() noexcept {
     //thread safety
     std::unique_lock lock(m_mutex);
@@ -28,6 +30,13 @@ RenderObjectHandle GLGE::Graphic::Backend::RenderObjectSystem::create() noexcept
         //create a new entry
         RenderObjectHandle handle = (1u << GLGE_RENDER_OBJECT_HANDLE_VERSION_OFFSET) | ((uint32_t)m_handles.size() & GLGE_RENDER_OBJECT_HANDLE_INDEX);
         m_handles.push_back(handle);
+        //also make sure that the transform buffer has enough space
+        //if the buffer does not exist, create it
+        if (m_transfBuff)
+        {m_transfBuff->resize(m_handles.size() * sizeof(CompressedTransform));}
+        else
+        {m_transfBuff = new (m_transfBuffStorage) StructuredBuffer<CompressedTransform>(nullptr, 0, GLGE_BUFFER_TYPE_SHADER_STORAGE, 3);
+         m_transfBuff->resize(sizeof(CompressedTransform));}
         //return the handle
         return handle;
     }

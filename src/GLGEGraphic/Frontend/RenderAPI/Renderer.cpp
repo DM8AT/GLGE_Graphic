@@ -11,7 +11,9 @@
 //add the renderer
 #include "Renderer.h"
 //add the render object system
-#include "../../Backend/RenderObjectSystem.h"
+#include "../../Backend/Objects/RenderObjectSystem.h"
+//add scenes
+#include "../../../GLGE_Core/Geometry/Structure/ECS/Scene.h"
 
 Renderer::Renderer(const RenderObject* objs, size_t objCount) noexcept 
 {
@@ -29,4 +31,18 @@ Renderer::~Renderer() noexcept {
         GLGE::Graphic::Backend::RenderObjectSystem::destroy(m_handle);
         m_handle = 0;
     }
+}
+
+void Renderer::setObject(Object obj)
+{
+    //if the object is not null, stop
+    if (m_obj) {return;}
+    //else, store the object
+    m_obj = obj;
+    //store the transform
+    GLGE::Graphic::Backend::RenderObjectSystem::getTransformBuffer()->
+        set(m_handle & GLGE_RENDER_OBJECT_HANDLE_INDEX, GLGE::Graphic::Backend::CompressedTransform(
+            *m_obj->get<Transform>(), 
+            m_handle & GLGE_RENDER_OBJECT_HANDLE_VERSION >> GLGE_RENDER_OBJECT_HANDLE_VERSION_OFFSET)
+        );
 }

@@ -15,5 +15,7 @@
 
 //include instances
 #include "Instance.h"
+//add the render object system to the backend
+#include "Objects/RenderObjectSystem.h"
 
 #endif

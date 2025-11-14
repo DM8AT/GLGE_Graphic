@@ -245,6 +245,13 @@ public:
      */
     void advanceGPU() noexcept;
 
+    /**
+     * @brief resize all buffers
+     * 
+     * @param newSize the new size for all buffers
+     */
+    void resizeAll(uint64_t newSize);
+
     //make the buffer chain vector thread safe
     inline static std::shared_mutex s_newDeleteMut;
     //store all buffer chains

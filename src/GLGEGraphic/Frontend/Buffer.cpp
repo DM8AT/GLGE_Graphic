@@ -62,10 +62,6 @@ void Buffer::write(void* data, uint64_t offset, uint64_t size) noexcept {
 }
 
 void Buffer::resize(uint64_t size) noexcept {
-    //start writing to the buffer
-    auto buff = ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->beginWrite();
     //change the size of the buffer
-    buff->resize(size);
-    //finish the writing
-    ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->endWrite();
+    ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->resizeAll(size);
 }

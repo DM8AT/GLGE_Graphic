@@ -9,14 +9,15 @@
  * 
  */
 //header guard
-#ifndef _GLGE_GRAPHIC_BACKEND_RENDER_OBJECT_SYSTEM_
-#define _GLGE_GRAPHIC_BACKEND_RENDER_OBJECT_SYSTEM_
+#ifndef _GLGE_GRAPHIC_BACKEND_OBJECTS_RENDER_OBJECT_SYSTEM_
+#define _GLGE_GRAPHIC_BACKEND_OBJECTS_RENDER_OBJECT_SYSTEM_
 
 //add types
 #include "../../../GLGE_Core/Types.h"
-
-//use uint32_t's for object handles
-typedef uint32_t RenderObjectHandle;
+//add frontend structured buffers
+#include "../../Frontend/StructuredBuffer.h"
+//add the compressed transforms
+#include "CompressedTransform.h"
 
 //define a constant to be used as a bitmask for the index
 #define GLGE_RENDER_OBJECT_HANDLE_INDEX 0x3FFFFFu
@@ -33,9 +34,14 @@ typedef uint32_t RenderObjectHandle;
 //add a mutex to make the system thread safe
 #include <mutex>
 #include <shared_mutex>
+//add optionals to deferr construction
+#include <optional>
 
 //use a custom namespace for the backend: GLGE::Graphic::Backend
 namespace GLGE::Graphic::Backend {
+
+//use uint32_t's for object handles
+typedef uint32_t RenderObjectHandle;
 
 /**
  * @brief a class to hold a Render Object System
@@ -78,6 +84,14 @@ public:
         return false;
     }
 
+    /**
+     * @brief Get the Transform Buffer
+     * 
+     * @return Buffer* a pointer to the transform structure
+     */
+    inline static StructuredBuffer<CompressedTransform>* getTransformBuffer() noexcept 
+    {return (StructuredBuffer<CompressedTransform>*)&m_transfBuffStorage;}
+
 protected:
 
     //store a list of all active handles
@@ -86,6 +100,10 @@ protected:
     inline static std::vector<uint32_t> m_freeList;
     //store a mutex to make the render object system thread safe
     inline static std::shared_mutex m_mutex;
+
+    //store a trippe-buffered structured buffer of compressed transforms
+    inline static uint8_t m_transfBuffStorage[sizeof(StructuredBuffer<CompressedTransform>)]{ 0 };
+    inline static StructuredBuffer<CompressedTransform>* m_transfBuff = nullptr;
 
 };
 

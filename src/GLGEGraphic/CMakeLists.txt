@@ -6,7 +6,8 @@ set(GLGE_GRAPHIC_VERSION 0.1.0)
 
 set(SRC 
     Backend/Instance.cpp
-    Backend/RenderObjectSystem.cpp
+    
+    Backend/Objects/RenderObjectSystem.cpp
     
     Backend/API_Implementations/API_Instance.cpp
     Backend/API_Implementations/API_Shader.cpp

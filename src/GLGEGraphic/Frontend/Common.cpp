@@ -15,6 +15,8 @@
 //include the backend
 #include "../Backend/Backend.h"
 
+Buffer* glge_Graphic_GetTransformBuffer() {return GLGE::Graphic::Backend::RenderObjectSystem::getTransformBuffer();}
+
 void glge_Graphic_MainTick()
 {
     //simply update the backend instance

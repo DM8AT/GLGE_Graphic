@@ -149,3 +149,11 @@ void GLGE::Graphic::Backend::API::BufferChain::advanceGPU() noexcept
     //store the next index
     m_consume.store(next, std::memory_order_release);
 }
+
+void GLGE::Graphic::Backend::API::BufferChain::resizeAll(uint64_t newSize)
+{
+    //iterate over all buffers and resize them
+    for (uint8_t i = 0; i < cm_bufferCount; ++i) {
+        m_buffers[i]->resize(newSize);
+    }
+}

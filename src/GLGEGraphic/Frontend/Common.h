@@ -13,6 +13,21 @@
 #ifndef _GLGE_GRAPHIC_FRONTEND_COMMON_
 #define _GLGE_GRAPHIC_FRONTEND_COMMON_
 
+//add buffers
+#include "Buffer.h"
+
+//currently only available in C++
+#if __cplusplus
+
+/**
+ * @brief get the global transform buffer of all objects
+ * 
+ * @return Buffer* a pointer to the main transform buffer
+ */
+Buffer* glge_Graphic_GetTransformBuffer();
+
+#endif
+
 //make everything available for C
 #if __cplusplus
 extern "C" {

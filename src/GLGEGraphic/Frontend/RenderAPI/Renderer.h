@@ -16,6 +16,8 @@
 
 //add strings for names
 #include "../../../GLGE_BG/CBinding/String.h"
+//add objects
+#include "../../../GLGE_Core/Geometry/Structure/ECS/Object.h"
 
 //add render meshes
 #include "RenderMeshRegistry.h"
@@ -129,8 +131,18 @@ public:
      */
     inline uint32_t getRenderObjectHandle() const noexcept {return m_handle;}
 
+    /**
+     * @brief Set the Object
+     * @warning do not call manually. This function is automatically called during component creation
+     * 
+     * @param obj the object this render object belongs to
+     */
+    void setObject(Object obj);
+
 protected:
 
+    //store the object
+    Object m_obj = nullptr;
     //store if the object is shown
     bool m_shown = true;
     //store the name of the render object
