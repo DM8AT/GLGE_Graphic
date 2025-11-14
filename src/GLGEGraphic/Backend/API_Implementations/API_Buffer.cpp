@@ -98,9 +98,9 @@ GLGE::Graphic::Backend::API::BufferChain::~BufferChain() noexcept
     //thread safety
     std::unique_lock lock(s_newDeleteMut);
     //remove the element from the vector
-    auto it = std::find(s_bufferChains.begin(), s_bufferChains.end(), this);
-    if (it != s_bufferChains.end()) {s_bufferChains.erase(it);}
-
+    for (size_t i = 0; i < s_bufferChains.size(); ++i) 
+    {if (s_bufferChains[i] == this) {s_bufferChains.erase(s_bufferChains.begin() + i);}}
+    
     //clean up the buffers
     for (uint8_t i = 0; i < cm_bufferCount; ++i) {
         delete m_buffers[i];
