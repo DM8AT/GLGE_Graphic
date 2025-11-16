@@ -62,8 +62,10 @@ public:
     /**
      * @brief sync the GPU and CPU data with the data from the cycle buffer
      * @warning this should only be called from the main thread during the main graphic update
+     * 
+     * @param force true : the buffer syncing is forced regardless of GPU state | false : the buffer MAY sync, but it can choose not to. 
      */
-    virtual void syncCPU() noexcept = 0;
+    virtual void syncCPU(bool force) noexcept = 0;
 
     /**
      * @brief mark that this buffer is now the GPU consumed buffer
@@ -77,6 +79,8 @@ protected:
     CycleBuffer* m_cBuff = nullptr;
     //store the index of the buffer
     uint8_t m_idx = UINT8_MAX;
+    //store the version the buffer was updated last
+    uint32_t m_version = 0;
 
 };
 
@@ -164,6 +168,13 @@ public:
      */
     inline uint8_t getGPUIdx() const noexcept {return m_gpuBuff.load(std::memory_order_acquire);}
 
+    /**
+     * @brief Get the Version of the cycle buffer
+     * 
+     * @return uint32_t the current version
+     */
+    inline uint32_t getVersion() const noexcept {return m_version.load(std::memory_order_acquire);}
+
     //store all the cycle buffers
     inline static std::vector<API::CycleBuffer*> s_buffers;
     //store a mutex to make the buffer vector thread safe
@@ -181,6 +192,8 @@ protected:
     const uint8_t cm_usedBuffers = 0;
     //store the current GPU buffer
     std::atomic_uint8_t m_gpuBuff{0};
+    //store the current version
+    std::atomic_uint32_t m_version{0};
     //make the buffer thread safe
     std::mutex m_mtx;
     //store all the cycle buffer backends

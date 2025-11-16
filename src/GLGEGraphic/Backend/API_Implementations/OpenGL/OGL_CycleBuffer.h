@@ -50,8 +50,10 @@ public:
     /**
      * @brief sync the GPU and CPU data with the data from the cycle buffer
      * @warning this should only be called from the main thread during the main graphic update
+     * 
+     * @param force true : the buffer syncing is forced regardless of GPU state | false : the buffer MAY sync, but it can choose not to. 
      */
-    virtual void syncCPU() noexcept override;
+    virtual void syncCPU(bool force) noexcept override;
 
     /**
      * @brief Get the OpenGL Buffer

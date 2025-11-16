@@ -95,6 +95,13 @@ protected:
     void executeStage_DrawScene(const RenderPipelineStageData::DrawScene& stage) noexcept;
 
     /**
+     * @brief dispatch a compute shader
+     * 
+     * @param stage the stage data to execute on
+     */
+    void executeStage_DispatchCompute(const RenderPipelineStageData::DispatchCompute& stage) noexcept;
+
+    /**
      * @brief store the OpenGL command buffer
      */
     CommandBuffer m_cmdBuff;

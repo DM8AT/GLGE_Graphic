@@ -202,7 +202,7 @@ void GLGE::Graphic::Backend::OGL::Shader::compile() noexcept
     while (todo) {
         //pop the top most shader stage off
         uint8_t idx = getMostSignificantBit(todo);
-        todo >>= 1;
+        todo &= ~(1 << idx);
         //compile the shader stage
         GLuint stage = createShaderObject(m_shader->getShaderStages()[idx].sourceCode.c_str(), 
                                           m_shader->getShaderStages()[idx].sourceCode.size(), 

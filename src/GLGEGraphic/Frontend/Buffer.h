@@ -57,17 +57,14 @@ public:
      */
     inline BufferType getType() const noexcept {return m_type;}
 
-    //define SDL / backend stuff
-    #ifdef SDL_h_
-
     /**
      * @brief Get the Backend data
+     * 
+     * @warning only use if you know what you're doing
      * 
      * @return void* a pointer to the backend object
      */
     inline void* getBackend() const noexcept {return m_buff;}
-
-    #endif
 
     /**
      * @brief Get the Data stored in the buffer

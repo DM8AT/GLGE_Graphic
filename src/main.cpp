@@ -12,7 +12,7 @@ struct CustomMatData {
 int main()
 {
     Window win = Window("Hello World!", 600);
-    win.setVSync(GLGE_VSYNC_OFF);
+    win.setVSync(GLGE_VSYNC_ON);
 
     CustomMatData customMatData;
     Buffer material(&customMatData, sizeof(customMatData), GLGE_BUFFER_TYPE_UNIFORM);
@@ -71,9 +71,8 @@ int main()
         glge_Graphic_MainTick();
         pipe.play();
 
-        if (fps.size() == fps.capacity()) {
-            win.requestClosing();
-        } else {
+        //only fill up the buffer, do not cause re-sizing
+        if (fps.size() < fps.capacity()) {
             fps.push_back(1. / pipe.getDelta());
         }
     }

@@ -48,6 +48,13 @@ public:
      */
     inline Mesh* getMesh() const noexcept {return m_mesh;}
 
+    /**
+     * @brief get the unique identifier of the render mesh
+     * 
+     * @return uint64_t the unique identifier of the render mesh
+     */
+    inline uint64_t getUID() const noexcept {return m_uid;}
+
     //define SDL / backend stuff
     #ifdef SDL_h_
 
@@ -69,13 +76,16 @@ protected:
      * @brief Construct a new Render Mesh
      * 
      * @param mesh the core mesh to encapsulate
+     * @param uid the unique identifier of the render mesh
      */
-    RenderMesh(Mesh* mesh) noexcept;
+    RenderMesh(Mesh* mesh, uint64_t uid) noexcept;
 
     //store a pointer to the core mesh
     Mesh* m_mesh = nullptr;
+    //store a unique id
+    uint64_t m_uid = 0;
     //store the data for the backend implementation (it is fully opaque)
-    uint8_t m_impl[40]{0};
+    uint8_t m_impl[56]{0};
     //store a pointer to the backend implementation 
     void* m_backend = nullptr;
 

@@ -45,7 +45,15 @@ typedef enum e_RenderPipelineStageType {
     /**
      * @brief draw an entire scene
      */
-    GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE
+    GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE,
+    /**
+     * @brief dispatch a compute shader that needs to run every tick
+     */
+    GLGE_RENDER_PIPELINE_DISPATCH_COMPUTE,
+    /**
+     * @brief make sure the memory is fully up to date
+     */
+    GLGE_RENDER_PIPELINE_MEMORY_BARRIER
 } RenderPipelineStageType;
 
 /**
@@ -77,6 +85,13 @@ typedef union u_RenderPipelineStageData {
         //store a pointer to the scene object to draw
         void* scene;
     } drawScene;
+    //store the data that is needed to dispatch a compute shader
+    struct DispatchCompute {
+        //store a pointer to the compute object to dispatch
+        void* compute;
+        //store the amount of instances to create
+        uint32_t instances[3];
+    } dispatchCompute;
 } RenderPipelineStageData;
 
 /**

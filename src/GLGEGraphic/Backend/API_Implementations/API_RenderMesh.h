@@ -67,6 +67,13 @@ public:
      */
     inline ::RenderMesh* getRenderMesh() const noexcept {return m_rMesh;}
 
+    /**
+     * @brief get the GPU data of the render mesh
+     * 
+     * @return const GPU& a constant reference to the GPU data
+     */
+    inline const MeshGPUInfo& getGPUData() const noexcept {return m_gpu;}
+
 protected:
 
     //store a pointer to the frontend render mesh
@@ -75,6 +82,8 @@ protected:
     MemoryArena::GraphicPointer m_vboPointer;
     //store a graphic pointer to the index data in the memory arena
     MemoryArena::GraphicPointer m_iboPointer;
+    //store the GPU data
+    MeshGPUInfo m_gpu;
 
 };
 

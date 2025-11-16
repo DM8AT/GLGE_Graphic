@@ -99,6 +99,8 @@ Instance::Instance(Window* window)
     //force the vertex and index buffer to create itself
     ((OGL::Buffer*)m_vertexBuffer.getBuffer())->forceCreate();
     ((OGL::Buffer*)m_indexBuffer.getBuffer())->forceCreate();
+    //also force the mesh buffer to exist
+    ((OGL::Buffer*)m_meshBuffer.getBackend())->forceCreate();
 }
 
 Instance::~Instance()

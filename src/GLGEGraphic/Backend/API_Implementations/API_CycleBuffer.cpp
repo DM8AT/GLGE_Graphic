@@ -77,10 +77,19 @@ void CycleBuffer::tick() noexcept
 {
     //thread safety
     std::unique_lock lock(m_mtx);
-    //sync the GPU buffer
-    getCurrentGPUBackend<API::CycleBufferBackend>()->syncCPU();
-    //advance the GPU index
-    m_gpuBuff.store((m_gpuBuff.load(std::memory_order_acquire) + 1) % cm_usedBuffers, std::memory_order_release);
+    //if only one buffer exists, just sync it
+    if (cm_usedBuffers == 1)
+    {
+        //force the update on the buffer
+        m_backends[0]->syncCPU(true);
+    } else {
+        //else, update all buffers but not the one being consumed by the GPU
+
+        //advance the GPU index
+        m_gpuBuff.store((m_gpuBuff.load(std::memory_order_acquire) + 1) % cm_usedBuffers, std::memory_order_release);
+        //advance all buffers except the current GPU buffer
+        for (uint8_t i = 0; i < cm_usedBuffers; ++i) {m_backends[i]->syncCPU(false);}
+    }
 }
 
 void CycleBuffer::set(void* data, uint64_t size) noexcept
@@ -94,6 +103,8 @@ void CycleBuffer::set(void* data, uint64_t size) noexcept
     }
     //then, store the data
     memcpy(m_data, data, m_size);
+    //update the version
+    m_version.fetch_add(1, std::memory_order_acq_rel);
 }
 
 void CycleBuffer::write(void* data, uint64_t size, uint64_t offset) noexcept
@@ -102,6 +113,8 @@ void CycleBuffer::write(void* data, uint64_t size, uint64_t offset) noexcept
     std::unique_lock lock(m_mtx);
     //write at the requested position
     memcpy((uint8_t*)m_data + offset, data, size);
+    //update the version
+    m_version.fetch_add(1, std::memory_order_acq_rel);
 }
 
 void CycleBuffer::resize(uint64_t size) noexcept

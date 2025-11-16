@@ -60,6 +60,14 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineSt
     case GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE:
         executeStage_DrawScene(stage.data.drawScene);
         break;
+
+    case GLGE_RENDER_PIPELINE_DISPATCH_COMPUTE:
+        executeStage_DispatchCompute(stage.data.dispatchCompute);
+        break;
+
+    case GLGE_RENDER_PIPELINE_MEMORY_BARRIER:
+        m_cmdBuff.record<Command_MemoryBarrier>();
+        break;
     
     default:
         GLGE_DEBUG_ABORT("Unknown render pipeline stage");
@@ -120,6 +128,12 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_DrawScene(const R
             m_cmdBuff.record<Command_DrawMesh>((API::RenderMesh*)RenderMeshRegistry::get(mesh)->getBackend());
         }
     }
+}
+
+void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_DispatchCompute(const RenderPipelineStageData::DispatchCompute& stage) noexcept
+{
+    //simply queue the dispatch compute command
+    m_cmdBuff.record<Command_DispatchCompute>(stage.compute, stage.instances[0], stage.instances[1], stage.instances[2]);
 }
 
 

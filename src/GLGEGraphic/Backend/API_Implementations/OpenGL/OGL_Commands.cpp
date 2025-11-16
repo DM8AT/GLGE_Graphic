@@ -37,6 +37,8 @@
 #include "../../../Frontend/RenderAPI/RenderMesh.h"
 //add cycle buffers
 #include "OGL_CycleBuffer.h"
+//add compute objects
+#include "../../../Frontend/Compute.h"
 
 static GLenum getType(VertexElementDataType type) noexcept
 {
@@ -319,4 +321,45 @@ void GLGE::Graphic::Backend::OGL::Command_DrawMesh::execute() noexcept
     //run the draw command
     glDrawElementsBaseVertex(GL_TRIANGLES, rMesh->getIndexPointer().size / sizeof(index_t), GL_UNSIGNED_INT, (void*)rMesh->getIndexPointer().startIdx, 
                              rMesh->getVertexPointer().startIdx/rMesh->getRenderMesh()->getMesh()->getVertexLayout().getVertexSize());
+}
+
+void GLGE::Graphic::Backend::OGL::Command_DispatchCompute::execute() noexcept
+{
+    //extract the compute object
+    Compute* cmp = (Compute*)compute;
+
+    //bind all the textures
+    for (uint8_t i = 0; i < cmp->getTextureCount(); ++i) {
+        //bind the texture
+        glBindTextureUnit(i, ((OGL::Texture*)((::Texture*)cmp->getTexture(i))->getBackend())->getTexture());
+    }
+    //bind all the buffers
+    //store how many buffers of a specific type are bound
+    uint8_t uboCount = 0;
+    uint8_t ssboCount = 0;
+    //iterate over all buffers of the material
+    for (uint8_t i = 0; i < cmp->getBufferCount(); ++i) {
+        //bind the correct buffer type
+        if (cmp->getBuffer(i)->getType() == GLGE_BUFFER_TYPE_UNIFORM) {
+            //handle the buffer as a uniform buffer
+            glBindBufferBase(GL_UNIFORM_BUFFER, uboCount++, 
+                ((GLGE::Graphic::Backend::API::CycleBuffer*)cmp->getBuffer(i)->getBackend())->getCurrentGPUBackend<OGL::CycleBufferBackend>()
+                ->getBuffer());
+        } else {
+            //handle the buffer as a shader storage buffer
+            glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboCount++, 
+                ((GLGE::Graphic::Backend::API::CycleBuffer*)cmp->getBuffer(i)->getBackend())->getCurrentGPUBackend<OGL::CycleBufferBackend>()
+                ->getBuffer());
+        }
+    }
+    //bind the actual shader
+    glUseProgram(((GLGE::Graphic::Backend::OGL::Shader*)cmp->getShader()->getBackend())->getProgram());
+    //dispatch the compute shader
+    glDispatchCompute(x,y,z);
+}
+
+void GLGE::Graphic::Backend::OGL::Command_MemoryBarrier::execute() noexcept
+{
+    //just run a memory barrier
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }

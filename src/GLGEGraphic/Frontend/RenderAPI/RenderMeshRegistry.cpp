@@ -27,14 +27,14 @@ RenderMeshHandle RenderMeshRegistry::create(Mesh* mesh) noexcept
         //get the version
         handle.version = m_versions[handle.idx].load(std::memory_order_relaxed);
         //create the new render mesh
-        (void) new (&m_meshes[handle.idx]) RenderMesh(mesh);
+        (void) new (&m_meshes[handle.idx]) RenderMesh(mesh, handle.idx);
     } else {
         //no free values are stored. Create a new element. 
         handle.idx = m_meshes.size();
         handle.version = 1;
         m_versions.emplace_back(handle.version);
         m_meshes.emplace_back();
-        (void) new (&m_meshes[handle.idx]) RenderMesh(mesh);
+        (void) new (&m_meshes[handle.idx]) RenderMesh(mesh, handle.idx);
     }
 
     //return the final handle

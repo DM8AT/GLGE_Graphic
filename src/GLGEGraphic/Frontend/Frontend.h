@@ -28,5 +28,7 @@
 #include "RenderAPI/RenderAPI.h"
 //add buffers
 #include "Buffer.h"
+//add compute objects
+#include "Compute.h"
 
 #endif

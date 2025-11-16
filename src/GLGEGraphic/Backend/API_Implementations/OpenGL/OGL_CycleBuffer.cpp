@@ -25,10 +25,10 @@ CycleBufferBackend::CycleBufferBackend(API::CycleBuffer* cycleBuffer, uint8_t id
     queueUpdate();
 }
 
-void CycleBufferBackend::syncCPU() noexcept
+void CycleBufferBackend::syncCPU(bool force) noexcept
 {
     //if a fence exists, only execute if the fence is signaled
-    if (m_sync) {
+    if (m_sync && !force) {
         //get the result - timeout 0 means non-blocking
         GLenum res = glClientWaitSync((GLsync)m_sync, GL_SYNC_FLUSH_COMMANDS_BIT, 0);
         //check if the sync failed
@@ -40,13 +40,18 @@ void CycleBufferBackend::syncCPU() noexcept
         m_sync = nullptr;
     }
 
-    //check if the size is up to date
-    if (m_size == m_cBuff->getSize()) {
-        //just pass the data
-        memcpy(m_mapped, m_cBuff->getRaw(), m_size);
-    } else {
-        //else, update the data
-        update();
+    //check if an update is needed
+    if (m_version != m_cBuff->getVersion()) {
+        //check if the size is up to date
+        if (m_size == m_cBuff->getSize()) {
+            //just pass the data
+            memcpy(m_mapped, m_cBuff->getRaw(), m_size);
+        } else {
+            //else, update the data
+            update();
+        }
+        //store the new version
+        m_version = m_cBuff->getVersion();
     }
 }
 

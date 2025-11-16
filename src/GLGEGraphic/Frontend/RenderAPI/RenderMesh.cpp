@@ -16,8 +16,8 @@
 //add the API
 #include "../../Backend/API_Implementations/API_RenderMesh.h"
 
-RenderMesh::RenderMesh(Mesh* mesh) noexcept
- : m_mesh(mesh)
+RenderMesh::RenderMesh(Mesh* mesh, uint64_t uid) noexcept
+ : m_mesh(mesh), m_uid(uid)
 {
     //sanity check
     static_assert(sizeof(m_impl) == sizeof(GLGE::Graphic::Backend::API::RenderMesh), "Invalid size for the render mesh data storage");

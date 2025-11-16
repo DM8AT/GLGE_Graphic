@@ -25,6 +25,19 @@ GLGE::Graphic::Backend::API::RenderMesh::RenderMesh(::RenderMesh* rMesh)
     //write the data
     Backend::INSTANCE.getInstance()->getVertexBuffer()->update(m_vboPointer, m_rMesh->getMesh()->getVertices());
     Backend::INSTANCE.getInstance()->getIndexBuffer()->update(m_iboPointer, m_rMesh->getMesh()->getIndices());
+
+    //create the GPU data
+    m_gpu.iboOffset = m_iboPointer.startIdx;
+    m_gpu.indexCount = m_iboPointer.size / sizeof(index_t);
+    m_gpu.vertexOffset = m_vboPointer.startIdx/m_rMesh->getMesh()->getVertexLayout().getVertexSize();
+
+    //upload the GPU data to the correct index
+    StructuredBuffer<MeshGPUInfo>* meshBuffer = Backend::INSTANCE.getInstance()->getMeshBuffer();
+    //first, check if a resize is needed
+    if (meshBuffer->getSize() <= (sizeof(m_gpu) * m_rMesh->getUID())) 
+    {meshBuffer->resize(sizeof(m_gpu) * (m_rMesh->getUID()+1));}
+    //finally, upload the data
+    meshBuffer->set(m_rMesh->getUID(), m_gpu);
 }
 
 GLGE::Graphic::Backend::API::RenderMesh::~RenderMesh()

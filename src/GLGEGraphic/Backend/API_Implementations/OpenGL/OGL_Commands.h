@@ -238,6 +238,47 @@ struct Command_DrawMesh final : public Command
     virtual void execute() noexcept override;
 };
 
+/**
+ * @brief store a command that dispatches a compute shader
+ */
+struct Command_DispatchCompute final : public Command
+{
+    /**
+     * @brief Construct a new Dispatch compute command
+     * 
+     * @param _compute a pointer to the frontend compute object to dispatch
+     * @param _x the amount of instances to spawn on the x axis
+     * @param _y the amount of instances to spawn on the y axis
+     * @param _z the amount of instances to spawn on the z axis
+     */
+    Command_DispatchCompute(void* _compute, uint32_t _x, uint32_t _y, uint32_t _z)
+     : compute(_compute), x(_x), y(_y), z(_z)
+    {}
+
+    //store a pointer to a frontend compute object
+    //this is just a data collection, so no backend needed
+    void* compute = nullptr;
+    //store the amount of instances to dispatch
+    uint32_t x, y, z;
+
+    //run the actual dispatch and data binding
+    virtual void execute() noexcept override;
+};
+
+/**
+ * @brief store a command that runs a memory barrier
+ */
+struct Command_MemoryBarrier final : public Command
+{
+    /**
+     * @brief Construct a new Memory barrier command
+     */
+    Command_MemoryBarrier() = default;
+
+    //run the actual memory barrier
+    virtual void execute() noexcept override;
+};
+
 }
 
 #endif
