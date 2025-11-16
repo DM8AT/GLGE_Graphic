@@ -28,6 +28,13 @@ struct Quaternion {
     float k;
 };
 
+struct Camera {
+    mat4 transform;
+    mat4 inverseTransform;
+    mat4 projection;
+    mat4 inverseProjection;
+};
+
 struct Object {
     uint objectHandle;
     uint meshIndex;
@@ -39,6 +46,10 @@ layout (std430, binding = 0) readonly buffer buffer_Object {
 
 layout (std430, binding = 1) readonly buffer buffer_Transforms {
     CompressedTransform transforms[];
+};
+
+layout (binding = 0) uniform uniform_Camera {
+    Camera camera;
 };
 
 uint compressFloat(float angle) {
@@ -122,22 +133,12 @@ void applyTransform(inout vec4 pos, inout vec3 normal, uint transfIndex) {
     pos.xyz += vec3(transforms[transfIndex].x, transforms[transfIndex].y, transforms[transfIndex].z);
 }
 
-const float FOV = 90.f;
-const float FOV_Rad_h = (FOV * 0.0174532925199f) * 0.5f;
-const float near = 0.1f;
-const float far = 1000.f;
-const mat4 proj = mat4(
-    1./tan(FOV_Rad_h), 0, 0, 0,
-    0, 1./tan(FOV_Rad_h), 0, 0, 
-    0, 0, -(far + near) / (far - near), -(2.f*far*near) / (far - near),
-    0, 0, -1, 0
-);
-
 void main() {
     vec4 p = vec4(v_pos, 1);
     vec3 norm = v_norm;
     applyTransform(p, norm, objects[gl_DrawID].objectHandle & OBJECT_HANDLE_INDEX);
-    gl_Position = p * proj;
+    p = p * camera.transform;
+    gl_Position = p * camera.projection;
     f_pos = v_pos;
     f_norm = norm;
     f_tex = v_tex;

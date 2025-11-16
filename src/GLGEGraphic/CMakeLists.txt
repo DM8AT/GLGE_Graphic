@@ -39,6 +39,7 @@ set(SRC
     Frontend/Material.cpp
     Frontend/Buffer.cpp
     Frontend/Compute.cpp
+    Frontend/Camera.cpp
 )
 
 ## add GLAD

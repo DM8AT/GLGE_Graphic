@@ -87,8 +87,13 @@ void CycleBuffer::tick() noexcept
 
         //advance the GPU index
         m_gpuBuff.store((m_gpuBuff.load(std::memory_order_acquire) + 1) % cm_usedBuffers, std::memory_order_release);
+        //mark the new buffer as in use
+        getCurrentGPUBackend<API::CycleBufferBackend>()->markInUse();
         //advance all buffers except the current GPU buffer
-        for (uint8_t i = 0; i < cm_usedBuffers; ++i) {m_backends[i]->syncCPU(false);}
+        for (uint8_t i = 0; i < cm_usedBuffers; ++i) {
+            if (i == m_gpuBuff.load(std::memory_order_acquire)) {continue;}
+            m_backends[i]->syncCPU(false);
+        }
     }
 }
 

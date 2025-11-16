@@ -30,5 +30,7 @@
 #include "Buffer.h"
 //add compute objects
 #include "Compute.h"
+//add cameras
+#include "Camera.h"
 
 #endif

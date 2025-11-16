@@ -73,7 +73,6 @@ void CycleBufferBackend::update() noexcept
         //if not, create it
         glCreateBuffers(1, &m_buff);
     }
-    //#error improve the thread safety "https://chatgpt.com/c/6918c4d8-bd64-832b-b699-d726b233c633"
     //check if the size is up to date
     if (m_size != m_cBuff->getSize()) {
         //store the updated values

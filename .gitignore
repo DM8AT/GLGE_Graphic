@@ -5,3 +5,5 @@ build.sh
 .vscode
 # ignore renderdoc stuff
 *.cap
+# ignore perf stuff
+*.data
