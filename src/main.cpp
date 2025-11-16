@@ -33,7 +33,7 @@ int main()
             .stage = SHADER_STAGE_FRAGMENT
         }};
     AssetManager::waitForLoad(tex);
-    Buffer* buffers[] = {(Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetTransformBuffer()};
+    Buffer* buffers[] = {GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetTransformBuffer()};
     Texture* textures[] = { AssetManager::getAsset<TextureAsset>(tex)->getTexture() };
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), buffers, sizeof(buffers)/sizeof(*buffers), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
     AssetManager::waitForLoad(mesh);
@@ -48,14 +48,14 @@ int main()
             .stage = SHADER_STAGE_COMPUTE
         }};
     Compute compute(cmpShader, {
-        (Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, (Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetMeshBuffer()
+        (Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetMeshBuffer()
     }, {});
     Compute* renderList[] = { &compute };
 
     Scene scene = "Main";
     Object obj = scene.createObject("Hello", Transform(vec3(0,0,-3)));
     obj->add<Renderer>(rMesh, &mat);
-    Object obj2 = scene.createObject("Other", Transform(vec3(0,2,-7)));
+    Object obj2 = scene.createObject("Other", Transform(vec3(1.2,2,-7)));
     obj2->add<Renderer>(rMesh2, &mat);
 
     RenderPipeline pipe({{
