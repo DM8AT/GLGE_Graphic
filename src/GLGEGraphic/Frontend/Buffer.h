@@ -124,9 +124,9 @@ typedef struct s_Buffer {byte opaque;} Buffer;
 
 #endif
 
-//define a value that means that this is an unused shader storage buffer
-#define GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER ((Buffer*)0xFF01)
-//define a value that means that this is an unused uniform buffer
-#define GLGE_SKIP_SLOT_UNIFORM_BUFFER ((Buffer*)0xFF02)
+//define the marker of a skip slot
+#define GLGE_SKIP_SLOT_MARKER 0xFF00
+//skip a slot of the specified buffer
+#define GLGE_SKIP_SLOT(bufferType) ((Buffer*)(GLGE_SKIP_SLOT_MARKER + ((uint64_t)bufferType)))
 
 #endif

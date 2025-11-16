@@ -300,9 +300,9 @@ static void __bindMaterial(::Material* mat, GLGE::Graphic::Backend::OGL::Materia
     //iterate over all buffers of the material
     for (uint8_t i = 0; i < mat->getUsedBufferCount(); ++i) {
         //check if the buffer is a special buffer
-        if (mat->getUsedBuffers()[i] == GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER) 
+        if (mat->getUsedBuffers()[i] == GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE)) 
         {++ssboCount; continue;}
-        if (mat->getUsedBuffers()[i] == GLGE_SKIP_SLOT_UNIFORM_BUFFER)
+        if (mat->getUsedBuffers()[i] == GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_UNIFORM))
         {++uboCount; continue;}
 
         //bind the correct buffer type
@@ -351,9 +351,9 @@ static void __dispatchCompute(Compute* cmp, uint32_t x, uint32_t y, uint32_t z) 
     //iterate over all buffers of the material
     for (uint8_t i = 0; i < cmp->getBufferCount(); ++i) {
         //check if the buffer is a special buffer
-        if (cmp->getBuffer(i) == GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER) 
+        if (cmp->getBuffer(i) == GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE)) 
         {++ssboCount; continue;}
-        if (cmp->getBuffer(i) == GLGE_SKIP_SLOT_UNIFORM_BUFFER)
+        if (cmp->getBuffer(i) == GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_UNIFORM))
         {++uboCount; continue;}
         
         //bind the correct buffer type

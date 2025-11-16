@@ -23,7 +23,7 @@ int main()
         }};
     AssetManager::waitForLoad(tex);
 
-    Buffer* buffers[] = {GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetTransformBuffer()};
+    Buffer* buffers[] = {GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE), glge_Graphic_GetTransformBuffer()};
     Texture* textures[] = { AssetManager::getAsset<TextureAsset>(tex)->getTexture() };
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), buffers, sizeof(buffers)/sizeof(*buffers), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
 
@@ -39,7 +39,7 @@ int main()
             .stage = SHADER_STAGE_COMPUTE
         }};
     Compute compute(cmpShader, {
-        (Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetMeshBuffer()
+        GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE), GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE), glge_Graphic_GetMeshBuffer()
     }, {});
     Compute* renderList[] = { &compute };
 
