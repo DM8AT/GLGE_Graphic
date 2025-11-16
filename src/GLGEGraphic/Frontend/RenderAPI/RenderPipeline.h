@@ -269,7 +269,7 @@ protected:
     //store the requested iterations per second
     uint64_t m_ips = GLGE_UNLIMITED;
     //store the last start
-    std::chrono::system_clock::time_point m_last;
+    std::chrono::steady_clock::time_point m_last;
     //store the current delta time
     double m_delta = 0.f;
     //store the thread for recording

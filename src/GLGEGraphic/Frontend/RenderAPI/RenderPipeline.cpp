@@ -85,31 +85,35 @@ void RenderPipeline::play() noexcept
 {
     //if delta is 0, the m_last value can't be trusted
     if (m_delta == 0)  {
-        m_last = std::chrono::system_clock::now();
+        m_last = std::chrono::steady_clock::now();
     }
+
+    //store the tick start time
+    auto start = std::chrono::steady_clock::now();
 
     //make sure the the recording is not running
     waitForRecordingState(false);
     //just play back the API pipeline
     ((GLGE::Graphic::Backend::API::RenderPipeline*)m_api)->play();
+
     //compute the requested iteration rate
     std::chrono::nanoseconds iterRate((int64_t)(1E9 / (double)m_ips));
     //sync up the iteration time
-    auto now = std::chrono::system_clock::now();
+    auto now = std::chrono::steady_clock::now();
     //get the delta
     auto delta = now - m_last;
-    m_delta = delta.count() / 1E9;
+    m_delta = std::chrono::duration<double>(delta).count();
+    //store the new start time
+    m_last = now;
     //only wait if requested
     if (m_ips != GLGE_UNLIMITED) {
         //compute the time to wait
-        auto toWait = iterRate - delta;
+        auto toWait = iterRate - (start - now);
         //if the time is valid, wait for the time to pass
         if (toWait.count() > 0) {
             std::this_thread::sleep_for(toWait);
         }
     }
-    //store the new start time
-    m_last = now;
 }
 
 void RenderPipeline::updateRecordingState(bool state) noexcept
