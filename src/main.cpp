@@ -1,21 +1,10 @@
 #include "GLGEGraphic/GLGEGraphic.h"
 #include "GLGE_Core/GLGECore.h"
 
-#define PI_2 6.28318405151367188F
-
-struct CustomMatData {
-    vec4 color = vec4(1,0,0,1);
-    float roughness = 0.8;
-    float metallic = 0.f;
-};
-
 int main()
 {
     Window win = Window("Hello World!", 600);
     win.setVSync(GLGE_VSYNC_ON);
-
-    CustomMatData customMatData;
-    Buffer material(&customMatData, sizeof(customMatData), GLGE_BUFFER_TYPE_UNIFORM);
 
     AssetHandle mesh = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Suzane.fbx"));
     AssetHandle mesh2 = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Cube.glb"));
@@ -33,9 +22,11 @@ int main()
             .stage = SHADER_STAGE_FRAGMENT
         }};
     AssetManager::waitForLoad(tex);
+
     Buffer* buffers[] = {GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetTransformBuffer()};
     Texture* textures[] = { AssetManager::getAsset<TextureAsset>(tex)->getTexture() };
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), buffers, sizeof(buffers)/sizeof(*buffers), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
+
     AssetManager::waitForLoad(mesh);
     RenderMeshHandle rMesh = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh)->mesh());
     AssetManager::waitForLoad(mesh2);
