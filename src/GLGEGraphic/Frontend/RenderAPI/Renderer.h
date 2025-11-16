@@ -139,6 +139,11 @@ public:
      */
     void setObject(Object obj);
 
+    /**
+     * @brief update the transform on the GPU
+     */
+    void reupload() noexcept;
+
 protected:
 
     //store the object

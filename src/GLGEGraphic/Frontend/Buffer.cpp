@@ -17,51 +17,36 @@
 #include "../Backend/API_Implementations/AllImplementations.h"
 
 Buffer::Buffer(void* data, uint64_t size, BufferType type, uint8_t bufferCount) 
- : m_type(type), m_buff(new (m_buffStorage) GLGE::Graphic::Backend::API::BufferChain(bufferCount))
+ : m_type(type), m_buff(new (m_buffStorage) GLGE::Graphic::Backend::API::CycleBuffer(data, size, 
+    (type == GLGE_BUFFER_TYPE_SHADER_STORAGE) ? GLGE::Graphic::Backend::API::Buffer::SHADER_STORAGE_BUFFER : 
+        GLGE::Graphic::Backend::API::Buffer::UNIFORM_BUFFER
+    , bufferCount))
 {
-    //switch over the instance and select the correct API
-    switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
-    {
-    case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
-        ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->create<GLGE::Graphic::Backend::OGL::Buffer>(
-            data, size, (type == GLGE_BUFFER_TYPE_SHADER_STORAGE) ? GLGE::Graphic::Backend::API::Buffer::SHADER_STORAGE_BUFFER
-                                                                  : GLGE::Graphic::Backend::API::Buffer::UNIFORM_BUFFER);
-        break;
-    
-    default:
-        break;
-    }
+    //sanity check the buffer
+    static_assert(sizeof(m_buffStorage) == sizeof(GLGE::Graphic::Backend::API::CycleBuffer), "A cycle buffer is not the same size as the buffer expects");
 }
 
 const void* Buffer::getData() const noexcept {
     //return the raw data
-    return ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->getCurrent_CPU()->getRaw();
+    return ((GLGE::Graphic::Backend::API::CycleBuffer*)m_buff)->getRaw();
 }
 
 uint64_t Buffer::getSize() const noexcept {
     //return the buffer size
-    return ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->getCurrent_CPU()->getSize();
+    return ((GLGE::Graphic::Backend::API::CycleBuffer*)m_buff)->getSize();
 }
 
 void Buffer::setData(void* data, uint64_t size) noexcept {
-    //start writing to the buffer
-    auto buff = ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->beginWrite();
     //write the data
-    buff->set(data, size);
-    //finish the writing
-    ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->endWrite();
+    ((GLGE::Graphic::Backend::API::CycleBuffer*)m_buff)->set(data, size);
 }
 
 void Buffer::write(void* data, uint64_t offset, uint64_t size) noexcept {
-    //start writing to the buffer
-    auto buff = ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->beginWrite();
     //write the data
-    buff->write(data, size, offset);
-    //finish the writing
-    ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->endWrite();
+    ((GLGE::Graphic::Backend::API::CycleBuffer*)m_buff)->write(data, size, offset);
 }
 
 void Buffer::resize(uint64_t size) noexcept {
     //change the size of the buffer
-    ((GLGE::Graphic::Backend::API::BufferChain*)m_buff)->resizeAll(size);
+    ((GLGE::Graphic::Backend::API::CycleBuffer*)m_buff)->resize(size);
 }

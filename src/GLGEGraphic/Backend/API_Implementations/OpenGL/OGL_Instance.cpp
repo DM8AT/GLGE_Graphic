@@ -25,6 +25,9 @@ using namespace GLGE::Graphic::Backend::OGL;
 //add the frontend material to sanity check the validity
 #include "../../../Frontend/Material.h"
 
+//add the backend cycle buffer
+#include "OGL_CycleBuffer.h"
+
 // Debug callback function for OpenGL
 void OpenGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity,
                                     GLsizei length, const GLchar* message, const void* userParam) {
@@ -105,6 +108,20 @@ Instance::~Instance()
         //clean up the OpenGL context
         SDL_GL_DestroyContext((SDL_GLContext)m_glContext);
         m_glContext = nullptr;
+    }
+}
+
+void Instance::onUpdate() noexcept
+{
+    //update the cycle backend buffer
+    {
+        //make sure the update queue is not changed during the update
+        std::unique_lock lock(OGL::CycleBufferBackend::m_updateMtx);
+        //iterate over all buffers and update them
+        for (auto ptr : OGL::CycleBufferBackend::m_updateQueue) 
+        {ptr->update();}
+        //clean up the queue
+        OGL::CycleBufferBackend::m_updateQueue.clear();
     }
 }
 

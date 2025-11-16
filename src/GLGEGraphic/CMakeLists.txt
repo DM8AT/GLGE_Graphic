@@ -14,6 +14,7 @@ set(SRC
     Backend/API_Implementations/API_Buffer.cpp
     Backend/API_Implementations/API_MemoryArena.cpp
     Backend/API_Implementations/API_RenderMesh.cpp
+    Backend/API_Implementations/API_CycleBuffer.cpp
 
     Backend/API_Implementations/OpenGL/OGL_Instance.cpp
     Backend/API_Implementations/OpenGL/OGL_Window.cpp
@@ -24,6 +25,7 @@ set(SRC
     Backend/API_Implementations/OpenGL/OGL_Shader.cpp
     Backend/API_Implementations/OpenGL/OGL_Material.cpp
     Backend/API_Implementations/OpenGL/OGL_Buffer.cpp
+    Backend/API_Implementations/OpenGL/OGL_CycleBuffer.cpp
 
     Frontend/Window/Window.cpp
     Frontend/RenderAPI/RenderPipeline.cpp

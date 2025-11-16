@@ -43,14 +43,14 @@ uint high16(uint v) { return (v >> 16) & 0xFFFFu; }
 
 Quaternion decodeQuaternion(uint quat_version_i, uint quat_jk) {
     Quaternion q;
-    uint x16 = low16(quat_version_i);
-    uint y16 = high16(quat_jk);
-    uint z16 = low16(quat_jk);
+    uint i16 = high16(quat_version_i);
+    uint j16 = low16(quat_jk);
+    uint k16 = high16(quat_jk);
 
-    float pos = float((quat_version_i >> 10) & 1);
-    q.i = decompressFloat(x16);
-    q.j = decompressFloat(y16);
-    q.k = decompressFloat(z16);
+    float pos = float((quat_version_i >> 15) & 1);
+    q.i = decompressFloat(i16);
+    q.j = decompressFloat(j16);
+    q.k = decompressFloat(k16);
 
     //re-construct the w component
     float wsq = 1.f - q.i*q.i - q.j*q.j - q.k*q.k;

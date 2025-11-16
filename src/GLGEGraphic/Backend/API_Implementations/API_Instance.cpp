@@ -14,11 +14,23 @@
 
 //also add textures to update them
 #include "API_Texture.h"
-//as well ass the buffers
+//as well as the buffers
 #include "API_Buffer.h"
+//add cycle buffers
+#include "API_CycleBuffer.h"
 
 void GLGE::Graphic::Backend::API::Instance::tick() noexcept
 {
+    //update the cycle buffers
+    {
+        //thread safety
+        std::shared_lock lock(API::CycleBuffer::s_mtx);
+
+        //tick all the buffers
+        for (auto& buff : API::CycleBuffer::s_buffers)
+        {buff->tick();}
+    }
+    
     //textures
     {
         //thread safety

@@ -27,5 +27,7 @@
 #include "OGL_Buffer.h"
 //add materials
 #include "OGL_Material.h"
+//add cycle buffers
+#include "OGL_CycleBuffer.h"
 
 #endif

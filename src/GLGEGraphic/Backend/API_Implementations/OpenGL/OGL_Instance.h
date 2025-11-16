@@ -73,7 +73,7 @@ public:
     /**
      * @brief tick the instance
      */
-    virtual void onUpdate() noexcept override {}
+    virtual void onUpdate() noexcept override;
 
     /**
      * @brief Get the loaded Extensions

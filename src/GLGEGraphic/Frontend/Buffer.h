@@ -114,7 +114,7 @@ protected:
     //store the type of the buffer
     BufferType m_type = GLGE_BUFFER_TYPE_SHADER_STORAGE;
     //store the backend buffer
-    uint8_t m_buffStorage[40];
+    uint8_t m_buffStorage[96];
     //store a pointer to the buffer (null means uninitialized)
     void* m_buff = nullptr;
 

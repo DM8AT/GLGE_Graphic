@@ -46,3 +46,15 @@ void Renderer::setObject(Object obj)
             m_handle & GLGE_RENDER_OBJECT_HANDLE_VERSION >> GLGE_RENDER_OBJECT_HANDLE_VERSION_OFFSET)
         );
 }
+
+void Renderer::reupload() noexcept {
+    //if the object is null, stop
+    if (!m_obj) {return;}
+
+    //re-upload the data at the correct place
+    GLGE::Graphic::Backend::RenderObjectSystem::getTransformBuffer()->
+        set(m_handle & GLGE_RENDER_OBJECT_HANDLE_INDEX, GLGE::Graphic::Backend::CompressedTransform(
+            *m_obj->get<Transform>(), 
+            m_handle & GLGE_RENDER_OBJECT_HANDLE_VERSION >> GLGE_RENDER_OBJECT_HANDLE_VERSION_OFFSET)
+        );
+}

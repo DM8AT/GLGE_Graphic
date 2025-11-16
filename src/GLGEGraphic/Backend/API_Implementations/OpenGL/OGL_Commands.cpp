@@ -35,6 +35,8 @@
 #include "../../../Frontend/Material.h"
 //add frontend render meshes
 #include "../../../Frontend/RenderAPI/RenderMesh.h"
+//add cycle buffers
+#include "OGL_CycleBuffer.h"
 
 static GLenum getType(VertexElementDataType type) noexcept
 {
@@ -301,11 +303,13 @@ void GLGE::Graphic::Backend::OGL::Command_BindMaterial::execute() noexcept
         if (mat->getUsedBuffers()[i]->getType() == GLGE_BUFFER_TYPE_UNIFORM) {
             //handle the buffer as a uniform buffer
             glBindBufferBase(GL_UNIFORM_BUFFER, uboCount++, 
-                ((GLGE::Graphic::Backend::API::BufferChain*)mat->getUsedBuffers()[i]->getBackend())->getBuffer_GPU<OGL::Buffer>()->getBuffer());
+                ((GLGE::Graphic::Backend::API::CycleBuffer*)mat->getUsedBuffers()[i]->getBackend())->getCurrentGPUBackend<OGL::CycleBufferBackend>()
+                ->getBuffer());
         } else {
             //handle the buffer as a shader storage buffer
             glBindBufferBase(GL_SHADER_STORAGE_BUFFER, ssboCount++, 
-                ((GLGE::Graphic::Backend::API::BufferChain*)mat->getUsedBuffers()[i]->getBackend())->getBuffer_GPU<OGL::Buffer>()->getBuffer());
+                ((GLGE::Graphic::Backend::API::CycleBuffer*)mat->getUsedBuffers()[i]->getBackend())->getCurrentGPUBackend<OGL::CycleBufferBackend>()
+                ->getBuffer());
         }
     }
 }
