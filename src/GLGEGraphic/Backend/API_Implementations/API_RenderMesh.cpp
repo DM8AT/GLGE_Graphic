@@ -27,7 +27,7 @@ GLGE::Graphic::Backend::API::RenderMesh::RenderMesh(::RenderMesh* rMesh)
     Backend::INSTANCE.getInstance()->getIndexBuffer()->update(m_iboPointer, m_rMesh->getMesh()->getIndices());
 
     //create the GPU data
-    m_gpu.iboOffset = m_iboPointer.startIdx;
+    m_gpu.iboOffset = m_iboPointer.startIdx / sizeof(index_t);
     m_gpu.indexCount = m_iboPointer.size / sizeof(index_t);
     m_gpu.vertexOffset = m_vboPointer.startIdx/m_rMesh->getMesh()->getVertexLayout().getVertexSize();
 

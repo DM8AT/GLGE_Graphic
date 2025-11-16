@@ -1,4 +1,6 @@
-#version 450 core
+#version 460 core
+
+#define OBJECT_HANDLE_INDEX 0x3FFFFF
 
 layout (location = 0) in vec3 v_pos;
 layout (location = 1) in vec3 v_norm;
@@ -26,7 +28,16 @@ struct Quaternion {
     float k;
 };
 
-layout (std430, binding = 0) readonly buffer buffer_Transforms {
+struct Object {
+    uint objectHandle;
+    uint meshIndex;
+};
+
+layout (std430, binding = 0) readonly buffer buffer_Object {
+    Object objects[];
+};
+
+layout (std430, binding = 1) readonly buffer buffer_Transforms {
     CompressedTransform transforms[];
 };
 
@@ -98,7 +109,7 @@ mat3 quatToMat3(Quaternion q) {
 /**
  * Apply a specific transformation to the position
  */
-void applyTransform(inout vec4 pos, inout vec3 normal, int transfIndex) {
+void applyTransform(inout vec4 pos, inout vec3 normal, uint transfIndex) {
     //apply the scaling
     pos.xyz *= vec3(transforms[transfIndex].sx, transforms[transfIndex].sy, transforms[transfIndex].sz);
     //apply the rotation
@@ -125,7 +136,7 @@ const mat4 proj = mat4(
 void main() {
     vec4 p = vec4(v_pos, 1);
     vec3 norm = v_norm;
-    applyTransform(p, norm, 0);
+    applyTransform(p, norm, objects[gl_DrawID].objectHandle & OBJECT_HANDLE_INDEX);
     gl_Position = p * proj;
     f_pos = v_pos;
     f_norm = norm;

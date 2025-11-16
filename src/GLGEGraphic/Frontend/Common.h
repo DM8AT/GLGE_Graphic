@@ -24,7 +24,14 @@
  * 
  * @return Buffer* a pointer to the main transform buffer
  */
-Buffer* glge_Graphic_GetTransformBuffer();
+::Buffer* glge_Graphic_GetTransformBuffer();
+
+/**
+ * @brief get the global mesh buffer
+ * 
+ * @return ::Buffer* a pointer to the global mesh buffer
+ */
+::Buffer* glge_Graphic_GetMeshBuffer();
 
 #endif
 

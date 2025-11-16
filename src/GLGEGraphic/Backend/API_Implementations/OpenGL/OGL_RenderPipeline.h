@@ -51,8 +51,9 @@ public:
      * @brief execute a single render pipeline stage using the API
      * 
      * @param stage the stage to execute
+     * @param stageIndex the id of the stage
      */
-    virtual void execute(const RenderPipelineStage& stage) noexcept;
+    virtual void execute(const RenderPipelineStage& stage, uint64_t stageIndex) noexcept;
 
     /**
      * @brief record the whole pipeline
@@ -78,28 +79,45 @@ protected:
      * 
      * @param stage the data of the custom stage to execute
      */
-    void executeStage_Custom(const RenderPipelineStageData::CustomStage& stage) noexcept;
+    void executeStage_Custom(const RenderPipelineStageData& stage) noexcept;
 
     /**
      * @brief draw a simple render mesh
      * 
      * @param stage the stage data to execute on
      */
-    void executeStage_SimpleDrawRenderMesh(const RenderPipelineStageData::SimpleDrawRenderMesh& stage) noexcept;
+    void executeStage_SimpleDrawRenderMesh(const RenderPipelineStageData& stage) noexcept;
 
     /**
      * @brief draw a whole scene
      * 
      * @param stage the stage data to execute on
      */
-    void executeStage_DrawScene(const RenderPipelineStageData::DrawScene& stage) noexcept;
+    void executeStage_DrawScene(const RenderPipelineStageData& stage) noexcept;
 
     /**
      * @brief dispatch a compute shader
      * 
      * @param stage the stage data to execute on
      */
-    void executeStage_DispatchCompute(const RenderPipelineStageData::DispatchCompute& stage) noexcept;
+    void executeStage_DispatchCompute(const RenderPipelineStageData& stage) noexcept;
+
+    /**
+     * @brief run a memory barrier
+     * 
+     * @param stage the stage data to execute on
+     */
+    void executeStage_MemoryBarrier(const RenderPipelineStageData& stage) noexcept;
+
+    /**
+     * @brief clean up the old data
+     */
+    void executeStage_Cleanup(const RenderPipelineStageData&) noexcept;
+
+    /**
+     * @brief finalize the recording
+     */
+    void executeStage_Finalize(const RenderPipelineStageData&) noexcept;
 
     /**
      * @brief store the OpenGL command buffer
@@ -109,6 +127,12 @@ protected:
      * @brief store the clear color of the parent window
      */
     vec4 m_clearColor;
+
+    //store a list of all command-made buffers
+    std::vector<uint32_t> m_customBuffs;
+    //store a list of function pointers that are delayed till the first run
+    //this stores stages to execute later
+    std::vector<std::pair<RenderPipelineStageData, void (RenderPipeline::*)(const RenderPipelineStageData& stage)>> m_todo;
 
 };
 

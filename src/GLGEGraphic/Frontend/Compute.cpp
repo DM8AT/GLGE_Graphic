@@ -28,8 +28,22 @@ Compute::Compute(Shader& shader, Buffer* const* buffers, uint8_t bufferCount, Te
     for (uint8_t i = 0; i < m_bufferCount; ++i) {
         //only do in debug
         #if GLGE_BG_DEBUG
+            //handle special buffers
+            if (buffers[i] == GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER) {
+                //increase and sanity check the SSBO count
+                ++ssboCount;
+                if (ssboCount > GLGE_MAX_COMPUTE_SHADER_STORAGE_BUFFERS) {
+                    GLGE_DEBUG_ABORT("Too many shader storage buffers passed to compute object");
+                }
+            } else if (buffers[i] == GLGE_SKIP_SLOT_UNIFORM_BUFFER) {
+                //else, increase and sanity check the UBO count
+                ++uboCount;
+                if (uboCount > GLGE_MAX_COMPUTE_SHADER_UNIFORM_BUFFERS) {
+                    GLGE_DEBUG_ABORT("Too many uniform buffers passed to compute object");
+                }
+            }
             //sanity checker for buffer type count
-            if (buffers[i]->getType() == GLGE_BUFFER_TYPE_SHADER_STORAGE) {
+            else if (buffers[i]->getType() == GLGE_BUFFER_TYPE_SHADER_STORAGE) {
                 //increase and sanity check the SSBO count
                 ++ssboCount;
                 if (ssboCount > GLGE_MAX_COMPUTE_SHADER_STORAGE_BUFFERS) {

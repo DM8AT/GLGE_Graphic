@@ -279,6 +279,41 @@ struct Command_MemoryBarrier final : public Command
     virtual void execute() noexcept override;
 };
 
+/**
+ * @brief store a command that is used to draw a lot of meshes in parallel
+ */
+struct Command_DrawMeshesIndirect final : public Command
+{
+
+    /**
+     * @brief Construct a new draw mesh indirect command
+     * 
+     * @param _meshCount the amount of meshes to draw
+     * @param _batchBuffer the OpenGL batch buffer to use for this batch
+     * @param _drawBuffer the OpenGL draw buffer to use for this batch
+     * @param _shaders a list of compute shaders to run before drawing
+     */
+    Command_DrawMeshesIndirect(OGL::Material* _material, uint64_t _meshCount, uint32_t _batchBuffer, uint32_t _drawBuffer, 
+                               void** shader, uint64_t shaderCount)
+     : material(_material), meshCount(_meshCount), batchBuffer(_batchBuffer), drawBuffer(_drawBuffer), 
+       shaders(shader, (void**)((uint8_t**)shader + shaderCount))
+    {}
+
+    //store the material to use for the batch
+    OGL::Material* material;
+    //store the amount of meshes to draw
+    uint64_t meshCount;
+    //store the batch buffer (always mapped to binding = 0)
+    uint32_t batchBuffer;
+    //store the draw buffer (always mapped to binding = 1)
+    uint32_t drawBuffer;
+    //store a list of shaders to execute before drawing
+    std::vector<void*> shaders;
+
+    //run the actual draw command
+    virtual void execute() noexcept override;
+};
+
 }
 
 #endif

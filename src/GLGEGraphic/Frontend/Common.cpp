@@ -17,6 +17,8 @@
 
 Buffer* glge_Graphic_GetTransformBuffer() {return GLGE::Graphic::Backend::RenderObjectSystem::getTransformBuffer();}
 
+Buffer* glge_Graphic_GetMeshBuffer() {return GLGE::Graphic::Backend::INSTANCE.getInstance()->getMeshBuffer();}
+
 void glge_Graphic_MainTick()
 {
     //simply update the backend instance

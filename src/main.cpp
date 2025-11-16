@@ -33,24 +33,40 @@ int main()
             .stage = SHADER_STAGE_FRAGMENT
         }};
     AssetManager::waitForLoad(tex);
-    Material mat(&shader, AssetManager::getAsset<TextureAsset>(tex)->getTexture(), glge_Graphic_GetTransformBuffer(), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
-    Buffer* buffers[] = {&material, glge_Graphic_GetTransformBuffer()};
+    Buffer* buffers[] = {(Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetTransformBuffer()};
+    Texture* textures[] = { AssetManager::getAsset<TextureAsset>(tex)->getTexture() };
+    Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), buffers, sizeof(buffers)/sizeof(*buffers), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
     AssetManager::waitForLoad(mesh);
     RenderMeshHandle rMesh = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh)->mesh());
     AssetManager::waitForLoad(mesh2);
     RenderMeshHandle rMesh2 = RenderMeshRegistry::create(&AssetManager::getAsset<MeshAsset>(mesh2)->mesh());
 
+    Shader cmpShader = {
+        ShaderStage{
+            .sourceCode = File("assets/shader/draw.cs").getContents(),
+            .srcType = SHADER_SOURCE_GLSL,
+            .stage = SHADER_STAGE_COMPUTE
+        }};
+    Compute compute(cmpShader, {
+        (Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, (Buffer*)GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER, glge_Graphic_GetMeshBuffer()
+    }, {});
+    Compute* renderList[] = { &compute };
+
     Scene scene = "Main";
     Object obj = scene.createObject("Hello", Transform(vec3(0,0,-3)));
     obj->add<Renderer>(rMesh, &mat);
-    Object obj2 = scene.createObject("Other");
-    //obj2->add<Renderer>(rMesh2, &mat);
+    Object obj2 = scene.createObject("Other", Transform(vec3(0,2,-7)));
+    obj2->add<Renderer>(rMesh2, &mat);
 
     RenderPipeline pipe({{
             "Draw", 
             RenderPipelineStage{
                 .type = GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE,
-                .data{.drawScene{.scene = &scene}}}
+                .data{.drawScene{
+                    .scene = &scene,
+                    .batchShader=(void**)renderList,
+                    .batchShaderCount=(sizeof(renderList) / sizeof(*renderList))
+                }}}
         }
     }, &win);
 

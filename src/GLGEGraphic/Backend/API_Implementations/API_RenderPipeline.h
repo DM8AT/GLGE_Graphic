@@ -46,8 +46,9 @@ public:
      * @brief execute a single render pipeline stage using the API
      * 
      * @param stage the stage to execute
+     * @param stageIndex the id of the stage
      */
-    virtual void execute(const RenderPipelineStage& stage) noexcept = 0;
+    virtual void execute(const RenderPipelineStage& stage, uint64_t stageIndex) noexcept = 0;
 
     /**
      * @brief record the whole pipeline

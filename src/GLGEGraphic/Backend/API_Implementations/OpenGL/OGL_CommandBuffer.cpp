@@ -11,6 +11,8 @@
 
 //add the command buffer API
 #include "OGL_CommandBuffer.h"
+//add OpenGL
+#include "glad/glad.h"
 
 //use the namespace
 using namespace GLGE::Graphic::Backend::OGL;

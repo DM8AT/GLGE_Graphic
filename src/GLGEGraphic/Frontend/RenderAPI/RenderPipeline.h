@@ -84,6 +84,10 @@ typedef union u_RenderPipelineStageData {
     struct DrawScene {
         //store a pointer to the scene object to draw
         void* scene;
+        //store a list of compute objects to run before drawing each batch
+        void** batchShader;
+        //store the amount of batch shader
+        uint64_t batchShaderCount;
     } drawScene;
     //store the data that is needed to dispatch a compute shader
     struct DispatchCompute {

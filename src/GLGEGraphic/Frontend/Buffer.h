@@ -15,6 +15,11 @@
 //add types
 #include "../../GLGE_Core/Types.h"
 
+//define a value that means that this is an unused shader storage buffer
+#define GLGE_SKIP_SLOT_SHADER_STORAGE_BUFFER ((void*)0xFF01)
+//define a value that means that this is an unused uniform buffer
+#define GLGE_SKIP_SLOT_UNIFORM_BUFFER ((void*)0xFF02)
+
 //define the type of buffer to use
 typedef enum e_BufferType {
     //the buffer is small, but fast to access
