@@ -34,7 +34,7 @@ namespace GLGE::Graphic::Backend {
  * @return uint16_t the result of the compression
  */
 inline uint16_t compressFloat(float value) noexcept 
-{return (uint16_t)(std::fmodf(value * 0.5 + 0.5, 1.f) * UINT16_MAX);}
+{return (uint16_t)(std::fmod(value * 0.5 + 0.5, 1) * UINT16_MAX);}
 
 /**
  * @brief a simple utility function to reverse the compression of a float (range -1 to 1) to an unsigned 16 bit integer
