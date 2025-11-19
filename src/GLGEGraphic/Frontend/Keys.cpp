@@ -23,7 +23,7 @@ bool key_isSignaled(Key key, const Keys* keys) noexcept
     uint8_t o = i_key - (i_key * 64);
 
     //return the value
-    return ((*keys)[w] >> o);
+    return ((*keys)[w] >> o) & 0b1;
 }
 
 void key_setSignaled(Key key, bool state, Keys* keys) noexcept

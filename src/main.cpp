@@ -1,10 +1,48 @@
 #include "GLGEGraphic/GLGEGraphic.h"
 #include "GLGE_Core/GLGECore.h"
 
+struct CameraController {
+    float speed = 10.f;
+    float sens = 1.f;
+    float delta = 0.f;
+};
+
+void cameraController(Transform& transf, const CameraController& settings) {
+    //compute the normalized direction vector
+    Quaternion res = transf.rot * vec3(0,0,-1) * transf.rot.conjugate();
+    float d = settings.speed * settings.delta;
+    vec3 dir = normalize(vec3(res.i, 0, res.k)) * d;
+
+    //store the new position
+    vec3 nPos = transf.pos;
+
+    //forward
+    if (key_isSignaled(GLGE_KEY_w, glge_Graphic_GetCurrentKeys())) 
+    {nPos += dir;}
+    //backward
+    if (key_isSignaled(GLGE_KEY_s, glge_Graphic_GetCurrentKeys())) 
+    {nPos -= dir;}
+    //left
+    if (key_isSignaled(GLGE_KEY_a, glge_Graphic_GetCurrentKeys())) 
+    {nPos += vec3(dir.z, 0, -dir.x);}
+    //right
+    if (key_isSignaled(GLGE_KEY_d, glge_Graphic_GetCurrentKeys())) 
+    {nPos -= vec3(dir.z, 0, -dir.x);}
+    //up
+    if (key_isSignaled(GLGE_KEY_SPACE, glge_Graphic_GetCurrentKeys()))
+    {nPos.y += d;}
+    //down
+    if (key_isSignaled(GLGE_KEY_LEFT_SHIFT, glge_Graphic_GetCurrentKeys())) 
+    {nPos.y -= d;}
+
+    //store the new position
+    transf.pos = nPos;
+}
+
 int main()
 {
     Window win = Window("Hello World!", 600);
-    win.setVSync(GLGE_VSYNC_ON);
+    win.setVSync(GLGE_VSYNC_OFF);
 
     Scene scene = "Main";
 
@@ -25,7 +63,7 @@ int main()
         }};
     AssetManager::waitForLoad(tex);
 
-    Object camera = scene.createObject("Camera", Transform(vec3(0,0,3)));
+    Object camera = scene.createObject<CameraController>("Camera", Transform(vec3(0,0,3)));
     camera->add<Camera>(1.570796f, 0.1f, 1000.f, &win);
 
     Buffer* buffers[] = {GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE), glge_Graphic_GetTransformBuffer(), camera->get<Camera>()->getBuffer()};
@@ -65,6 +103,8 @@ int main()
         }
     }, &win);
 
+    pipe.setIterationRate(120);
+
     pipe.record();
     glge_Shader_Compile();
 
@@ -77,13 +117,14 @@ int main()
         obj->get<Transform>()->rot.vec = normalize((obj->get<Transform>()->rot * quat).vec);
         obj->get<Renderer>()->reupload();
 
-        camera->get<Transform>()->rot.vec = normalize((camera->get<Transform>()->rot * quat2).vec);
+        camera->get<CameraController>()->delta = pipe.getDelta();
         camera->get<Camera>()->update();
 
         if (key_isSignaled(GLGE_KEY_F11, glge_Graphic_GetPressedKeys())) {
             win.setFullscreen(!win.getSettings().fullscreen);
         }
         
+        scene.forAllObjects(cameraController, false);
         glge_Graphic_MainTick();
         pipe.play();
     }
