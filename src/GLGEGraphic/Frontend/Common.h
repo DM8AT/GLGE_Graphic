@@ -15,6 +15,10 @@
 
 //add buffers
 #include "Buffer.h"
+//add keys
+#include "Keys.h"
+//add the layer system
+#include "../../GLGE_Core/Layers/Layers.h"
 
 //currently only available in C++
 #if __cplusplus
@@ -58,6 +62,43 @@ typedef enum e_InstanceAPI {
  * @brief main tick for the graphic core
  */
 void glge_Graphic_MainTick();
+
+/**
+ * @brief get the currently pressed keys
+ * 
+ * @return const Keys* a constant pointer to the currently pressed keys
+ */
+const Keys* glge_Graphic_GetCurrentKeys();
+
+/**
+ * @brief get the keys that where pressed this tick
+ * 
+ * @return const Keys* a constant pointer to the keys that where pressed this tick
+ */
+const Keys* glge_Graphic_GetPressedKeys();
+
+/**
+ * @brief get the keys that where released this tick
+ * 
+ * @return const Keys* a constant pointer to the keys that where released this tick
+ */
+const Keys* glge_Graphic_GetReleasedKeys();
+
+/**
+ * @brief get the keys that where repeated this tick
+ * 
+ * That means the key is allready pressed down but was pressed down again without being pulled up first
+ * 
+ * @return const Keys* a constant pointer to the repeated keys
+ */
+const Keys* glge_Graphic_GetRepeatedKeys();
+
+/**
+ * @brief get a pointer to the global main event stack
+ * 
+ * @return LayerStack* a pointer to the main event stack
+ */
+LayerStack* glge_Graphic_AccessEventStack();
 
 /**
  * @brief check if a specific graphic API is supported

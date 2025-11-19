@@ -4,7 +4,7 @@
 int main()
 {
     Window win = Window("Hello World!", 600);
-    win.setVSync(GLGE_VSYNC_OFF);
+    win.setVSync(GLGE_VSYNC_ON);
 
     Scene scene = "Main";
 
@@ -68,9 +68,6 @@ int main()
     pipe.record();
     glge_Shader_Compile();
 
-    std::array<float, (uint64_t)1E2> fps;
-    uint64_t fps_idx = 0;
-    
     while (!win.isClosingRequested()) {
         float delta = M_PI_2 * pipe.getDelta();
         float halfDelta = delta * 0.5f;
@@ -82,34 +79,12 @@ int main()
 
         camera->get<Transform>()->rot.vec = normalize((camera->get<Transform>()->rot * quat2).vec);
         camera->get<Camera>()->update();
+
+        if (key_isSignaled(GLGE_KEY_F11, glge_Graphic_GetPressedKeys())) {
+            win.setFullscreen(!win.getSettings().fullscreen);
+        }
         
         glge_Graphic_MainTick();
         pipe.play();
-
-        //only fill up the buffer, do not cause re-sizing
-        if (fps_idx < fps.size()) {
-            fps[fps_idx++] = 1./pipe.getDelta();
-        } else {
-            float average = 0.f;
-            for (size_t i = 0; i < fps.size(); ++i) {
-                average += fps[i] / (float)fps.size();
-            }
-            std::cout << "\rAverage FPS: " << average << "     ";
-            fps_idx = 0;
-        }
     }
-    std::cout << "\r";
-
-    //print FPS info
-    float lowest  = INFINITY;
-    float average = 0.f;
-    float highest = 0.f;
-    for (size_t i = 0; i < fps.size(); ++i) {
-        lowest = (lowest < fps[i]) ? lowest : fps[i];
-        highest = (highest > fps[i]) ? highest : fps[i];
-        average += fps[i] / (float)fps.size();
-    }
-    std::cout << "Average FPS: " << average << "\n";
-    std::cout << "Lowest  FPS: " << lowest  << "\n";
-    std::cout << "Highest FPS: " << highest << "\n";
 }

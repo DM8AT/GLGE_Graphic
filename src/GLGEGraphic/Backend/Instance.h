@@ -34,6 +34,8 @@
 #include "../../GLGE_Math/GLGEMath.h"
 //add the backend instance API
 #include "API_Implementations/API_Instance.h"
+//add keys
+#include "../Frontend/Keys.h"
 
 //only allowed for C++
 #if __cplusplus
@@ -109,6 +111,27 @@ public:
     inline GLGE::Graphic::Backend::API::Instance* getInstance() const noexcept
     {return m_inst;}
 
+    /**
+     * @brief send an event through the event stack
+     * 
+     * @param event a pointer to the event to send
+     */
+    inline void sendEvent(const Event* event) noexcept {m_eventStack.sendEvent(*event);}
+
+    /**
+     * @brief access the event stack of the instance
+     * 
+     * @return LayerStack& a reference to the event stack of the instance
+     */
+    inline LayerStack& eventStack() noexcept {return m_eventStack;}
+
+    /**
+     * @brief Get the Key Layer of the instance
+     * 
+     * @return const KeyLayer& a constant reference to the key layer
+     */
+    inline const KeyLayer& getKeyLayer() const noexcept {return m_keyLayer;}
+
     //add windows as a friend class so they can access the stuff here
     friend class ::Window;
 
@@ -156,6 +179,12 @@ protected:
      */
     uint64_t m_activeWindowCount = 0;
 
+    //store the event layer to handle keys
+    KeyLayer m_keyLayer;
+    /**
+     * @brief store a general stack for event handling
+     */
+    LayerStack m_eventStack;
     /**
      * @brief store a stack of the window layers so the instance can communicate with the windows
      */

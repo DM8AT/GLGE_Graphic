@@ -32,5 +32,7 @@
 #include "Compute.h"
 //add cameras
 #include "Camera.h"
+//add keys
+#include "Keys.h"
 
 #endif

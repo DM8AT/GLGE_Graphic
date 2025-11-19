@@ -25,6 +25,21 @@ void glge_Graphic_MainTick()
     GLGE::Graphic::Backend::INSTANCE.update();
 }
 
+const Keys* glge_Graphic_GetCurrentKeys()
+{return &GLGE::Graphic::Backend::INSTANCE.getKeyLayer().getCurrentKeys();}
+
+const Keys* glge_Graphic_GetPressedKeys()
+{return &GLGE::Graphic::Backend::INSTANCE.getKeyLayer().getPressedKeys();}
+
+const Keys* glge_Graphic_GetReleasedKeys()
+{return &GLGE::Graphic::Backend::INSTANCE.getKeyLayer().getReleasedKeys();}
+
+const Keys* glge_Graphic_GetRepeatedKeys()
+{return &GLGE::Graphic::Backend::INSTANCE.getKeyLayer().getRepeatedKeys();}
+
+LayerStack* glge_Graphic_AccessEventStack()
+{return &GLGE::Graphic::Backend::INSTANCE.eventStack();}
+
 bool glge_Graphic_IsAPISupported(InstanceAPI api)
 {return glge_graphic_IsAPISupported(api);}
 
