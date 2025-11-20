@@ -284,6 +284,12 @@ static void __bindMaterial(::Material* mat, GLGE::Graphic::Backend::OGL::Materia
     glDepthMask((settings & MATERIAL_SETTING_ENABLE_DEPTH_WRITE) ? GL_TRUE : GL_FALSE);
     //set the depth test function correctly
     glDepthFunc(__getCompareOp(material->getMaterial()->getDepthTestOperator()));
+    //set backface culling
+    if (settings & MATERIAL_SETTING_CULL_BACK_FACE) {
+        glEnable(GL_CULL_FACE);
+    } else {
+        glDisable(GL_CULL_FACE);
+    }
 
     //bind the VAO
     glBindVertexArray(material->getVAO());

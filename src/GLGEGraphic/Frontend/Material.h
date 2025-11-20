@@ -43,7 +43,9 @@ typedef enum e_MaterialSetting
     //a setting used to control if the z component is written to the depth buffer
     MATERIAL_SETTING_ENABLE_DEPTH_WRITE = 0b10,
     //define if the mixing via the alpha channel is enabled
-    MATERIAL_SETTING_ENABLE_MIXING = 0b100
+    MATERIAL_SETTING_ENABLE_MIXING = 0b100,
+    //define if backface culling is enabled
+    MATERIAL_SETTING_CULL_BACK_FACE = 0b1000
 } MaterialSetting;
 
 /**
@@ -65,7 +67,9 @@ typedef enum e_DepthTestOperator {
 } DepthTestOperator;
 
 //define a value for the default setings
-#define GLGE_MATERIAL_SETTINGS_DEFAULT ((MaterialSettings)(MATERIAL_SETTING_ENABLE_DEPTH_WRITE | MATERIAL_SETTING_ENABLE_DEPTH_TEST))
+#define GLGE_MATERIAL_SETTINGS_DEFAULT ((MaterialSettings)(MATERIAL_SETTING_ENABLE_DEPTH_WRITE | \
+                                                           MATERIAL_SETTING_ENABLE_DEPTH_TEST | \
+                                                           MATERIAL_SETTING_CULL_BACK_FACE))
 
 //check for C++ to create a class
 #if __cplusplus

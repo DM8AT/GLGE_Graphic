@@ -84,6 +84,9 @@ Instance::Instance(Window* window)
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(OpenGLDebugCallback, nullptr);
     #endif
+    //set the correct face order
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
 
     //supported
     m_extensions.int64 = GLAD_GL_ARB_gpu_shader_int64;
