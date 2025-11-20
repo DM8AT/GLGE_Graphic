@@ -248,6 +248,13 @@ public:
     inline void setNotFocusable(bool notFocusable) noexcept {m_api->setNotFocusable(notFocusable);}
 
     /**
+     * @brief Set the Relative Mouse mode for this window
+     * 
+     * @param relativeMode true : the mouse is captured (relative mode enabled) | false : the mouse is not captured (relative mode disabled)
+     */
+    inline void setRelativeMouseMode(bool relativeMode) noexcept {m_api->setRelativeMouseMode(relativeMode);}
+
+    /**
      * @brief Get the current state of the window settings
      * 
      * @return const WindowSettings& the current window setting state

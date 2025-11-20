@@ -3,13 +3,16 @@
 
 struct CameraController {
     float speed = 10.f;
-    float sens = 1.f;
+    float sens = 0.2f;
     float delta = 0.f;
 };
 
 void cameraController(Transform& transf, const CameraController& settings) {
+    //store the current pitch and yaw of the camera
+    static vec2 rot = 0.f;
+
     //compute the normalized direction vector
-    Quaternion res = transf.rot * vec3(0,0,-1) * transf.rot.conjugate();
+    Quaternion res = transf.rot.conjugate() * vec3(0,0,-1) * transf.rot;
     float d = settings.speed * settings.delta;
     vec3 dir = normalize(vec3(res.i, 0, res.k)) * d;
 
@@ -35,6 +38,15 @@ void cameraController(Transform& transf, const CameraController& settings) {
     if (key_isSignaled(GLGE_KEY_LEFT_SHIFT, glge_Graphic_GetCurrentKeys())) 
     {nPos.y -= d;}
 
+    //compute by how much to rotate
+    vec2 deltaRot(
+        glge_Graphic_GetRelativeMouse()->pixelPos.y * settings.delta * settings.sens,
+        glge_Graphic_GetRelativeMouse()->pixelPos.x * settings.delta * settings.sens);
+    //rotate the rotation
+    rot += deltaRot;
+    //compute the new rotation quaternion
+    transf.rot = Quaternion(vec3(rot, 0));
+
     //store the new position
     transf.pos = nPos;
 }
@@ -43,6 +55,17 @@ int main()
 {
     Window win = Window("Hello World!", 600);
     win.setVSync(GLGE_VSYNC_OFF);
+    win.setRelativeMouseMode(true);
+
+    //check if mice exists. At least one mouse is required.
+    if (glge_Graphic_GetMiceCount() == 0) {
+        std::cerr << "At least one mouse is required for the program\n";
+        return 1;
+    }
+
+    for (uint32_t i = 0; i < glge_Graphic_GetMiceCount(); ++i) {
+        std::cout << glge_Graphic_GetMouse(i)->name << "\n";
+    }
 
     Scene scene = "Main";
 
@@ -123,7 +146,7 @@ int main()
         if (key_isSignaled(GLGE_KEY_F11, glge_Graphic_GetPressedKeys())) {
             win.setFullscreen(!win.getSettings().fullscreen);
         }
-        
+
         scene.forAllObjects(cameraController, false);
         glge_Graphic_MainTick();
         pipe.play();

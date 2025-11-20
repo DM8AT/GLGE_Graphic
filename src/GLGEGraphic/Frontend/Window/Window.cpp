@@ -50,6 +50,7 @@ Window::Window(const String& name, const uivec2 size, const WindowSettings& sett
     flags |= settings.keyboard_grabbed ? SDL_WINDOW_KEYBOARD_GRABBED : 0;
     flags |= settings.transparent ? SDL_WINDOW_TRANSPARENT : 0;
     flags |= settings.can_not_focus ? SDL_WINDOW_NOT_FOCUSABLE : 0;
+    flags |= settings.relative ? SDL_WINDOW_MOUSE_RELATIVE_MODE : 0;
 
     //create and sanity check the SDL window
     m_window = SDL_CreateWindow(m_name.c_str(), m_size.x, m_size.y, flags);

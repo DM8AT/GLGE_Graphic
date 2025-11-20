@@ -175,4 +175,9 @@ void GLGE::Graphic::Backend::OGL::Window::update() noexcept
         SDL_SetWindowFocusable(m_window->getSDLWindow(), !m_settings_requested.can_not_focus);
         m_settings.can_not_focus = m_settings_requested.can_not_focus;
     }
+    //update relative mode
+    if (m_settings.relative != m_settings_requested.relative) {
+        SDL_SetWindowRelativeMouseMode(m_window->getSDLWindow(), m_settings_requested.relative);
+        m_settings.relative = m_settings_requested.relative;
+    }
 }

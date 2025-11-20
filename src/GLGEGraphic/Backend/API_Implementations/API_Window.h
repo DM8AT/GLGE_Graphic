@@ -205,6 +205,13 @@ public:
     inline void setNotFocusable(bool notFocusable) noexcept {m_settings_requested.can_not_focus = notFocusable;}
 
     /**
+     * @brief Set the Relative Mouse mode for this window
+     * 
+     * @param relativeMode true : the mouse is captured (relative mode enabled) | false : the mouse is not captured (relative mode disabled)
+     */
+    inline void setRelativeMouseMode(bool relativeMode) noexcept {m_settings_requested.relative = relativeMode;}
+
+    /**
      * @brief Get the current state of the window settings
      * 
      * @return const WindowSettings& the current window setting state

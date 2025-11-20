@@ -13,6 +13,7 @@
 #include "Instance.h"
 //SDL3 is required
 #include "SDL3/SDL.h"
+#include "SDL3/SDL_mouse.h"
 //include the debugging from the background library
 #include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 
@@ -324,7 +325,7 @@ static Key __mapSDLKeyToGLGEKey(const SDL_Keycode& key) noexcept {
 
 Instance::Instance()
  : m_windowEventStack(std::vector<LayerBase*>()),
-   m_eventStack(std::vector<LayerBase*>{&m_keyLayer})
+   m_eventStack(std::vector<LayerBase*>{&m_keyLayer, &m_miceLayer})
 {
     //set the default hints for GLGE
     SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS, "0");
@@ -337,6 +338,9 @@ Instance::Instance()
     SDL_SetHint(SDL_HINT_VIDEO_SYNC_WINDOW_OPERATIONS, "0");
     //initialize SDL3 (this thread is the main thread as this is a static type)
     SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+    //initialize the mice layer
+    m_miceLayer.init();
 }
 
 Instance::~Instance()
@@ -395,9 +399,65 @@ void Instance::update() noexcept
             }
             break;
 
+        case SDL_EVENT_MOUSE_MOTION: {
+            //store the required data
+            GLGE_MOUSE_EVENT_DATA data{
+                .mouse = e.motion.which,
+                .data{.pos = ivec2(
+                    e.motion.x, 
+                    e.motion.y
+                )}
+            };
+            //send the mouse event
+            m_eventStack.sendEvent(Event(GLGE_MOUSE_EVENT_MOUSE_MOVE, EventData{sizeof(data), (byte*)&data}));
+            }
+            break;
+        case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+            //store the required data
+            GLGE_MOUSE_EVENT_DATA data{
+                .mouse = e.button.which,
+                .data{.button = e.button.button}
+            };
+            //send the mouse event
+            m_eventStack.sendEvent(Event(GLGE_MOUSE_EVENT_MOUSE_DOWN, EventData(sizeof(data), (byte*)&data)));
+            }
+            break;
+        case SDL_EVENT_MOUSE_BUTTON_UP: {
+            //store the required data
+            GLGE_MOUSE_EVENT_DATA data{
+                .mouse = e.button.which,
+                .data{.button = e.button.button}
+            };
+            //send the mouse event
+            m_eventStack.sendEvent(Event(GLGE_MOUSE_EVENT_MOUSE_UP, EventData(sizeof(data), (byte*)&data)));
+            }
+            break;
+
         default:
             break;
         }
+    }
+
+    //update the specific mice states
+    {
+        //update the global mouse
+        //get data for the global mouse state
+        vec2 pos;
+        SDL_MouseButtonFlags buttons = SDL_GetGlobalMouseState(&pos.x, &pos.y);
+        //store the global mouse state
+        m_globalMouse.pressed[0] = (uint64_t)buttons & ~(uint64_t)m_globalMouse.current[0];
+        m_globalMouse.released[0] = ~(uint64_t)buttons & (uint64_t)m_globalMouse.current[0];
+        m_globalMouse.current[0] = (uint64_t)buttons;
+        m_globalMouse.pixelPos = ivec2(pos.x, pos.y);
+
+        //update the relative mouse state
+        //get the data for the relative mouse state
+        buttons = SDL_GetRelativeMouseState(&pos.x, &pos.y);
+        //store the relative mouse state
+        m_relativeMouse.pressed[0] = (uint64_t)buttons & ~(uint64_t)m_relativeMouse.current[0];
+        m_relativeMouse.released[0] = ~(uint64_t)buttons & (uint64_t)m_relativeMouse.current[0];
+        m_relativeMouse.current[0] = (uint64_t)buttons;
+        m_relativeMouse.pixelPos = ivec2(pos.x, pos.y);
     }
 
     //tick the backend instance

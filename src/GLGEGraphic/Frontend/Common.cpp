@@ -37,6 +37,18 @@ const Keys* glge_Graphic_GetReleasedKeys()
 const Keys* glge_Graphic_GetRepeatedKeys()
 {return &GLGE::Graphic::Backend::INSTANCE.getKeyLayer().getRepeatedKeys();}
 
+uint64_t glge_Graphic_GetMiceCount()
+{return GLGE::Graphic::Backend::INSTANCE.getMouseLayer().getMiceCount();}
+
+const Mouse* glge_Graphic_GetMouse(uint32_t id)
+{return &GLGE::Graphic::Backend::INSTANCE.getMouseLayer().getMouse(id);}
+
+const Mouse* glge_Graphic_GetGlobalMouse()
+{return &GLGE::Graphic::Backend::INSTANCE.getGlobalMouse();}
+
+const Mouse* glge_Graphic_GetRelativeMouse()
+{return &GLGE::Graphic::Backend::INSTANCE.getRelativeMouse();}
+
 LayerStack* glge_Graphic_AccessEventStack()
 {return &GLGE::Graphic::Backend::INSTANCE.eventStack();}
 

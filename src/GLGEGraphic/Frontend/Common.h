@@ -17,6 +17,8 @@
 #include "Buffer.h"
 //add keys
 #include "Keys.h"
+//add mice
+#include "Mouse.h"
 //add the layer system
 #include "../../GLGE_Core/Layers/Layers.h"
 
@@ -92,6 +94,35 @@ const Keys* glge_Graphic_GetReleasedKeys();
  * @return const Keys* a constant pointer to the repeated keys
  */
 const Keys* glge_Graphic_GetRepeatedKeys();
+
+/**
+ * @brief get the amount of mice currently registered
+ * 
+ * @return uint64_t the amount of currently registered files
+ */
+uint64_t glge_Graphic_GetMiceCount();
+
+/**
+ * @brief get a specific mouse using an ID
+ * 
+ * @param id the ID to quarry the mouse from
+ * @return const Mouse* a pointer to the mouse
+ */
+const Mouse* glge_Graphic_GetMouse(uint32_t id);
+
+/**
+ * @brief get the global mouse
+ * 
+ * @return const Mouse* a constant pointer to the global mouse
+ */
+const Mouse* glge_Graphic_GetGlobalMouse();
+
+/**
+ * @brief get a relative mouse (this should be used if a window is in relative mouse mode)
+ * 
+ * @return const Mouse* a constant pointer to the relative mouse
+ */
+const Mouse* glge_Graphic_GetRelativeMouse();
 
 /**
  * @brief get a pointer to the global main event stack

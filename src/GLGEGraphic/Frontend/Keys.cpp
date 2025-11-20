@@ -20,7 +20,7 @@ bool key_isSignaled(Key key, const Keys* keys) noexcept
     //compute which uint64_t to use
     uint8_t w = i_key / 64;
     //compute the offset
-    uint8_t o = i_key - (i_key * 64);
+    uint8_t o = i_key % 64;
 
     //return the value
     return ((*keys)[w] >> o) & 0b1;

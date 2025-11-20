@@ -62,6 +62,8 @@ typedef struct s_WindowSettings {
     bool transparent;
     //say if the window can not be focused
     bool can_not_focus;
+    //say if the window has the mouse in relative mode
+    bool relative;
 } WindowSettings;
 
 /**
@@ -86,7 +88,8 @@ const WindowSettings GLGE_WINDOW_SETTINGS_DEFAULT = {
     .popup_menu = false,
     .keyboard_grabbed = false,
     .transparent = false,
-    .can_not_focus = false
+    .can_not_focus = false,
+    .relative = false
 };
 
 #if __cplusplus

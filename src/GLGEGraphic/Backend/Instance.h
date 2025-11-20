@@ -36,6 +36,8 @@
 #include "API_Implementations/API_Instance.h"
 //add keys
 #include "../Frontend/Keys.h"
+//add mice
+#include "../Frontend/Mouse.h"
 
 //only allowed for C++
 #if __cplusplus
@@ -132,6 +134,27 @@ public:
      */
     inline const KeyLayer& getKeyLayer() const noexcept {return m_keyLayer;}
 
+    /**
+     * @brief Get the Mouse Layer of the instance
+     * 
+     * @return const MouseLayer& a constant reference to the internal mouse layer
+     */
+    inline const MouseLayer& getMouseLayer() const noexcept {return m_miceLayer;}
+
+    /**
+     * @brief Get the Global Mouse of the instance
+     * 
+     * @return const Mouse& a constant reference to the global mouse
+     */
+    inline const Mouse& getGlobalMouse() const noexcept {return m_globalMouse;}
+
+    /**
+     * @brief Get the Relative Mouse of the instance
+     * 
+     * @return const Mouse& a constant reference to the relative mouse
+     */
+    inline const Mouse& getRelativeMouse() const noexcept {return m_relativeMouse;}
+
     //add windows as a friend class so they can access the stuff here
     friend class ::Window;
 
@@ -179,6 +202,12 @@ protected:
      */
     uint64_t m_activeWindowCount = 0;
 
+    //store a relative mouse state
+    Mouse m_relativeMouse;
+    //store a global mouse state
+    Mouse m_globalMouse;
+    //store a layer to handle mice
+    MouseLayer m_miceLayer;
     //store the event layer to handle keys
     KeyLayer m_keyLayer;
     /**
