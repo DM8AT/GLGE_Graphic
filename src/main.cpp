@@ -62,11 +62,7 @@ int main()
         std::cerr << "At least one mouse is required for the program\n";
         return 1;
     }
-
-    for (uint32_t i = 0; i < glge_Graphic_GetMiceCount(); ++i) {
-        std::cout << glge_Graphic_GetMouse(i)->name << "\n";
-    }
-
+    
     Scene scene = "Main";
 
     AssetHandle mesh = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Suzane.fbx"));
