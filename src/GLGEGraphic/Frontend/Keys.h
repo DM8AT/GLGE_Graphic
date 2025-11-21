@@ -331,7 +331,7 @@ void key_setSignaled(Key key, bool state, Keys* keys) noexcept;
 #if __cplusplus
 
 //add the layer base class
-#include "../../../GLGE_Core/Layers/LayerBase.hpp"
+#include "../../GLGE_Core/Layers/LayerBase.hpp"
 
 //define an event type tp use for key down events
 inline constexpr const EventType GLGE_KEY_EVENT_KEY_DOWN{"GLGE_GRAPHIC", 0xF1};
