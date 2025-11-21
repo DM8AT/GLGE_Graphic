@@ -34,7 +34,9 @@ void glge_ImGui_FrameStart(void*);
 
 /**
  * @brief a function to insert to a render pipeline as a function to end a frame
+ * 
+ * @param window a pointer to the window to render to
  */
-void glge_ImGui_FrameEnd(void*);
+void glge_ImGui_FrameEnd(void* window);
 
 #endif

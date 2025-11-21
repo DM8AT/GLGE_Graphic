@@ -160,7 +160,7 @@ int main()
                 .type = GLGE_RENDER_PIPELINE_STAGE_CUSTOM,
                 .data{.customStage{
                     .custom_func = glge_ImGui_FrameEnd,
-                    .userData = nullptr
+                    .userData = &win
                 }}}
         }
     }, &win);

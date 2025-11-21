@@ -55,6 +55,9 @@ void glge_ImGui_init(const Window& win) {
     //get the input / output system
     io = &ImGui::GetIO();
 
+    io->ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    io->ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
     //init the backends
     ImGui_ImplSDL3_InitForOpenGL(win.getSDLWindow(), glge_Graphic_GetOpenGLContext());
     ImGui_ImplOpenGL3_Init("#version 330 core");
@@ -81,9 +84,17 @@ void glge_ImGui_FrameStart(void*) {
     ImGui::NewFrame();
 }
 
-void glge_ImGui_FrameEnd(void*) {
+void glge_ImGui_FrameEnd(void* window) {
+    //extract the window 
+    Window* win = (Window*)window;
+
     //render the frame
     ImGui::Render();
     //do the OpenGL rendering
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    //update the windows
+    ImGui::UpdatePlatformWindows();
+    ImGui::RenderPlatformWindowsDefault();
+    //restore the original context
+    SDL_GL_MakeCurrent(win->getSDLWindow(), (SDL_GLContext)glge_Graphic_GetOpenGLContext());
 }
