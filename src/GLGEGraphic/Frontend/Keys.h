@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 //add types
-#include "../../../GLGE_Core/Types.h"
+#include "../../GLGE_Core/Types.h"
 
 /**
  * @brief 
