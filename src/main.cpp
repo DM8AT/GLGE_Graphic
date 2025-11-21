@@ -1,5 +1,8 @@
 #include "GLGEGraphic/GLGEGraphic.h"
 #include "GLGE_Core/GLGECore.h"
+//add ImGui
+#include "imgui.h"
+#include "GLGE_ImGuiImpl.h"
 
 struct CameraController {
     float speed = 10.f;
@@ -51,11 +54,20 @@ void cameraController(Transform& transf, const CameraController& settings) {
     transf.pos = nPos;
 }
 
+static void imgui_draw(void*) noexcept {
+    ImGui::Begin("Hello World!");
+    ImGui::Text("This is a test");
+    ImGui::End();
+}
+
 int main()
 {
     Window win = Window("Hello World!", 600);
     win.setVSync(GLGE_VSYNC_OFF);
     win.setRelativeMouseMode(true);
+
+    //init the ImGui extension
+    glge_ImGui_init(win);
 
     //check if mice exists. At least one mouse is required.
     if (glge_Graphic_GetMiceCount() == 0) {
@@ -119,6 +131,30 @@ int main()
                     .batchShader=(void**)renderList,
                     .batchShaderCount=(sizeof(renderList) / sizeof(*renderList))
                 }}}
+        }, {
+            "ImGui - Start",
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_STAGE_CUSTOM, 
+                .data{.customStage{
+                    .custom_func = glge_ImGui_FrameStart,
+                    .userData = nullptr
+                }}}
+        }, {
+            "ImGui - Draw",
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_STAGE_CUSTOM,
+                .data{.customStage{
+                    .custom_func = imgui_draw,
+                    .userData = nullptr
+                }}}
+        }, {
+            "ImGui - End",
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_STAGE_CUSTOM,
+                .data{.customStage{
+                    .custom_func = glge_ImGui_FrameEnd,
+                    .userData = nullptr
+                }}}
         }
     }, &win);
 
@@ -136,15 +172,22 @@ int main()
         obj->get<Transform>()->rot.vec = normalize((obj->get<Transform>()->rot * quat).vec);
         obj->get<Renderer>()->reupload();
 
-        camera->get<CameraController>()->delta = pipe.getDelta();
+        camera->get<CameraController>()->delta = (win.getSettings().relative) ? pipe.getDelta() : 0.f;
         camera->get<Camera>()->update();
 
-        if (key_isSignaled(GLGE_KEY_F11, glge_Graphic_GetPressedKeys())) {
-            win.setFullscreen(!win.getSettings().fullscreen);
-        }
+        if (key_isSignaled(GLGE_KEY_F11, glge_Graphic_GetPressedKeys())) 
+        {win.setFullscreen(!win.getSettings().fullscreen);}
+        
+        if (key_isSignaled(GLGE_KEY_ESCAPE, glge_Graphic_GetPressedKeys()))
+        {win.setRelativeMouseMode(false);}
+        if (mouse_isPressed(GLGE_MOUSE_LEFT, &glge_Graphic_GetMouse(0)->pressed))
+        {win.setRelativeMouseMode(true);}
 
         scene.forAllObjects(cameraController, false);
         glge_Graphic_MainTick();
         pipe.play();
     }
+
+    //shutdown the ImGui extension
+    glge_ImGui_Shutdown();
 }

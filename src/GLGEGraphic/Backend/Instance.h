@@ -52,6 +52,9 @@
 //include conditional variables for thread synchronization
 #include <condition_variable>
 
+//add ordered maps for callbacks
+#include <map>
+
 //windows will be define elsewhere
 class Window;
 
@@ -155,6 +158,33 @@ public:
      */
     inline const Mouse& getRelativeMouse() const noexcept {return m_relativeMouse;}
 
+    /**
+     * @brief add a new SDL event callback
+     * 
+     * @param name the name of the callback to add
+     * @param callback the callback function
+     */
+    inline void addSDLEventCallback(const char* name, bool (*callback)(void*)) noexcept
+    {m_SDLEventCallbacks.insert_or_assign(name, callback);}
+
+    /**
+     * @brief check if a specific named callback exists
+     * 
+     * @param name the name of the callback to check
+     * @return true : the named callback exists
+     * @return false : the named callback does not exist
+     */
+    inline bool hasSDLEventCallback(const char* name) const noexcept 
+    {return m_SDLEventCallbacks.find(name) != m_SDLEventCallbacks.end();}
+
+    /**
+     * @brief remove a specific callback
+     * 
+     * @param name the name of the callback to remove
+     */
+    inline void removeSDLEventCallback(const char* name) noexcept 
+    {m_SDLEventCallbacks.erase(name);}
+
     //add windows as a friend class so they can access the stuff here
     friend class ::Window;
 
@@ -218,7 +248,10 @@ protected:
      * @brief store a stack of the window layers so the instance can communicate with the windows
      */
     LayerStack m_windowEventStack;
-    
+    /**
+     * @brief store a map of named callbacks to call for all SDL events
+     */
+    std::map<const char*, bool (*)(void*)> m_SDLEventCallbacks;
 };
 
 //store a global instance

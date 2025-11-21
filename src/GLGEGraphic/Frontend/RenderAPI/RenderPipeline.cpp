@@ -19,10 +19,22 @@
 //add all API implementations
 #include "../../Backend/API_Implementations/AllImplementations.h"
 
-RenderPipeline::RenderPipeline(const std::map<String, RenderPipelineStage> stages, Window* window)
- : //just copy the stages over
-   m_stages(stages), m_window(window)
+RenderPipeline::RenderPipeline(const std::vector<std::pair<String, RenderPipelineStage>> stages, Window* window)
+ : m_window(window)
 {
+    //make enough spaces
+    m_stages.reserve(stages.size());
+    m_keyMap.reserve(stages.size());
+    //convert the inputted vector to the internal format
+    for (const auto& [key, value] : stages) {
+        //sanity check
+        GLGE_DEBUG_ASSERT("Adding a stage to an allready existing name - overriding the original stage", containsStage(key));
+        //store the index of the element
+        m_keyMap.insert_or_assign(key, m_stages.size());
+        //store the actual element
+        m_stages.push_back(value);
+    }
+
     //add the backend API
     initializeAPI();
 }
@@ -30,12 +42,20 @@ RenderPipeline::RenderPipeline(const std::map<String, RenderPipelineStage> stage
 RenderPipeline::RenderPipeline(const RenderPipelineStageNamed* namedStages, size_t namedStageCount, Window* window)
  : m_window(window)
 {
-    //iterate over all stages and unpack the named stage structure
-    for (size_t i = 0; i < namedStageCount; ++i) 
-    {
-        //for debugging purpose check if the name allready exists
-        GLGE_DEBUG_ASSERT("Adding a stage to an allready existing name - overriding the original stage", containsStage(namedStages[i].name));
-        m_stages.insert_or_assign(namedStages[i].name, namedStages[i].stage);
+    //make enough spaces
+    m_stages.reserve(namedStageCount);
+    m_keyMap.reserve(namedStageCount);
+    //convert the inputted vector to the internal format
+    for (size_t i = 0; i < namedStageCount; ++i) {
+        //extract the key - value pair
+        const String& key = namedStages->name;
+        const RenderPipelineStage& value = namedStages->stage;
+        //sanity check
+        GLGE_DEBUG_ASSERT("Adding a stage to an allready existing name - overriding the original stage", containsStage(key));
+        //store the index of the element
+        m_keyMap.insert_or_assign(key, m_stages.size());
+        //store the actual element
+        m_stages.push_back(value);
     }
 
     //add the backend API

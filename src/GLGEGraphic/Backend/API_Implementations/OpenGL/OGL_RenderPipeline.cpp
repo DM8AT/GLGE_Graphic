@@ -177,7 +177,7 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::record() noexcept
     //just iterate over all stages and play them
     uint64_t id = 1;
     for (auto it = m_pipeline->getStages().begin(); it != m_pipeline->getStages().end(); ++it)
-    {execute(it->second, id); ++id;}
+    {execute(*it, id); ++id;}
     //record the finalization stage
     m_todo[m_todo.size()-1] = std::pair<RenderPipelineStageData, void (RenderPipeline::*)(const RenderPipelineStageData&)>
                               (RenderPipelineStageData{}, &RenderPipeline::executeStage_Finalize);

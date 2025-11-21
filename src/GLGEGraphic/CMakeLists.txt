@@ -72,13 +72,13 @@ target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/g
 ## Core submodule
 add_subdirectory(${PROJECT_SOURCE_DIR}/../GLGE_Core ${PROJECT_BINARY_DIR}/../GLGE_Core)
 target_link_libraries(GLGE_GRAPHIC PUBLIC GLGE_CORE)
-target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/../GLGE_Core)
+target_include_directories(GLGE_GRAPHIC PUBLIC ${PROJECT_SOURCE_DIR}/../GLGE_Core)
 
 ## SDL3
 set(SDL_WAYLAND_LIBDECOR OFF CACHE BOOL "" FORCE)
 add_subdirectory(${PROJECT_SOURCE_DIR}/external/SDL ${PROJECT_BINARY_DIR}/external/SDL)
-target_link_libraries(GLGE_GRAPHIC PRIVATE SDL3::SDL3)
-target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/SDL/include)
+target_link_libraries(GLGE_GRAPHIC PUBLIC SDL3::SDL3)
+target_include_directories(GLGE_GRAPHIC PUBLIC ${PROJECT_SOURCE_DIR}/external/SDL/include)
 
 ## STB image
-target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/stb)
+target_include_directories(GLGE_GRAPHIC PUBLIC ${PROJECT_SOURCE_DIR}/external/stb)

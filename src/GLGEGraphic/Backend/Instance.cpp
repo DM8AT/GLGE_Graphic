@@ -86,6 +86,7 @@ static Key __mapSDLKeyToGLGEKey(const SDL_Keycode& key) noexcept {
     case SDLK_MODE: return GLGE_KEY_MODE;
     case SDLK_SLEEP: return GLGE_KEY_SLEEP;
     case SDLK_WAKE: return GLGE_KEY_WAKE;
+    case SDLK_ESCAPE: return GLGE_KEY_ESCAPE;
 
     // --- CHANNEL / SOFT KEYS ---
     case SDLK_CHANNEL_INCREMENT: return GLGE_KEY_CHANNEL_INCREMENT;
@@ -359,6 +360,14 @@ void Instance::update() noexcept
     //poll all SDL events
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
+        //store if the event should be skipped
+        bool skip = false;
+        //call all callbacks
+        for (const auto& callback : m_SDLEventCallbacks) 
+        {if ((*callback.second)(&e)) {skip = true; break;}}
+        //if skipping is requested, skip
+        if (skip) {continue;}
+        
         //check the SDL event
         switch (e.type)
         {
@@ -384,7 +393,6 @@ void Instance::update() noexcept
             break;
 
         case SDL_EVENT_KEY_DOWN: {
-            
             //store the key
             Key key = __mapSDLKeyToGLGEKey(e.key.key);
             //send the key down event

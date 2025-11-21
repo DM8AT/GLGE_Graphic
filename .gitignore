@@ -7,3 +7,5 @@ build.sh
 *.cap
 # ignore perf stuff
 *.data
+# ignore ImGui stuff
+*.ini

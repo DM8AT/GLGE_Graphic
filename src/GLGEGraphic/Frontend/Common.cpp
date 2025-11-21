@@ -14,6 +14,8 @@
 
 //include the backend
 #include "../Backend/Backend.h"
+//add implementations
+#include "../Backend/API_Implementations/AllImplementations.h"
 
 Buffer* glge_Graphic_GetTransformBuffer() {return GLGE::Graphic::Backend::RenderObjectSystem::getTransformBuffer();}
 
@@ -60,3 +62,19 @@ InstanceAPI glge_Graphic_GetCurrentAPI()
 
 bool glge_Graphic_SelectAPI(InstanceAPI api)
 {return GLGE::Graphic::Backend::INSTANCE.setAPI(api);}
+
+void* glge_Graphic_GetOpenGLContext(){
+    //get the OpenGL instance
+    GLGE::Graphic::Backend::OGL::Instance* inst = (GLGE::Graphic::Backend::OGL::Instance*)GLGE::Graphic::Backend::INSTANCE.getInstance();
+    //safety check if the instance actually exists
+    return (inst) ? inst->getContext() : NULL;
+}
+
+void glge_Graphic_AddSDLEventCallback(const char* name, bool (*callback)(void*))
+{GLGE::Graphic::Backend::INSTANCE.addSDLEventCallback(name, callback);}
+
+bool glge_Graphic_HasSDLEventCallback(const char* name)
+{return GLGE::Graphic::Backend::INSTANCE.hasSDLEventCallback(name);}
+
+void glge_Graphic_RemoveSDLEventCallback(const char* name)
+{GLGE::Graphic::Backend::INSTANCE.removeSDLEventCallback(name);}

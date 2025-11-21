@@ -130,7 +130,7 @@ typedef struct s_RenderPipelineStageNamed {
 #if __cplusplus
 
 //add maps for the storage of render pipeline stages
-#include <map>
+#include <unordered_map>
 //atomic stuff is required
 #include <atomic>
 //threading required
@@ -153,7 +153,7 @@ public:
      * @param stages a map of stages to execute in the given order
      * @param window the window to operate on (null = the pipeline operates on no windows, but may still operate on framebuffers or buffers)
      */
-    RenderPipeline(const std::map<String, RenderPipelineStage> stages, ::Window* window);
+    RenderPipeline(const std::vector<std::pair<String, RenderPipelineStage>> stages, ::Window* window);
 
     /**
      * @brief Construct a new Render Pipeline from a list of named stages. Order is important. 
@@ -177,7 +177,8 @@ public:
      * @param name the name of the stage to quarry
      * @return const RenderPipelineStage& a constant reference to the render pipeline stage to quarry
      */
-    inline const RenderPipelineStage& getStage(const String& name) {return m_stages[name];}
+    inline const RenderPipelineStage& getStage(const String& name) const noexcept 
+    {return m_stages[m_keyMap.find(name)->second];}
 
     /**
      * @brief check if the render pipeline contains a specific stage
@@ -186,14 +187,14 @@ public:
      * @return true : the name corresponds to a stage in the render pipeline
      * @return false : the stage does not correspond to a render pipeline
      */
-    inline bool containsStage(const String& name) const noexcept {return m_stages.find(name) != m_stages.end();}
+    inline bool containsStage(const String& name) const noexcept {return m_keyMap.find(name) != m_keyMap.end();}
 
     /**
      * @brief Get the Stages of the render pipeline
      * 
      * @return const std::map<String, RenderPipelineStage> a constant reference to the render pipeline
      */
-    inline const std::map<String, RenderPipelineStage>& getStages() const noexcept {return m_stages;}
+    inline const std::vector<RenderPipelineStage>& getStages() const noexcept {return m_stages;}
 
     /**
      * @brief record the whole command buffer
@@ -261,8 +262,10 @@ protected:
     //async recording function
     void asyncRecord() noexcept;
 
+    //store the stages in the inputted order
+    std::vector<RenderPipelineStage> m_stages;
     //store a map of the render pipeline stages to the names
-    std::map<String, RenderPipelineStage> m_stages;
+    std::unordered_map<String, uint32_t> m_keyMap;
 
     //store the API implementation for the render pipeline
     void* m_api = nullptr;

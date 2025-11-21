@@ -156,6 +156,37 @@ InstanceAPI glge_Graphic_GetCurrentAPI();
  */
 bool glge_Graphic_SelectAPI(InstanceAPI api);
 
+/**
+ * @brief get the OpenGL context or NULL if it is not defined
+ * 
+ * @return void* the SDL OpenGL context
+ */
+void* glge_Graphic_GetOpenGLContext();
+
+/**
+ * @brief add a new SDL event callback
+ * 
+ * @param name the name of the callback to add
+ * @param callback the callback function
+ */
+void glge_Graphic_AddSDLEventCallback(const char* name, bool (*callback)(void*));
+
+/**
+ * @brief check if a specific named callback exists
+ * 
+ * @param name the name of the callback to check
+ * @return true : the named callback exists
+ * @return false : the named callback does not exist
+ */
+bool glge_Graphic_HasSDLEventCallback(const char* name);
+
+/**
+ * @brief remove a specific callback
+ * 
+ * @param name the name of the callback to remove
+ */
+void glge_Graphic_RemoveSDLEventCallback(const char* name); 
+
 #if __cplusplus
 }
 #endif

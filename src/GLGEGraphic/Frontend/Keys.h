@@ -77,6 +77,7 @@ typedef enum e_Key {
     GLGE_KEY_SOFT_RIGHT,
     GLGE_KEY_CALL,
     GLGE_KEY_END_CALL,
+    GLGE_KEY_ESCAPE,
 
     //media
 
