@@ -55,8 +55,15 @@ void cameraController(Transform& transf, const CameraController& settings) {
 }
 
 static void imgui_draw(void*) noexcept {
+    static bool button = false;
+    static char buff[128] {'\0'};
     ImGui::Begin("Hello World!");
     ImGui::Text("This is a test");
+    ImGui::Checkbox("Button: ", &button);
+    if (button) {
+        ImGui::Button("Button");
+        ImGui::InputText("Write somethings", buff, sizeof(buff));
+    }
     ImGui::End();
 }
 

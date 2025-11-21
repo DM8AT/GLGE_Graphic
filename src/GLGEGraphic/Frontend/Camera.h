@@ -14,10 +14,8 @@
 
 //add windows
 #include "Window/Window.h"
-//add transforms
-#include "../../GLGE_Core/Geometry/Structure/Transform.h"
-//add the scene system
-#include "../../GLGE_Core/Geometry/Structure/ECS/Scene.h"
+//add the structuring
+#include "../../GLGE_Core/Geometry/Structure/Structure.h"
 //add buffers
 #include "StructuredBuffer.h"
 
