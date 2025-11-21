@@ -59,7 +59,7 @@ set_target_properties(GLGE_GRAPHIC PROPERTIES
     VERSION ${GLGE_GRAPHIC_VERSION} 
     SOVERSION 1
 )
-target_include_directories(GLGE_GRAPHIC PRIVATE ${PROJECT_SOURCE_DIR}/external/glad/include)
+target_include_directories(GLGE_GRAPHIC PUBLIC ${PROJECT_SOURCE_DIR}/external/glad/include)
 
 ## BG submodule
 # add_subdirectory(${PROJECT_SOURCE_DIR}/../GLGE_BG ${PROJECT_BINARY_DIR}/../GLGE_BG)
