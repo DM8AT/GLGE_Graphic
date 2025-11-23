@@ -408,8 +408,6 @@ void GLGE::Graphic::Backend::OGL::Command_DrawMeshesIndirect::execute() noexcept
     //extract the camera
     Camera* cam = (Camera*)camera;
     uint32_t camBuff = ((API::CycleBuffer*)cam->getBuffer()->getBackend())->getCurrentGPUBackend<OGL::CycleBufferBackend>()->getBuffer();
-    //bind the camera buffer
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, camBuff);
     //adjust the viewport for the framebuffer
     uivec2 size(0,0);
     switch (cam->getTarget().type)
@@ -450,6 +448,8 @@ void GLGE::Graphic::Backend::OGL::Command_DrawMeshesIndirect::execute() noexcept
     uint64_t invoke = (uint64_t)std::ceil(meshCount / 64.);
     //iterate over all compute shader to run
     for (size_t i = 0; i < shaders.size(); ++i) {
+        //bind the camera buffer
+        glBindBufferBase(GL_UNIFORM_BUFFER, 0, camBuff);
         //bind the buffers at the pre-determined indices
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, batchBuffer);
         glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, drawBuffer);

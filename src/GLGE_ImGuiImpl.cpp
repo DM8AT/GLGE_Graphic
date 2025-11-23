@@ -15,6 +15,9 @@
 #include <SDL3/SDL.h>
 #include "GLGEGraphic/external/glad/include/glad/glad.h"
 
+//add the backends
+#include "GLGEGraphic/Backend/API_Implementations/AllImplementations.h"
+
 //add the imgui API
 #include "GLGE_ImGuiImpl.h"
 
@@ -48,6 +51,18 @@ static bool __glge_ImGui_HandleSDLEvent(void* event) noexcept {
 }
 
 void glge_ImGui_init(const Window& win) {
+    //check if the API is supported
+    switch (glge_Graphic_GetCurrentAPI())
+    {
+    case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
+        break;
+    
+    default:
+        //unsupported API
+        GLGE_ABORT("The selected graphic API is not supported for GLGE ImGui");
+        break;
+    }
+
     //create the context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -74,7 +89,44 @@ void glge_ImGui_Shutdown() {
     ImGui::DestroyContext();
 }
 
-void glge_ImGui_FrameStart(void*) {
+/**
+ * @brief bind a window as the current render target
+ * 
+ * @param window a pointer to the window to bind
+ */
+static void __glge_ImGui_BindTargetWindow(SDL_UNUSED Window* window) {
+    //for OpenGL just use FBO 0
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+/**
+ * @brief bind a framebuffer as the current render target
+ * 
+ * @param fbuff a pointer to the framebuffer to bind
+ */
+static void __glge_ImGui_BindTargetFramebuffer(Framebuffer* fbuff) {
+    //for OpenGL extract and bind the framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, ((GLGE::Graphic::Backend::OGL::Framebuffer*)fbuff->getAPI())->getFBO());
+}
+
+void glge_ImGui_FrameStart(void* _target) {
+    //extract the target
+    RenderTarget* target = (RenderTarget*)_target;
+    switch (target->type)
+    {
+    //bind a window
+    case GLGE_WINDOW:
+        __glge_ImGui_BindTargetWindow((Window*)target->target);
+        break;
+    //bind a framebuffer
+    case GLGE_FRAMEBUFFER:
+        __glge_ImGui_BindTargetFramebuffer((Framebuffer*)target->target);
+        break;
+    
+    default:
+        break;
+    }
+
     //start a new frame
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();

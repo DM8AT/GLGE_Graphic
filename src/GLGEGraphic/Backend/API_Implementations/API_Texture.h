@@ -43,10 +43,12 @@ public:
      * @param filterMode defines how the pixel values are interpolated between the texels
      * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
      * @param samples the amount of samples to take per pixel (default is 1 sample per pixel)
+     * @param tiling the tiling mode for the texture
      */
-    Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples)
+    Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples, TextureTileMode tiling)
      : m_texture(tex), m_filterMode(filterMode), m_requested_filterMode(filterMode), 
-       m_anisotropy(anisotropy) , m_requested_anisotropy(anisotropy), m_samples(samples), m_requested_samples(samples)
+       m_anisotropy(anisotropy) , m_requested_anisotropy(anisotropy), m_samples(samples), m_requested_samples(samples),
+       m_tiling(tiling), m_requested_tiling(tiling)
     {}
 
     /**
@@ -114,7 +116,7 @@ public:
      * 
      * @param samples the amount of samples to take
      */
-    void setMultiSample(TextureMultiSample samples) {m_requested_samples = samples;}
+    virtual void setMultiSample(TextureMultiSample samples) noexcept = 0;
 
     /**
      * @brief Get the amount of samples the texture takes per pixel
@@ -122,6 +124,20 @@ public:
      * @return TextureMultiSample the amount of samples taken per pixel
      */
     inline TextureMultiSample getMultiSample() {return m_samples;}
+
+    /**
+     * @brief Set the Tiling Mode for the texture
+     * 
+     * @param mode the new tiling mode of the texture
+     */
+    virtual void setTilingMode(TextureTileMode mode) noexcept = 0;
+
+    /**
+     * @brief Get the Tiling Mode of the texture
+     * 
+     * @return TextureTileMode the tiling mode of the texture
+     */
+    inline TextureTileMode getTilingMode() const noexcept {return m_tiling;}
 
     /**
      * @brief mark that this class is dirty (new CPU data)
@@ -155,12 +171,16 @@ protected:
     float m_anisotropy = 0.f;
     //store how many samples to take per pixel
     TextureMultiSample m_samples = GLGE_TEXTURE_SAMPLE_X1;
+    //store how the texture is tiled
+    TextureTileMode m_tiling = GLGE_TEXTURE_TILE_CLAMP;
     //store the currently requested filter mode
     FilterMode m_requested_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the own anisotropic filter mode
     float m_requested_anisotropy = 0.f;
     //store how many samples to take per pixel
     TextureMultiSample m_requested_samples = GLGE_TEXTURE_SAMPLE_X1;
+    //store how to tile the texture
+    TextureTileMode m_requested_tiling = GLGE_TEXTURE_TILE_CLAMP;
 
     /**
      * @brief store a mutex to make GPU updates thread safe

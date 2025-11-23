@@ -26,11 +26,11 @@ extern "C" {
 //some defines to make mouse button indices clearer
 
 //the left mouse button's index
-#define GLGE_MOUSE_LEFT 1
+#define GLGE_MOUSE_LEFT 0
 //the right mouse button's index
-#define GLGE_MOUSE_RIGHT 3
+#define GLGE_MOUSE_RIGHT 2
 //the middle mouse button's index
-#define GLGE_MOUSE_MIDDLE 2
+#define GLGE_MOUSE_MIDDLE 1
 
 //define a type that stores the state of all mouse buttons
 typedef uint64_t MouseButtons[4];

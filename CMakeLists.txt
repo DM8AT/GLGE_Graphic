@@ -26,8 +26,8 @@ set_target_properties(GLGE_IMGUI PROPERTIES
                         CXX_STANDARD 23 
                         CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(src/GLGEGraphic)
-target_link_libraries(MAIN PUBLIC GLGE_IMGUI)
+add_subdirectory(src/Example/FirstPersonExample)
+target_link_libraries(MAIN FirstPersonExample GLGE_IMGUI)
 
 target_include_directories(IMGUI PUBLIC ${IMGUI_SRC})
 

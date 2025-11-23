@@ -42,8 +42,9 @@ public:
      * @param filterMode defines how the pixel values are interpolated between the texels
      * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
      * @param samples the amount of samples to take per pixel (default is 1 sample per pixel)
+     * @param tiling the tiling mode for the texture
      */
-    Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples);
+    Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples, TextureTileMode tiling);
 
     /**
      * @brief Set the Filter Mode of the texture
@@ -83,6 +84,20 @@ public:
      */
     inline uint32_t getTextureType() const noexcept {return (m_samples == GLGE_TEXTURE_SAMPLE_X1) ? 0x0DE1 : 0x9100;}
 
+    /**
+     * @brief Set the amount of samples to take per pixel for the texture
+     * 
+     * @param samples the amount of samples to take
+     */
+    virtual void setMultiSample(TextureMultiSample samples) noexcept override;
+
+    /**
+     * @brief Set the Tiling Mode for the texture
+     * 
+     * @param mode the new tiling mode of the texture
+     */
+    virtual void setTilingMode(TextureTileMode mode) noexcept override;
+
 protected:
 
     /**
@@ -109,6 +124,16 @@ protected:
      * @brief store the flags that is used to state that the anisotropic filter state is out of date
      */
     inline static constexpr uint64_t FLAG_UPDATE_ANISOTROPY = 0b1000;
+
+    /**
+     * @brief store the flags that is used to state that the anisotropic filter state is out of date
+     */
+    inline static constexpr uint64_t FLAG_UPDATE_SAMPLING = 0b1000;
+
+    /**
+     * @brief store the flags that is used to state that the tiling state is out of date
+     */
+    inline static constexpr uint64_t FLAG_UPDATE_TILING = 0b10000;
 
     /**
      * @brief store if the element is queued

@@ -36,9 +36,11 @@ public:
      * @param type the type for the GPU data
      * @param filterMode define the filter mode to use for the texture
      * @param maxAnisotropy define the maximum anisotropy value that can be used for sampling the texture
+     * @param tiling defines how the texture behaves when sampled outside the 0 to 1 range
      */
-    TextureAsset(const String& path, bool hdr, const TextureType& type, FilterMode filterMode = GLGE_FILTER_MODE_LINEAR, float maxAnisotropy = 0.f)
-     : m_path(path), m_hdr(hdr), m_type(type), m_filterMode(filterMode), m_anisotropy(maxAnisotropy)
+    TextureAsset(const String& path, bool hdr, const TextureType& type, FilterMode filterMode = GLGE_FILTER_MODE_LINEAR, float maxAnisotropy = 0.f, 
+                 TextureTileMode tiling = GLGE_TEXTURE_TILE_TILED)
+     : m_path(path), m_hdr(hdr), m_type(type), m_filterMode(filterMode), m_anisotropy(maxAnisotropy), m_tiling(tiling)
     {}
 
     /**
@@ -82,6 +84,8 @@ protected:
     FilterMode m_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the requested maximum anisotropy
     float m_anisotropy = 0.f;
+    //store the tiling mode
+    TextureTileMode m_tiling = GLGE_TEXTURE_TILE_TILED;
 
 };
 

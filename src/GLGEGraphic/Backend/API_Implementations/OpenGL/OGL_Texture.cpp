@@ -163,8 +163,32 @@ static GLenum getGLTextureLayout(const TextureStorage& data) noexcept
     }
 }
 
-GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples)
- : API::Texture(tex, filterMode, anisotropy, samples) 
+static GLenum getGLTilingMode(TextureTileMode tiling) noexcept {
+    switch (tiling)
+    {
+    case GLGE_TEXTURE_TILE_CLAMP:
+        return GL_CLAMP_TO_EDGE;
+        break;
+    case GLGE_TEXTURE_TILE_TILED:
+        return GL_REPEAT;
+        break;
+    case GLGE_TEXTURE_TILE_TILED_MIRRORED:
+        return GL_MIRRORED_REPEAT;
+        break;
+    case GLGE_TEXTURE_TILE_BORDER:
+        return GL_CLAMP_TO_BORDER;
+        break;
+    
+    default:
+        //return 0 as a default value
+        GLGE_DEBUG_ABORT("Invalid texture tiling mode");
+        return 0;
+        break;
+    }
+}
+
+GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples, TextureTileMode tiling)
+ : API::Texture(tex, filterMode, anisotropy, samples, tiling) 
 {
     //directly mark the texture data as dirty
     markDirty();
@@ -186,6 +210,24 @@ void GLGE::Graphic::Backend::OGL::Texture::setAnisotropy(float anisotropy) noexc
     m_requested_anisotropy = anisotropy;
     //update the dirty flag
     m_dirtFlags.fetch_or(FLAG_UPDATE_ANISOTROPY, std::memory_order_acq_rel);
+    //queue this texture
+    enqueue();
+}
+
+void GLGE::Graphic::Backend::OGL::Texture::setMultiSample(TextureMultiSample samples) noexcept {
+    //store the new requested multi-sample state
+    m_requested_samples = samples;
+    //update the dirty flag
+    m_dirtFlags.fetch_or(FLAG_UPDATE_SAMPLING, std::memory_order_acq_rel);
+    //queue this texture
+    enqueue();
+}
+
+void GLGE::Graphic::Backend::OGL::Texture::setTilingMode(TextureTileMode mode) noexcept {
+    //store the new requested tiling mode
+    m_requested_tiling = mode;
+    //update the dirty flag
+    m_dirtFlags.fetch_or(FLAG_UPDATE_TILING, std::memory_order_acq_rel);
     //queue this texture
     enqueue();
 }
@@ -226,6 +268,11 @@ void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept
     if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_RESIZE) {
         recreate();
     } 
+    if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_UPDATE_SAMPLING) {
+        //the texture needs to be re-created for sampling to update
+        m_samples = m_requested_samples;
+        recreate();
+    }
     if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_UPDATE_FILTER) {
         //set the new filter level
         glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_requested_filterMode == GLGE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
@@ -244,6 +291,14 @@ void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept
             //store the new anisotropy level
             m_anisotropy = m_requested_anisotropy;
         }
+    }
+    if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_UPDATE_TILING) {
+        //update the tiling mode
+        GLenum mode = getGLTilingMode(m_requested_tiling);
+        glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_S, mode);
+        glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_T, mode);
+        //store that the mode is updated
+        m_tiling = m_requested_tiling;
     }
 
     //reset the flags
@@ -384,6 +439,7 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
         glTextureParameterf(m_glTex, GL_TEXTURE_MAX_ANISOTROPY, (m_anisotropy < maxAnisotropy) ? m_anisotropy : maxAnisotropy);
     }
     //finalize the texture
-    glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    GLenum tiling = getGLTilingMode(m_tiling);
+    glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_S, tiling);
+    glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_T, tiling);
 }

@@ -6,6 +6,8 @@ layout (location = 0) in vec3 v_pos;
 layout (location = 1) in vec3 v_norm;
 layout (location = 2) in vec2 v_tex;
 
+layout (location = 3) flat out uint drawID;
+
 layout (location = 0) out vec3 f_pos;
 layout (location = 1) out vec3 f_norm;
 layout (location = 2) out vec2 f_tex;
@@ -142,4 +144,9 @@ void main() {
     f_pos = v_pos;
     f_norm = norm;
     f_tex = v_tex;
+
+    //pass the draw ID to the fragment shader
+    //the speck states that gl_DrawID should be readable there,
+    //but for some reason, it is not
+    drawID = gl_DrawID;
 }

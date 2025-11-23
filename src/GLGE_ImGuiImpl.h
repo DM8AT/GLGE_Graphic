@@ -29,8 +29,10 @@ void glge_ImGui_Shutdown();
 
 /**
  * @brief a function to insert to a render pipeline as a function to start a frame
+ * 
+ * @param target a render target to render to
  */
-void glge_ImGui_FrameStart(void*);
+void glge_ImGui_FrameStart(void* target);
 
 /**
  * @brief a function to insert to a render pipeline as a function to end a frame

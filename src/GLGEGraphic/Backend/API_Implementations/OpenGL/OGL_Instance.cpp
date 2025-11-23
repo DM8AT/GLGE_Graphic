@@ -69,7 +69,7 @@ Instance::Instance(Window* window)
     GLGE_ASSERT("Failed to initialize GLEW", gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress) == 0);
 
     //when debugging is enabled, do some special setup
-    #if GLGE_BG_DEBUG
+    #if 0
     //print some debug information
     printf("[DEBUG] OpenGL Version: %s\n", glGetString(GL_VERSION));
     printf("[DEBUG] Renderer: %s\n", glGetString(GL_RENDERER));

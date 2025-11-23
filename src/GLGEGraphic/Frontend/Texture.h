@@ -86,6 +86,18 @@ typedef enum e_TextureMultiSample {
     GLGE_TEXTURE_SAMPLE_X16 = 16,
 } TextureMultiSample;
 
+//define how the texture tiles
+typedef enum e_TextureTileMode {
+    //the texture coordinate space is clamped between 0 and 1
+    GLGE_TEXTURE_TILE_CLAMP = 0,
+    //the texture is tiled to infinity
+    GLGE_TEXTURE_TILE_TILED,
+    //the texture is tiled and each tile is mirrored
+    GLGE_TEXTURE_TILE_TILED_MIRRORED,
+    //everything outside the texture defaults to black
+    GLGE_TEXTURE_TILE_BORDER
+} TextureTileMode;
+
 //define a holding type for a uint8_t[3] (uint24_t) to use if needed
 //thanks to MSVC to make this more complicated than it needs to be
 #if defined(_MSC_VER)
@@ -164,9 +176,10 @@ public:
      * @param filterMode define the filter mode used for the texture (default is linear sampling)
      * @param anisotropy define the level of anisotropic sampling to use, or the closes supported (default is no anisotropy)
      * @param samples the amount of samples to take per pixel (default is 1 sample per pixel)
+     * @param tiling specify how the texture is tiled
      */
     Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode = GLGE_FILTER_MODE_LINEAR, float anisotropy = 0.f,
-            TextureMultiSample samples = GLGE_TEXTURE_SAMPLE_X1);
+            TextureMultiSample samples = GLGE_TEXTURE_SAMPLE_X1, TextureTileMode tiling = GLGE_TEXTURE_TILE_CLAMP);
 
     /**
      * @brief Get the texture data storage of the texture

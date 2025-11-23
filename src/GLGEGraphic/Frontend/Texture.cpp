@@ -24,14 +24,14 @@
 //add debugging stuff
 #include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 
-Texture::Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode, float anisotropy, TextureMultiSample samples)
+Texture::Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode, float anisotropy, TextureMultiSample samples, TextureTileMode tiling)
  : m_texStorage(storage), m_type(type)
 {
     //create the backend texture
     switch (GLGE::Graphic::Backend::INSTANCE.getAPI())
     {
     case GLGE_GRAPHIC_INSTANCE_API_OPEN_GL:
-        m_tex = new GLGE::Graphic::Backend::OGL::Texture(this, filterMode, anisotropy, samples);
+        m_tex = new GLGE::Graphic::Backend::OGL::Texture(this, filterMode, anisotropy, samples, tiling);
         break;
     
     default:
