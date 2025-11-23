@@ -42,10 +42,11 @@ public:
      * @param tex the actual front-end texture
      * @param filterMode defines how the pixel values are interpolated between the texels
      * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
+     * @param samples the amount of samples to take per pixel (default is 1 sample per pixel)
      */
-    Texture(::Texture* tex, FilterMode filterMode, float anisotropy)
+    Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples)
      : m_texture(tex), m_filterMode(filterMode), m_requested_filterMode(filterMode), 
-       m_anisotropy(anisotropy) , m_requested_anisotropy(anisotropy)
+       m_anisotropy(anisotropy) , m_requested_anisotropy(anisotropy), m_samples(samples), m_requested_samples(samples)
     {}
 
     /**
@@ -109,6 +110,20 @@ public:
     inline float getAnisotropy() const noexcept {return m_anisotropy;}
 
     /**
+     * @brief Set the amount of samples to take per pixel for the texture
+     * 
+     * @param samples the amount of samples to take
+     */
+    void setMultiSample(TextureMultiSample samples) {m_requested_samples = samples;}
+
+    /**
+     * @brief Get the amount of samples the texture takes per pixel
+     * 
+     * @return TextureMultiSample the amount of samples taken per pixel
+     */
+    inline TextureMultiSample getMultiSample() {return m_samples;}
+
+    /**
      * @brief mark that this class is dirty (new CPU data)
      */
     virtual void markDirty() noexcept = 0;
@@ -138,10 +153,14 @@ protected:
     FilterMode m_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the own anisotropic filter mode
     float m_anisotropy = 0.f;
+    //store how many samples to take per pixel
+    TextureMultiSample m_samples = GLGE_TEXTURE_SAMPLE_X1;
     //store the currently requested filter mode
     FilterMode m_requested_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the own anisotropic filter mode
     float m_requested_anisotropy = 0.f;
+    //store how many samples to take per pixel
+    TextureMultiSample m_requested_samples = GLGE_TEXTURE_SAMPLE_X1;
 
     /**
      * @brief store a mutex to make GPU updates thread safe

@@ -41,8 +41,9 @@ public:
      * @param tex a pointer to the frontend texture to create from
      * @param filterMode defines how the pixel values are interpolated between the texels
      * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
+     * @param samples the amount of samples to take per pixel (default is 1 sample per pixel)
      */
-    Texture(::Texture* tex, FilterMode filterMode, float anisotropy);
+    Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples);
 
     /**
      * @brief Set the Filter Mode of the texture
@@ -74,6 +75,13 @@ public:
      * @return uint32_t the OpenGL texture
      */
     inline uint32_t getTexture() const noexcept {return m_glTex;}
+
+    /**
+     * @brief Get the Texture Type (texture 2D if multi-sampling is disabled, else texture 2D multisample)
+     * 
+     * @return uint32_t the OpenGL enum value
+     */
+    inline uint32_t getTextureType() const noexcept {return (m_samples == GLGE_TEXTURE_SAMPLE_X1) ? 0x0DE1 : 0x9100;}
 
 protected:
 

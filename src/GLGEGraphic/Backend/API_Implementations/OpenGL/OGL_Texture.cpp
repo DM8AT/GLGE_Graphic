@@ -163,8 +163,8 @@ static GLenum getGLTextureLayout(const TextureStorage& data) noexcept
     }
 }
 
-GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, FilterMode filterMode, float anisotropy)
- : API::Texture(tex, filterMode, anisotropy) 
+GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, FilterMode filterMode, float anisotropy, TextureMultiSample samples)
+ : API::Texture(tex, filterMode, anisotropy, samples) 
 {
     //directly mark the texture data as dirty
     markDirty();
@@ -264,9 +264,14 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
         glGetTextureLevelParameteriv(m_glTex, 0, GL_TEXTURE_HEIGHT, &height);
         if ((width == m_texture->getData().extent.x) && (height == m_texture->getData().extent.y))
         {
-            //can re-upload just the data, no re-creation needed
-            glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, getGLTextureLayout(m_texture->getData()), 
-                                m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE, *((void**)&m_texture->getData().data));
+            //respect multi-sampling upload
+            if (m_samples == GLGE_TEXTURE_SAMPLE_X1) {
+                //can re-upload just the data, no re-creation needed
+                glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, getGLTextureLayout(m_texture->getData()), 
+                                    m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE, *((void**)&m_texture->getData().data));
+            } else {
+                
+            }
         }
         else
         {
@@ -277,9 +282,15 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
     }
 
     //create the texture
-    glCreateTextures(GL_TEXTURE_2D, 1, &m_glTex);
+    glCreateTextures(getTextureType(), 1, &m_glTex);
     GLenum format = getGLTextureFormat(m_texture->getType());
-    glTextureStorage2D(m_glTex, 1, format, m_texture->getData().extent.x, m_texture->getData().extent.y);
+    //check the texture type for storage creation
+    if (m_samples == GLGE_TEXTURE_SAMPLE_X1) {
+        glTextureStorage2D(m_glTex, 1, format, m_texture->getData().extent.x, m_texture->getData().extent.y);
+    } else {
+        glTextureStorage2DMultisample(m_glTex, (m_samples == GLGE_TEXTURE_SAMPLE_X1_FORCE) ? 1 : (uint32_t)m_samples, 
+                                      format, m_texture->getData().extent.x, m_texture->getData().extent.y, GL_TRUE);
+    }
 
     //only update valid data
     void* dataPtr = *((void**)&m_texture->getData().data);
@@ -357,6 +368,9 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
             );
         }
     }
+
+    //for multi sample textures, the setup is done here
+    if (m_samples != GLGE_TEXTURE_SAMPLE_X1) {return;}
 
     //select the correct filter state
     glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_filterMode == GLGE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);

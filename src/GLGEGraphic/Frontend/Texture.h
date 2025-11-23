@@ -70,6 +70,22 @@ typedef enum e_TextureType {
     GLGE_TEXTURE_DEPTH_32_STENCIL_8
 } TextureType;
 
+//define an enum to define how many samples to use for the texture
+typedef enum e_TextureMultiSample {
+    //take one sample per pixel (default value)
+    GLGE_TEXTURE_SAMPLE_X1 = 1,
+    //take on sample per pixel, but force multi-sampling
+    GLGE_TEXTURE_SAMPLE_X1_FORCE = 0xFF01,
+    //take two samples per pixel
+    GLGE_TEXTURE_SAMPLE_X2 = 2,
+    //take four samples per pixel
+    GLGE_TEXTURE_SAMPLE_X4 = 4,
+    //take 8 samples per pixel (may default to 4 samples per pixels if it is not supported)
+    GLGE_TEXTURE_SAMPLE_X8 = 8,
+    //take 16 samples per pixel (may default to 4 samples per pixel if it is not supported)
+    GLGE_TEXTURE_SAMPLE_X16 = 16,
+} TextureMultiSample;
+
 //define a holding type for a uint8_t[3] (uint24_t) to use if needed
 //thanks to MSVC to make this more complicated than it needs to be
 #if defined(_MSC_VER)
@@ -145,10 +161,12 @@ public:
      * 
      * @param storage the storeage for the CPU-Side data for the texture
      * @param type the type for the GPU-Side texture (this may NOT match with the CPU-Side type!)
-     * @param filterMode define the filter mode used for the texture
-     * @param anisotropy define the level of anisotropic sampling to use, or the closes supported
+     * @param filterMode define the filter mode used for the texture (default is linear sampling)
+     * @param anisotropy define the level of anisotropic sampling to use, or the closes supported (default is no anisotropy)
+     * @param samples the amount of samples to take per pixel (default is 1 sample per pixel)
      */
-    Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode, float anisotropy);
+    Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode = GLGE_FILTER_MODE_LINEAR, float anisotropy = 0.f,
+            TextureMultiSample samples = GLGE_TEXTURE_SAMPLE_X1);
 
     /**
      * @brief Get the texture data storage of the texture
@@ -202,6 +220,20 @@ public:
      * @return float the maximum level of anisotropy that may be used to filter the texture
      */
     float getAnisotropy() const noexcept;
+
+    /**
+     * @brief Set the amount of samples to take per pixel for the texture
+     * 
+     * @param samples the amount of samples to take
+     */
+    void setMultiSample(TextureMultiSample samples);
+
+    /**
+     * @brief Get the amount of samples the texture takes per pixel
+     * 
+     * @return TextureMultiSample the amount of samples taken per pixel
+     */
+    TextureMultiSample getMultiSample();
 
     /**
      * @brief check if the texture is of a color type

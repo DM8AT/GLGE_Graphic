@@ -69,7 +69,7 @@ static void imgui_draw(void*) noexcept {
 
 int main()
 {
-    Window win = Window("Hello World!", 600);
+    Window win = Window("GLGE Example", 600);
     win.setVSync(GLGE_VSYNC_OFF);
     win.setRelativeMouseMode(true);
 
@@ -78,13 +78,13 @@ int main()
         .isHDR = false,
         .channels = 3,
         .data = nullptr,
-    }, GLGE_TEXTURE_RGB_H, GLGE_FILTER_MODE_NEAREST, 0.f);
+    }, GLGE_TEXTURE_RGB_H, GLGE_FILTER_MODE_NEAREST, 0.f, GLGE_TEXTURE_SAMPLE_X16);
     Texture depthBuffer(TextureStorage{
         .extent = win.getSize(),
         .isHDR = true,
         .channels = 1,
         .data = nullptr
-    }, GLGE_TEXTURE_DEPTH_32, GLGE_FILTER_MODE_NEAREST, 0.f);
+    }, GLGE_TEXTURE_DEPTH_32, GLGE_FILTER_MODE_NEAREST, 0.f, GLGE_TEXTURE_SAMPLE_X16);
     Framebuffer fbuff({&renderTarget, &depthBuffer});
 
     //init the ImGui extension
@@ -221,6 +221,9 @@ int main()
     glge_Shader_Compile();
     pipe.record();
 
+    std::vector<double> fpsAverage;
+    fpsAverage.reserve(60);
+
     while (!win.isClosingRequested()) {
         float delta = M_PI_2 * pipe.getDelta();
         float halfDelta = delta * 0.5f;
@@ -264,6 +267,20 @@ int main()
         }
 
         pipe.play();
+
+        //record the FPS
+        fpsAverage.push_back(1. / pipe.getDelta());
+        //check if the buffer is full
+        if (fpsAverage.size() == fpsAverage.capacity()) {
+            //average out the fps
+            double fps = 0;
+            for (auto f : fpsAverage) {
+                fps += f / (double)fpsAverage.size();
+            }
+            fpsAverage.clear();
+            //set the window's title to include the FPS
+            win.rename(String("GLGE Example | FPS: ") + std::to_string(fps));
+        }
     }
 
     //shutdown the ImGui extension
