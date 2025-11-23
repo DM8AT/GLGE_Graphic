@@ -22,6 +22,37 @@
 #include "../Window/Window.h"
 //render mesh registries required for render mesh handles
 #include "RenderMeshRegistry.h"
+//add render targets
+#include "RenderTarget.h"
+//add filtering
+#include "../FilterMode.h"
+
+//define a structure that holds information about a target for blitting
+typedef struct s_BlitTargetInfo {
+    //store the render target for blitting
+    RenderTarget target;
+    //store the extend of the rectangle to blit
+    uivec2 extend;
+    //store the offset to blit from
+    uivec2 offset;
+
+    //for C++ add a default constructor
+    #if __cplusplus
+
+    /**
+     * @brief Construct a new Blit Target Info 
+     * 
+     * @param _target the constant reference to the target to copy from / to
+     * @param _extend the extend of the rectangle to copy / read from / to
+     * @param _offset the offset of the rectangle to copy / read from / to
+     */
+    s_BlitTargetInfo(const RenderTarget& _target, const uivec2& _extend, const uivec2& _offset)
+     : target(_target), extend(_extend), offset(_offset)
+    {}
+
+    #endif
+
+} BlitTargetInfo;
 
 //define a value that represents unlimited iterations per second for a render pipeline
 #define GLGE_UNLIMITED 0
@@ -53,8 +84,26 @@ typedef enum e_RenderPipelineStageType {
     /**
      * @brief make sure the memory is fully up to date
      */
-    GLGE_RENDER_PIPELINE_MEMORY_BARRIER
+    GLGE_RENDER_PIPELINE_MEMORY_BARRIER,
+    /**
+     * @brief copy the contents from one render target to another
+     */
+    GLGE_RENDER_PIPELINE_BLIT,
+    /**
+     * @brief clear a specific attachment of the framebuffer
+     */
+    GLGE_RENDER_PIPELINE_CLEAR
 } RenderPipelineStageType;
+
+//define an enum to map what to clear to colors
+typedef enum e_ClearType {
+    //clear a color attachment
+    GLGE_CLEAR_COLOR = 0,
+    //clear the depth attachment
+    GLGE_CLEAR_DEPTH = 1,
+    //clear the stencil attachment
+    GLGE_CLEAR_STENCIL = 2
+} ClearType;
 
 /**
  * @brief define what the data for a render pipeline stage may look like
@@ -84,6 +133,8 @@ typedef union u_RenderPipelineStageData {
     struct DrawScene {
         //store a pointer to the scene object to draw
         void* scene;
+        //store a pointer to the camera to render from
+        void* camera;
         //store a list of compute objects to run before drawing each batch
         void** batchShader;
         //store the amount of batch shader
@@ -96,6 +147,30 @@ typedef union u_RenderPipelineStageData {
         //store the amount of instances to create
         uint32_t instances[3];
     } dispatchCompute;
+    //store the data that is needed to copy from one render target to another
+    struct Blit {
+        //store the target to copy data from
+        BlitTargetInfo from;
+        //store the target to copy data to
+        BlitTargetInfo to;
+        //define what filtering to use for blitting
+        FilterMode filter;
+        //store what to copy
+        bool copyColor;
+        bool copyDepth;
+        bool copyStencil;
+    } blit;
+    //store the data needed to clear a framebuffer
+    struct Clear {
+        //a pointer to the framebuffer to clear
+        void* fbuff;
+        //the color / value to clear with
+        vec4 value;
+        //store what to clear
+        ClearType type;
+        //store the attachment to clear (only used for color)
+        uint8_t attachment;
+    } clear;
 } RenderPipelineStageData;
 
 /**
@@ -177,7 +252,7 @@ public:
      * @param name the name of the stage to quarry
      * @return const RenderPipelineStage& a constant reference to the render pipeline stage to quarry
      */
-    inline const RenderPipelineStage& getStage(const String& name) const noexcept 
+    inline RenderPipelineStage& getStage(const String& name) noexcept 
     {return m_stages[m_keyMap.find(name)->second];}
 
     /**

@@ -39,6 +39,11 @@
 #include "OGL_CycleBuffer.h"
 //add compute objects
 #include "../../../Frontend/Compute.h"
+//add cameras
+#include "../../../Frontend/Camera.h"
+//add framebuffers
+#include "../../../Frontend/Framebuffer.h"
+#include "OGL_Framebuffer.h"
 
 static GLenum getType(VertexElementDataType type) noexcept
 {
@@ -400,6 +405,46 @@ void GLGE::Graphic::Backend::OGL::Command_MemoryBarrier::execute() noexcept
 
 void GLGE::Graphic::Backend::OGL::Command_DrawMeshesIndirect::execute() noexcept
 {
+    //extract the camera
+    Camera* cam = (Camera*)camera;
+    uint32_t camBuff = ((API::CycleBuffer*)cam->getBuffer()->getBackend())->getCurrentGPUBackend<OGL::CycleBufferBackend>()->getBuffer();
+    //bind the camera buffer
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, camBuff);
+    //adjust the viewport for the framebuffer
+    uivec2 size(0,0);
+    switch (cam->getTarget().type)
+    {
+    case GLGE_WINDOW:
+        size = ((::Window*)cam->getTarget().target)->getSize();
+        break;
+    case GLGE_FRAMEBUFFER:
+        size = ((::Framebuffer*)cam->getTarget().target)->getTextures()[0]->getData().extent;
+        break;
+    
+    default:
+        break;
+    }
+    glViewport(0, 0, size.x, size.y);
+
+    //bind the correct framebuffer
+    const RenderTarget& target = cam->getTarget();
+    switch (target.type)
+    {
+    //the window is always 0 in OpenGL
+    case GLGE_WINDOW:
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        break;
+    //for a framebuffer get the correct framebuffer
+    case GLGE_FRAMEBUFFER:
+        glBindFramebuffer(GL_FRAMEBUFFER, ((OGL::Framebuffer*)((::Framebuffer*)target.target)->getAPI())->getFBO());
+        break;
+    
+    default:
+        //how did we get here?
+        GLGE_ABORT("Undefined render target type for a camera");
+        break;
+    }
+
     //calculate the amount of compute shaders to dispatch
     //it is assumed that the batch size of the compute shader is 64
     uint64_t invoke = (uint64_t)std::ceil(meshCount / 64.);
@@ -420,4 +465,10 @@ void GLGE::Graphic::Backend::OGL::Command_DrawMeshesIndirect::execute() noexcept
 
     //run the actual draw call
     glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, 0, meshCount, 0);
+}
+
+void GLGE::Graphic::Backend::OGL::Command_Blit::execute() noexcept {
+    //execute the actual OpenGL blit command
+    glBlitNamedFramebuffer(from, to, from_offset.x, from_offset.y, from_target.x, from_target.y, 
+                           to_offset.x, to_offset.y, to_target.x, to_target.y, mask, filter);
 }

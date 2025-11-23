@@ -26,6 +26,7 @@ set(SRC
     Backend/API_Implementations/OpenGL/OGL_Material.cpp
     Backend/API_Implementations/OpenGL/OGL_Buffer.cpp
     Backend/API_Implementations/OpenGL/OGL_CycleBuffer.cpp
+    Backend/API_Implementations/OpenGL/OGL_Framebuffer.cpp
 
     Frontend/Window/Window.cpp
     Frontend/RenderAPI/RenderPipeline.cpp
@@ -42,6 +43,7 @@ set(SRC
     Frontend/Camera.cpp
     Frontend/Keys.cpp
     Frontend/Mouse.cpp
+    Frontend/Framebuffer.cpp
 )
 
 ## add GLAD

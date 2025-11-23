@@ -24,6 +24,10 @@
 //add renderers to access render-related data
 #include "../../../Frontend/RenderAPI/Renderer.h"
 
+//add framebuffers
+#include "../../../Frontend/Framebuffer.h"
+#include "OGL_Framebuffer.h"
+
 //unordered maps are used to store the mapping from material -> list of meshes
 #include <unordered_map>
 
@@ -32,6 +36,33 @@
 
 //use the namespace
 using namespace GLGE::Graphic::Backend::OGL;
+
+/**
+ * @brief get the framebuffer target of a specific render target
+ * 
+ * @param target the target to get the framebuffer from
+ * @return uint32_t the OpenGL framebuffer of the target
+ */
+static uint32_t __GetFramebufferTarget(const RenderTarget& target) {
+    //switch depending on the target type
+    switch (target.type)
+    {
+    case GLGE_WINDOW:
+        //the window target is always 0 on OpenGL
+        return 0;
+        break;
+    case GLGE_FRAMEBUFFER:
+        //return the OpenGL framebuffer
+        return ((GLGE::Graphic::Backend::OGL::Framebuffer*)((::Framebuffer*)target.target)->getAPI())->getFBO();
+        break;
+    
+    default:
+        //how did we get here?
+        GLGE_ABORT("Undefined render target type");
+        return UINT32_MAX;
+        break;
+    }
+}
 
 void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Custom(const RenderPipelineStageData& _stage) noexcept
 {
@@ -126,7 +157,7 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_DrawScene(const R
     size_t batch_id = 0;
     for (auto& batch : batches) {
         //draw the batches
-        m_cmdBuff.record<Command_DrawMeshesIndirect>((OGL::Material*)batch.first->getBackend(), batch.second.size(), 
+        m_cmdBuff.record<Command_DrawMeshesIndirect>(stage.camera, (OGL::Material*)batch.first->getBackend(), batch.second.size(), 
                                                      buffs[batch_id], drawBuffer, stage.batchShader, stage.batchShaderCount);
 
         //step the batch id
@@ -163,6 +194,56 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Finalize(const Re
     m_cmdBuff.markRecorded();
 }
 
+void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Blit(const RenderPipelineStageData& _stage) noexcept
+{
+    //get the stage
+    const RenderPipelineStageData::Blit& stage = _stage.blit;
+
+    //compute the mask of the elements to copy
+    uint32_t mask = 0;
+    mask |= stage.copyColor ? GL_COLOR_BUFFER_BIT : 0;
+    mask |= stage.copyDepth ? GL_DEPTH_BUFFER_BIT : 0;
+    mask |= stage.copyStencil ? GL_STENCIL_BUFFER_BIT : 0;
+
+    //extract the framebuffers
+    uint32_t from = __GetFramebufferTarget(stage.from.target);
+    uint32_t to   = __GetFramebufferTarget(stage.to.target);
+
+    //get the filter
+    uint32_t filter = (stage.filter == GLGE_FILTER_MODE_NEAREST) ? GL_NEAREST : GL_LINEAR;
+
+    //record the command
+    m_cmdBuff.record<Command_Blit>(from, stage.from.extend, stage.from.offset, to, stage.to.extend, stage.to.offset, filter, mask);
+}
+
+void GLGE::Graphic::Backend::OGL::RenderPipeline::executeStage_Clear(const RenderPipelineStageData& _stage) noexcept {
+    //get the stage
+    const RenderPipelineStageData::Clear& stage = _stage.clear;
+
+    //get the framebuffer
+    uint32_t fbuff = ((OGL::Framebuffer*)((::Framebuffer*)stage.fbuff)->getAPI())->getFBO();
+    //get the type of the buffer
+    uint32_t buffType = GL_COLOR;
+    switch (stage.type)
+    {
+    case GLGE_CLEAR_COLOR:
+        break;
+    case GLGE_CLEAR_DEPTH:
+        buffType = GL_DEPTH;
+        break;
+    case GLGE_CLEAR_STENCIL:
+        buffType = GL_STENCIL;
+        break;
+    
+    default:
+        GLGE_ABORT("Invalid type of clear buffer");
+        break;
+    }
+    
+    //record the clear command
+    m_cmdBuff.record<Command_Clear>(stage.value.r, stage.value.g, stage.value.b, stage.value.a, fbuff, buffType, stage.attachment);
+}
+
 void GLGE::Graphic::Backend::OGL::RenderPipeline::record() noexcept
 {
     //clean the command buffer
@@ -188,35 +269,48 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::execute(const RenderPipelineSt
     //get the pair of the todo list to write to
     auto& todo = m_todo[stageIndex];
     //store the data
-    todo.first = stage.data;
+    RenderPipelineStageData data = stage.data;
+    //store the function to call
+    void (OGL::RenderPipeline::* func)(const RenderPipelineStageData &stage) = nullptr;
 
     //switch over the stage type to do the correct stuff
     switch (stage.type)
     {
     case GLGE_RENDER_PIPELINE_STAGE_CUSTOM:
-        todo.second = &RenderPipeline::executeStage_Custom;
+        func = &RenderPipeline::executeStage_Custom;
         break;
 
     case GLGE_RENDER_PIPELINE_STAGE_SIMPLE_DRAW_RENDER_MESH:
-        todo.second = &RenderPipeline::executeStage_SimpleDrawRenderMesh;
+        func = &RenderPipeline::executeStage_SimpleDrawRenderMesh;
         break;
 
     case GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE:
-        todo.second = &RenderPipeline::executeStage_DrawScene;
+        func = &RenderPipeline::executeStage_DrawScene;
         break;
 
     case GLGE_RENDER_PIPELINE_DISPATCH_COMPUTE:
-        todo.second = &RenderPipeline::executeStage_DispatchCompute;
+        func = &RenderPipeline::executeStage_DispatchCompute;
         break;
 
     case GLGE_RENDER_PIPELINE_MEMORY_BARRIER:
-        todo.second = &RenderPipeline::executeStage_MemoryBarrier;
+        func = &RenderPipeline::executeStage_MemoryBarrier;
+        break;
+
+    case GLGE_RENDER_PIPELINE_BLIT:
+        func = &RenderPipeline::executeStage_Blit;
+        break;
+
+    case GLGE_RENDER_PIPELINE_CLEAR:
+        func = &RenderPipeline::executeStage_Clear;
         break;
     
     default:
         GLGE_DEBUG_ABORT("Unknown render pipeline stage");
         break;
     }
+
+    //record the actual stage
+    todo.emplace(data, func);
 }
 
 
@@ -224,7 +318,7 @@ void GLGE::Graphic::Backend::OGL::RenderPipeline::play() noexcept
 {
     //first, clean up the todo list
     for (size_t i = 0; i < m_todo.size(); ++i) {
-        (this->*m_todo[i].second)(m_todo[i].first);
+        (this->*m_todo[i].value().second)(m_todo[i].value().first);
     }
     //todo list is done
     m_todo.clear();

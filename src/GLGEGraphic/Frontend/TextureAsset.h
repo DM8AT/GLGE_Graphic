@@ -37,7 +37,7 @@ public:
      * @param filterMode define the filter mode to use for the texture
      * @param maxAnisotropy define the maximum anisotropy value that can be used for sampling the texture
      */
-    TextureAsset(const String& path, bool hdr, const TextureType& type, TextureFilterMode filterMode = TEXTURE_FILTER_MODE_LINEAR, float maxAnisotropy = 0.f)
+    TextureAsset(const String& path, bool hdr, const TextureType& type, FilterMode filterMode = GLGE_FILTER_MODE_LINEAR, float maxAnisotropy = 0.f)
      : m_path(path), m_hdr(hdr), m_type(type), m_filterMode(filterMode), m_anisotropy(maxAnisotropy)
     {}
 
@@ -79,7 +79,7 @@ protected:
     //store the texture type
     TextureType m_type = GLGE_TEXTURE_RGBA;
     //store the filter mode
-    TextureFilterMode m_filterMode = TEXTURE_FILTER_MODE_LINEAR;
+    FilterMode m_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the requested maximum anisotropy
     float m_anisotropy = 0.f;
 

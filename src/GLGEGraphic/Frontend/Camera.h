@@ -18,6 +18,8 @@
 #include "../../GLGE_Core/Geometry/Structure/Structure.h"
 //add buffers
 #include "StructuredBuffer.h"
+//add render targets
+#include "RenderAPI/RenderTarget.h"
 
 /**
  * @brief define what type of camera is used
@@ -44,25 +46,25 @@ public:
      * @param fov the field of view for the camera in radians
      * @param near the near clipping plane of the camera in world units
      * @param far the far clipping plane of the camera in world units
-     * @param window the window the camera renders to
+     * @param target the render target to render to
      */
-    inline Camera(float fov, float near, float far, Window* window) noexcept
+    inline Camera(float fov, float near, float far, const RenderTarget& target) noexcept
         : m_type(GLGE_CAMERA_TYPE_PERSPECTIVE), m_data{.perspective{
             .fov = fov,
             .near = near,
             .far = far
-        }}, m_window(window), m_buffer(nullptr, 0, GLGE_BUFFER_TYPE_UNIFORM, CAMERA_BUFFER_COUNT)
+        }}, m_target(target), m_buffer(nullptr, 0, GLGE_BUFFER_TYPE_UNIFORM, CAMERA_BUFFER_COUNT)
     {}
 
     /**
      * @brief Construct a new Camera
      * 
-     * @param window a pointer to the window the camera renders to
+     * @param target the render target to render to
      */
-    inline Camera(Window* window) noexcept
+    inline Camera(const RenderTarget& target) noexcept
         : m_type(GLGE_CAMERA_TYPE_ORTHOGRAPHIC), m_data{.orthographic{
             .scale = vec3(1)
-        }}, m_window(window), m_buffer(nullptr, 0, GLGE_BUFFER_TYPE_UNIFORM, CAMERA_BUFFER_COUNT)
+        }}, m_target(target), m_buffer(nullptr, 0, GLGE_BUFFER_TYPE_UNIFORM, CAMERA_BUFFER_COUNT)
     {}
 
 
@@ -142,6 +144,13 @@ public:
     void update() noexcept;
 
     /**
+     * @brief Get the Target of the camera
+     * 
+     * @return const RenderTarget& a constant reference to the target of the camera
+     */
+    inline const RenderTarget& getTarget() const noexcept {return m_target;}
+
+    /**
      * @brief Get the Buffer with the camera data
      * 
      * @return Buffer* a pointer to the camera buffer
@@ -189,10 +198,12 @@ protected:
     CameraType m_type;
     //store if data was changed
     bool m_requiresUpdate = true;
-    //store the window the camera renders to
-    Window* m_window = nullptr;
+    //store the target the camera renders to
+    RenderTarget m_target;
     //store the current window aspect
     float m_aspect = 1.f;
+    //store if this is the first iteration
+    bool m_init = false;
 
     //store the object the camera belongs to
     Object m_obj = nullptr;

@@ -73,6 +73,20 @@ int main()
     win.setVSync(GLGE_VSYNC_OFF);
     win.setRelativeMouseMode(true);
 
+    Texture renderTarget(TextureStorage{
+        .extent = win.getSize(),
+        .isHDR = false,
+        .channels = 3,
+        .data = nullptr,
+    }, GLGE_TEXTURE_RGB_H, GLGE_FILTER_MODE_NEAREST, 0.f);
+    Texture depthBuffer(TextureStorage{
+        .extent = win.getSize(),
+        .isHDR = true,
+        .channels = 1,
+        .data = nullptr
+    }, GLGE_TEXTURE_DEPTH_32, GLGE_FILTER_MODE_NEAREST, 0.f);
+    Framebuffer fbuff({&renderTarget, &depthBuffer});
+
     //init the ImGui extension
     glge_ImGui_init(win);
 
@@ -87,7 +101,7 @@ int main()
     AssetHandle mesh = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Suzane.fbx"));
     AssetHandle mesh2 = AssetManager::create<MeshAsset>(MeshAsset::import("assets/mesh/Cube.glb"));
     AssetHandle tex = AssetManager::create<TextureAsset>("assets/textures/cubeTexture.png", false, GLGE_TEXTURE_RGB, 
-                                                         TEXTURE_FILTER_MODE_NEAREST, 16.f);
+                                                         GLGE_FILTER_MODE_NEAREST, 16.f);
     Shader shader = {
         ShaderStage{
             .sourceCode = File("assets/shader/main.vs").getContents(),
@@ -102,10 +116,10 @@ int main()
     AssetManager::waitForLoad(tex);
 
     Object camera = scene.createObject<CameraController>("Camera", Transform(vec3(0,0,3)));
-    camera->add<Camera>(1.570796f, 0.1f, 1000.f, &win);
+    camera->add<Camera>(1.570796f, 0.1f, 1000.f, RenderTarget(&fbuff, GLGE_FRAMEBUFFER));
 
-    Buffer* buffers[] = {GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE), glge_Graphic_GetTransformBuffer(), camera->get<Camera>()->getBuffer()};
-    Texture* textures[] = { AssetManager::getAsset<TextureAsset>(tex)->getTexture() };
+    Buffer* buffers[] = {GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_SHADER_STORAGE), glge_Graphic_GetTransformBuffer(), GLGE_SKIP_SLOT(GLGE_BUFFER_TYPE_UNIFORM)};
+    Texture* textures[] = { AssetManager::getAsset<TextureAsset>(tex)->getTexture(), };
     Material mat(&shader, textures, sizeof(textures)/sizeof(*textures), buffers, sizeof(buffers)/sizeof(*buffers), GLGE_VERTEX_LAYOUT_SIMPLE_VERTEX);
 
     AssetManager::waitForLoad(mesh);
@@ -130,14 +144,50 @@ int main()
     obj2->add<Renderer>(rMesh2, &mat);
 
     RenderPipeline pipe({{
+            "Clear Color",
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_CLEAR,
+                .data{.clear{
+                    .fbuff = &fbuff,
+                    .value = win.getClearColor(),
+                    .type = GLGE_CLEAR_COLOR,
+                    .attachment = 0
+                }}
+            }
+        }, {
+            "Clear Depth",
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_CLEAR,
+                .data{.clear{
+                    .fbuff = &fbuff,
+                    .value = vec4(1),
+                    .type = GLGE_CLEAR_DEPTH
+                }}
+            }
+        }, {
             "Draw", 
             RenderPipelineStage{
                 .type = GLGE_RENDER_PIPELINE_STAGE_DRAW_SCENE,
                 .data{.drawScene{
                     .scene = &scene,
+                    .camera = camera->get<Camera>(),
                     .batchShader=(void**)renderList,
                     .batchShaderCount=(sizeof(renderList) / sizeof(*renderList))
                 }}}
+        }, {
+            "Copy to main frame", 
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_BLIT,
+                .data{.blit{
+                    .from{RenderTarget{&fbuff, GLGE_FRAMEBUFFER}, win.getSize(), uivec2(0,0)},
+                    .to{RenderTarget{&win, GLGE_WINDOW}, win.getSize(), uivec2(0,0)},
+                    .filter = GLGE_FILTER_MODE_NEAREST,
+                    .copyColor = true,
+                    .copyDepth = false,
+                    .copyStencil = false
+                }
+                }
+            }
         }, {
             "ImGui - Start",
             RenderPipelineStage{
@@ -167,8 +217,9 @@ int main()
 
     pipe.setIterationRate(120);
 
-    pipe.record();
+    glge_Graphic_MainTick();
     glge_Shader_Compile();
+    pipe.record();
 
     while (!win.isClosingRequested()) {
         float delta = M_PI_2 * pipe.getDelta();
@@ -192,6 +243,26 @@ int main()
 
         scene.forAllObjects(cameraController, false);
         glge_Graphic_MainTick();
+
+        //handle window resizing
+        if (win.didResize()) {
+            //update the sizes of the textures
+            renderTarget.resizeAndClear(win.getSize());
+            depthBuffer.resizeAndClear(win.getSize());
+            //re-create the framebuffer
+            fbuff.recreate();
+
+            //update the render pipeline
+            RenderPipelineStageData& data = pipe.getStage("Copy to main frame").data;
+            data.blit.from.extend = win.getSize();
+            data.blit.to.extend = win.getSize();
+
+            //re-record the pipeline
+            pipe.record();
+
+            win.handledResize();
+        }
+
         pipe.play();
     }
 

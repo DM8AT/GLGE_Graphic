@@ -261,6 +261,19 @@ public:
      */
     inline const WindowSettings& getSettings() const noexcept {return m_api->getSettings();}
 
+    /**
+     * @brief check if the window was resized
+     * 
+     * @return true : the size of the window did change
+     * @return false : the size did not change
+     */
+    inline bool didResize() const noexcept {return m_didResize;}
+
+    /**
+     * @brief mark the resize as done
+     */
+    inline void handledResize() noexcept {m_didResize = false;}
+
     //define SDL / backend stuff
     #ifdef SDL_h_
 
@@ -314,6 +327,11 @@ protected:
      * @brief store the value to clear the depth buffer with (NAN disables the clearing)
      */
     float m_depthClear = 1.f;
+
+    /**
+     * @brief store if the window was resized on the last update
+     */
+    bool m_didResize = false;
 
     /**
      * @brief handle an event for a window

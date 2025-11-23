@@ -19,6 +19,9 @@
 //add render meshes
 #include "../API_RenderMesh.h"
 
+//add math types
+#include "../../../../GLGE_Math/GLGEMath.h"
+
 //add a lot of the STD lib for the implementation
 #include <iostream>
 #include <vector>
@@ -293,12 +296,14 @@ struct Command_DrawMeshesIndirect final : public Command
      * @param _drawBuffer the OpenGL draw buffer to use for this batch
      * @param _shaders a list of compute shaders to run before drawing
      */
-    Command_DrawMeshesIndirect(OGL::Material* _material, uint64_t _meshCount, uint32_t _batchBuffer, uint32_t _drawBuffer, 
+    Command_DrawMeshesIndirect(void* _camera, OGL::Material* _material, uint64_t _meshCount, uint32_t _batchBuffer, uint32_t _drawBuffer, 
                                void** shader, uint64_t shaderCount)
-     : material(_material), meshCount(_meshCount), batchBuffer(_batchBuffer), drawBuffer(_drawBuffer), 
+     : camera(_camera), material(_material), meshCount(_meshCount), batchBuffer(_batchBuffer), drawBuffer(_drawBuffer), 
        shaders(shader, (void**)((uint8_t**)shader + shaderCount))
     {}
 
+    //store the camera for the batch
+    void* camera;
     //store the material to use for the batch
     OGL::Material* material;
     //store the amount of meshes to draw
@@ -309,6 +314,50 @@ struct Command_DrawMeshesIndirect final : public Command
     uint32_t drawBuffer;
     //store a list of shaders to execute before drawing
     std::vector<void*> shaders;
+
+    //run the actual draw command
+    virtual void execute() noexcept override;
+};
+
+/**
+ * @brief store a command that is used to copy content from one render target to another
+ */
+struct Command_Blit final : public Command {
+
+    /**
+     * @brief Construct a new Blit command
+     * 
+     * @param _from the OpenGL target to copy from
+     * @param _from_extend the extend of the rectangle to copy from
+     * @param _from_offset the offset of the rectangle to copy from
+     * @param _to the OpenGL target to copy to
+     * @param _to_extend the extend of the rectangle to copy to
+     * @param _to_offset the offset of the rectangle to copy to
+     * @param _filter the filtering mode to use for sampling
+     * @param _mask the mask of data to copy
+     */
+    Command_Blit(uint32_t _from, const uivec2& _from_extend, const uivec2& _from_offset,
+                 uint32_t _to,   const uivec2& _to_extend,   const uivec2& _to_offset, uint32_t _filter, uint32_t _mask)
+     : from(_from), from_target(_from_offset + _from_extend), from_offset(_from_offset),
+       to(_to),     to_target(_from_offset + _to_extend),     to_offset(_to_offset), filter(_filter), mask(_mask)
+    {}
+
+    //the buffer to copy from
+    uint32_t from;
+    //the extend of the rectangle to copy
+    uivec2 from_target;
+    //the offset of the rectangle to copy to
+    uivec2 from_offset;
+    //the target to copy to
+    uint32_t to;
+    //the extend of the rectangle to copy to
+    uivec2 to_target;
+    //the offset of the rectangle to copy to
+    uivec2 to_offset;
+    //store the filter mode to use for blitting
+    uint32_t filter;
+    //store the mask to blit
+    uint32_t mask;
 
     //run the actual draw command
     virtual void execute() noexcept override;

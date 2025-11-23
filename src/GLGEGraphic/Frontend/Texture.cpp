@@ -24,7 +24,7 @@
 //add debugging stuff
 #include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 
-Texture::Texture(const TextureStorage& storage, TextureType type, TextureFilterMode filterMode, float anisotropy)
+Texture::Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode, float anisotropy)
  : m_texStorage(storage), m_type(type)
 {
     //create the backend texture
@@ -48,12 +48,12 @@ void Texture::resizeAndClear(const uivec2& size) noexcept
     ((GLGE::Graphic::Backend::API::Texture*)m_tex)->notifySizeChange();
 }
 
-void Texture::setFilterMode(TextureFilterMode mode) noexcept {
+void Texture::setFilterMode(FilterMode mode) noexcept {
     //pass through the call
     ((GLGE::Graphic::Backend::API::Texture*)m_tex)->setFilterMode(mode);
 }
 
-TextureFilterMode Texture::getFilterMode() const noexcept {
+FilterMode Texture::getFilterMode() const noexcept {
     //pass through the call
     return ((GLGE::Graphic::Backend::API::Texture*)m_tex)->getFilterMode();
 }
@@ -67,6 +67,68 @@ float Texture::getAnisotropy() const noexcept {
     //pass through the call
     return ((GLGE::Graphic::Backend::API::Texture*)m_tex)->getAnisotropy();
 }
+
+bool Texture::isColor() const noexcept {
+    //just switch over the hard-coded type mask
+    switch (m_type)
+    {
+    case GLGE_TEXTURE_R:
+    case GLGE_TEXTURE_RG:
+    case GLGE_TEXTURE_RGB:
+    case GLGE_TEXTURE_RGBA:
+    case GLGE_TEXTURE_R_F:
+    case GLGE_TEXTURE_RG_F:
+    case GLGE_TEXTURE_RGB_F:
+    case GLGE_TEXTURE_RGBA_F:
+    case GLGE_TEXTURE_R_H:
+    case GLGE_TEXTURE_RG_H:
+    case GLGE_TEXTURE_RGB_H:
+    case GLGE_TEXTURE_RGBA_H:
+        return true;
+        break;
+    
+    default:
+        return false;
+        break;
+    }
+}
+
+bool Texture::isDepthStencil() const noexcept {
+    //just switch over the hard-coded type mask
+    switch (m_type)
+    {
+    case GLGE_TEXTURE_DEPTH_24_STENCIL_8:
+    case GLGE_TEXTURE_DEPTH_32_STENCIL_8:
+        return true;
+        break;
+    
+    default:
+        return false;
+        break;
+    }
+}
+
+bool Texture::isDepth() const noexcept {
+    //just switch over the hard-coded type mask
+    switch (m_type)
+    {
+    case GLGE_TEXTURE_DEPTH_16:
+    case GLGE_TEXTURE_DEPTH_24:
+    case GLGE_TEXTURE_DEPTH_32:
+        return true;
+        break;
+    
+    default:
+        return false;
+        break;
+    }
+}
+
+bool Texture::isStencil() const noexcept {
+    //always false
+    return false;
+}
+
 
 //special printing stuff
 #include <iomanip>

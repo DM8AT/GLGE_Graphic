@@ -135,7 +135,7 @@ void Window::handleEvent(const Event* event)
         m_api->m_settings.maximized = (bool)(flags & SDL_WINDOW_MAXIMIZED);
         m_api->m_settings_requested.maximized = m_api->m_settings.maximized;
     }
-    else if (*event == Event(WINDOW_EVENT_TYPE_MINIMIZED, EventData(nullptr, 0))) {
+    else if (*event == Event(WINDOW_EVENT_TYPE_MAXIMIZED, EventData(nullptr, 0))) {
         //check if this is the correct window. Only if this is the correct window, continue
         if (*((uint32_t*)event->data.data) != m_windowID) {
             return;
@@ -156,6 +156,8 @@ void Window::handleEvent(const Event* event)
         m_size.y = data->data2;
         //send the resizing to the API
         m_api->onResize();
+        //mark that the window was resized
+        m_didResize = true;
     }
 }
 

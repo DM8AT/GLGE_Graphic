@@ -42,14 +42,14 @@ public:
      * @param filterMode defines how the pixel values are interpolated between the texels
      * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
      */
-    Texture(::Texture* tex, TextureFilterMode filterMode, float anisotropy);
+    Texture(::Texture* tex, FilterMode filterMode, float anisotropy);
 
     /**
      * @brief Set the Filter Mode of the texture
      * 
      * @param mode the new filtering mode for the texture
      */
-    virtual void setFilterMode(TextureFilterMode mode) noexcept override;
+    virtual void setFilterMode(FilterMode mode) noexcept override;
 
     /**
      * @brief Set the maximum anisotropy level for the texture
@@ -126,10 +126,6 @@ protected:
      * @brief re-create the texture
      */
     void recreate() noexcept;
-    /**
-     * @brief resize the texture
-     */
-    void resize() noexcept;
 
 };
 

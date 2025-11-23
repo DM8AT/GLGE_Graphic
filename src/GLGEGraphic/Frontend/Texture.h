@@ -19,6 +19,8 @@
 #include "../../GLGE_Math/GLGEMath.h"
 //add bools for C
 #include <stdbool.h>
+//add filtering
+#include "FilterMode.h"
 
 /**
  * @brief define the type of texture that is used
@@ -53,22 +55,20 @@ typedef enum e_TextureType {
     //the texture has 3 channels and uses a 16-bit float (half) per channel
     GLGE_TEXTURE_RGB_H,
     //the texture has 4 channels and uses a 16-bit float (half) per channel
-    GLGE_TEXTURE_RGBA_H
-} TextureType;
+    GLGE_TEXTURE_RGBA_H,
 
-/**
- * @brief define an enum that is used to select the filter mode of a texture
- */
-typedef enum e_TextureFilterMode 
-#if __cplusplus
- : uint8_t
-#endif
-{
-    //the texture will be sampled using bi-linear interpolation between the closest texels
-    TEXTURE_FILTER_MODE_LINEAR = 0,
-    //the value of the nearest texel will be used
-    TEXTURE_FILTER_MODE_NEAREST = 1
-} TextureFilterMode;
+    //the texture stores high quality depth data
+    GLGE_TEXTURE_DEPTH_32,
+    //the texture stores medium quality depth data
+    GLGE_TEXTURE_DEPTH_24,
+    //the texture stores low quality depth data
+    GLGE_TEXTURE_DEPTH_16, 
+
+    //the texture stores medium quality depth data and stencil bits
+    GLGE_TEXTURE_DEPTH_24_STENCIL_8,
+    //the texture stores high quality depth data and stencil bits
+    GLGE_TEXTURE_DEPTH_32_STENCIL_8
+} TextureType;
 
 //define a holding type for a uint8_t[3] (uint24_t) to use if needed
 //thanks to MSVC to make this more complicated than it needs to be
@@ -148,7 +148,7 @@ public:
      * @param filterMode define the filter mode used for the texture
      * @param anisotropy define the level of anisotropic sampling to use, or the closes supported
      */
-    Texture(const TextureStorage& storage, TextureType type, TextureFilterMode filterMode, float anisotropy);
+    Texture(const TextureStorage& storage, TextureType type, FilterMode filterMode, float anisotropy);
 
     /**
      * @brief Get the texture data storage of the texture
@@ -180,14 +180,14 @@ public:
      * 
      * @param mode the new filtering mode for the texture
      */
-    void setFilterMode(TextureFilterMode mode) noexcept;
+    void setFilterMode(FilterMode mode) noexcept;
 
     /**
      * @brief Get the Filter Mode of the texture
      * 
      * @return TextureFilterMode the current filter mode of the texture
      */
-    TextureFilterMode getFilterMode() const noexcept;
+    FilterMode getFilterMode() const noexcept;
 
     /**
      * @brief Set the maximum anisotropy level for the texture
@@ -202,6 +202,38 @@ public:
      * @return float the maximum level of anisotropy that may be used to filter the texture
      */
     float getAnisotropy() const noexcept;
+
+    /**
+     * @brief check if the texture is of a color type
+     * 
+     * @return true : the texture is of a color type
+     * @return false : the texture is not of a color type
+     */
+    bool isColor() const noexcept;
+
+    /**
+     * @brief check if the texture is a depth stencil texture
+     * 
+     * @return true : the texture is a depth stencil texture
+     * @return false : the texture is not a depth stencil texture
+     */
+    bool isDepthStencil() const noexcept;
+
+    /**
+     * @brief check if the texture is a depth texture
+     * 
+     * @return true : the texture is a depth texture
+     * @return false : the texture is a depth texture
+     */
+    bool isDepth() const noexcept;
+
+    /**
+     * @brief check if the texture is a stencil texture
+     * 
+     * @return true : the texture is a stencil texture
+     * @return false : the texture is not a stencil texture
+     */
+    bool isStencil() const noexcept;
 
     /**
      * @brief print the texture into an output stream

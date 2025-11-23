@@ -43,7 +43,7 @@ public:
      * @param filterMode defines how the pixel values are interpolated between the texels
      * @param anisotropy defines the maximum value of anisotropy that can be used to sample from the texture
      */
-    Texture(::Texture* tex, TextureFilterMode filterMode, float anisotropy)
+    Texture(::Texture* tex, FilterMode filterMode, float anisotropy)
      : m_texture(tex), m_filterMode(filterMode), m_requested_filterMode(filterMode), 
        m_anisotropy(anisotropy) , m_requested_anisotropy(anisotropy)
     {}
@@ -53,14 +53,46 @@ public:
      * 
      * @param mode the new filtering mode for the texture
      */
-    virtual void setFilterMode(TextureFilterMode mode) noexcept = 0;
+    virtual void setFilterMode(FilterMode mode) noexcept = 0;
 
     /**
      * @brief Get the Filter Mode of the texture
      * 
      * @return TextureFilterMode the current filter mode of the texture
      */
-    inline TextureFilterMode getFilterMode() const noexcept {return m_filterMode;}
+    inline FilterMode getFilterMode() const noexcept {return m_filterMode;}
+
+    /**
+     * @brief check if the texture has a type that specifies it as a color texture
+     * 
+     * @return true : the texture is of a color type
+     * @return false : the texture is not of a color type
+     */
+    inline bool isColor() const noexcept {return m_texture->isColor();}
+
+    /**
+     * @brief check if the texture is a depth stencil texture
+     * 
+     * @return true : the texture is a depth stencil texture
+     * @return false : the texture is not a depth stencil texture
+     */
+    inline bool isDepthStencil() const noexcept {return m_texture->isDepthStencil();}
+
+    /**
+     * @brief check if the texture is a depth texture
+     * 
+     * @return true : the texture is a depth texture
+     * @return false : the texture is a depth texture
+     */
+    inline bool isDepth() const noexcept {return m_texture->isDepth();}
+
+    /**
+     * @brief check if the texture is a stencil texture
+     * 
+     * @return true : the texture is a stencil texture
+     * @return false : the texture is not a stencil texture
+     */
+    inline bool isStencil() const noexcept {return m_texture->isStencil();}
 
     /**
      * @brief Set the maximum anisotropy level for the texture
@@ -103,11 +135,11 @@ protected:
     //store a pointer to the owning front-end texture
     ::Texture* m_texture = nullptr;
     //store the own filter mode
-    TextureFilterMode m_filterMode = TEXTURE_FILTER_MODE_LINEAR;
+    FilterMode m_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the own anisotropic filter mode
     float m_anisotropy = 0.f;
     //store the currently requested filter mode
-    TextureFilterMode m_requested_filterMode = TEXTURE_FILTER_MODE_LINEAR;
+    FilterMode m_requested_filterMode = GLGE_FILTER_MODE_LINEAR;
     //store the own anisotropic filter mode
     float m_requested_anisotropy = 0.f;
 

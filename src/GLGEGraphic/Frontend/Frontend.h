@@ -34,5 +34,7 @@
 #include "Camera.h"
 //add keys
 #include "Keys.h"
+//add framebuffers
+#include "Framebuffer.h"
 
 #endif

@@ -64,6 +64,22 @@ static GLenum getGLTextureFormat(TextureType type) noexcept
     case GLGE_TEXTURE_RGBA_H:
         return GL_RGBA16F;
         break;
+
+    case GLGE_TEXTURE_DEPTH_16:
+        return GL_DEPTH_COMPONENT16;
+        break;
+    case GLGE_TEXTURE_DEPTH_24:
+        return GL_DEPTH_COMPONENT24;
+        break;
+    case GLGE_TEXTURE_DEPTH_32:
+        return GL_DEPTH_COMPONENT32F;
+        break;
+    case GLGE_TEXTURE_DEPTH_24_STENCIL_8:
+        return GL_DEPTH24_STENCIL8;
+        break;
+    case GLGE_TEXTURE_DEPTH_32_STENCIL_8:
+        return GL_DEPTH32F_STENCIL8;
+        break;
     
     default:
         //just return null as error value
@@ -102,6 +118,15 @@ static GLenum getGLTextureLayout(TextureType type) noexcept
     case GLGE_TEXTURE_RGBA_F:
         return GL_RGBA;
         break;
+    case GLGE_TEXTURE_DEPTH_16:
+    case GLGE_TEXTURE_DEPTH_24:
+    case GLGE_TEXTURE_DEPTH_32:
+        return GL_DEPTH_COMPONENT;
+        break;
+    case GLGE_TEXTURE_DEPTH_24_STENCIL_8:
+    case GLGE_TEXTURE_DEPTH_32_STENCIL_8:
+        return GL_DEPTH_STENCIL;
+        break;
     
     default:
         return 0;
@@ -138,14 +163,14 @@ static GLenum getGLTextureLayout(const TextureStorage& data) noexcept
     }
 }
 
-GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, TextureFilterMode filterMode, float anisotropy)
+GLGE::Graphic::Backend::OGL::Texture::Texture(::Texture* tex, FilterMode filterMode, float anisotropy)
  : API::Texture(tex, filterMode, anisotropy) 
 {
     //directly mark the texture data as dirty
     markDirty();
 }
 
-void GLGE::Graphic::Backend::OGL::Texture::setFilterMode(TextureFilterMode mode) noexcept
+void GLGE::Graphic::Backend::OGL::Texture::setFilterMode(FilterMode mode) noexcept
 {
     //store the new requested filter mode
     m_requested_filterMode = mode;
@@ -199,12 +224,12 @@ void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept
         recreate();
     } 
     if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_RESIZE) {
-        resize();
+        recreate();
     } 
     if (m_dirtFlags.load(std::memory_order_acquire) & FLAG_UPDATE_FILTER) {
         //set the new filter level
-        glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_requested_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
-        glTextureParameteri(m_glTex, GL_TEXTURE_MAG_FILTER, (m_requested_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+        glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_requested_filterMode == GLGE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+        glTextureParameteri(m_glTex, GL_TEXTURE_MAG_FILTER, (m_requested_filterMode == GLGE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
         //store the new filter mode
         m_filterMode = m_requested_filterMode;
     } 
@@ -223,6 +248,8 @@ void GLGE::Graphic::Backend::OGL::Texture::tickGPU() noexcept
 
     //reset the flags
     m_dirtFlags.store(0, std::memory_order_relaxed);
+    //this texture is no longer queued
+    m_queued.store(false, std::memory_order_release);
 }
 
 void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
@@ -231,15 +258,15 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
     if (m_glTex)
     {
         //if it does, check if it needs to be re-created
-        uint32_t width = 0;
-        uint32_t height = 0;
-        glGetTextureParameterIuiv(m_glTex, GL_TEXTURE_WIDTH, &width);
-        glGetTextureParameterIuiv(m_glTex, GL_TEXTURE_HEIGHT, &width);
+        int32_t width = 0;
+        int32_t height = 0;
+        glGetTextureLevelParameteriv(m_glTex, 0, GL_TEXTURE_WIDTH, &width);
+        glGetTextureLevelParameteriv(m_glTex, 0, GL_TEXTURE_HEIGHT, &height);
         if ((width == m_texture->getData().extent.x) && (height == m_texture->getData().extent.y))
         {
             //can re-upload just the data, no re-creation needed
             glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, getGLTextureLayout(m_texture->getData()), 
-                                m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_INT, *((void**)&m_texture->getData().data));
+                                m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE, *((void**)&m_texture->getData().data));
         }
         else
         {
@@ -253,17 +280,87 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
     glCreateTextures(GL_TEXTURE_2D, 1, &m_glTex);
     GLenum format = getGLTextureFormat(m_texture->getType());
     glTextureStorage2D(m_glTex, 1, format, m_texture->getData().extent.x, m_texture->getData().extent.y);
+
     //only update valid data
-    if (*((void**)&m_texture->getData().data))
+    void* dataPtr = *((void**)&m_texture->getData().data);
+    const bool hasUserData = (dataPtr != nullptr);
+
+    //Detect format
+    GLenum internalFormat = format;
+    GLenum layout         = getGLTextureLayout(m_texture->getData());
+    GLenum type           = m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE;
+
+    //Depth formats must NOT use glTextureSubImage2D!
+    if (internalFormat == GL_DEPTH_COMPONENT16 ||
+        internalFormat == GL_DEPTH_COMPONENT24 ||
+        internalFormat == GL_DEPTH_COMPONENT32F)
     {
-        GLenum glTextureLayout = getGLTextureLayout(m_texture->getData());
-        GLenum type = m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE;
-        glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, glTextureLayout, 
-                            type, *((void**)&m_texture->getData().data));
+        //Initialize depth textures to 1.0f
+        float depthClear = 1.0f;
+        glClearTexImage(m_glTex, 0, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClear);
     }
+    else if (internalFormat == GL_DEPTH24_STENCIL8 ||
+            internalFormat == GL_DEPTH32F_STENCIL8)
+    {
+        //Initialize depth-stencil to zeros
+        GLuint clear = 0;
+        glClearTexImage(m_glTex, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, &clear);
+    }
+    else
+    {
+        //Color texture upload
+        if (!hasUserData)
+        {
+            //allocate zeroed data if user did not supply any
+            const uint32_t w = m_texture->getData().extent.x;
+            const uint32_t h = m_texture->getData().extent.y;
+
+            //Compute pixel size
+            uint32_t pixelSize = 1;
+            switch (layout)
+            {
+            case GL_RED:  pixelSize = 1; break;
+            case GL_RG:   pixelSize = 2; break;
+            case GL_RGB:  pixelSize = 3; break;
+            case GL_RGBA: pixelSize = 4; break;
+            default:      pixelSize = 4; break;
+            }
+
+            if (m_texture->getData().isHDR)
+                pixelSize *= sizeof(float);
+            else
+                pixelSize *= sizeof(uint8_t);
+
+            const size_t dataSize = size_t(w) * size_t(h) * pixelSize;
+
+            void* zero = calloc(1, dataSize);   //zero-initialized
+
+            glTextureSubImage2D(
+                m_glTex, 0, 0,0, w, h,
+                layout,
+                type,
+                zero
+            );
+
+            free(zero);
+        }
+        else
+        {
+            //Upload user data
+            glTextureSubImage2D(
+                m_glTex, 0, 0,0, 
+                m_texture->getData().extent.x, 
+                m_texture->getData().extent.y, 
+                layout, 
+                type, 
+                dataPtr
+            );
+        }
+    }
+
     //select the correct filter state
-    glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
-    glTextureParameteri(m_glTex, GL_TEXTURE_MAG_FILTER, (m_filterMode == TEXTURE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+    glTextureParameteri(m_glTex, GL_TEXTURE_MIN_FILTER, (m_filterMode == GLGE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
+    glTextureParameteri(m_glTex, GL_TEXTURE_MAG_FILTER, (m_filterMode == GLGE_FILTER_MODE_LINEAR) ? GL_LINEAR : GL_NEAREST);
     //if supported and requested, enable anisotropic filtering
     if (GLAD_GL_EXT_texture_filter_anisotropic && (m_anisotropy != 0.f)) {
         //get the maximum supported anisotropic value
@@ -272,16 +369,7 @@ void GLGE::Graphic::Backend::OGL::Texture::recreate() noexcept
         //set the anisotropy value
         glTextureParameterf(m_glTex, GL_TEXTURE_MAX_ANISOTROPY, (m_anisotropy < maxAnisotropy) ? m_anisotropy : maxAnisotropy);
     }
-}
-
-void GLGE::Graphic::Backend::OGL::Texture::resize() noexcept
-{
-    //resize the texture
-    glTextureStorage2D(m_glTex, 1, getGLTextureFormat(m_texture->getType()), m_texture->getData().extent.x, m_texture->getData().extent.y);
-    //only update valid data
-    if (*((void**)&m_texture->getData().data))
-    {
-        glTextureSubImage2D(m_glTex, 0, 0,0, m_texture->getData().extent.x, m_texture->getData().extent.y, getGLTextureLayout(m_texture->getData()), 
-                            m_texture->getData().isHDR ? GL_FLOAT : GL_UNSIGNED_BYTE, *((void**)&m_texture->getData().data));
-    }
+    //finalize the texture
+    glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTextureParameteri(m_glTex, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 }

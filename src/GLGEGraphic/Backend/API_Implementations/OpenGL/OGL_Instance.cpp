@@ -24,6 +24,8 @@ using namespace GLGE::Graphic::Backend::OGL;
 
 //add the frontend material to sanity check the validity
 #include "../../../Frontend/Material.h"
+//add framebuffers to initialise them
+#include "OGL_Framebuffer.h"
 
 //add the backend cycle buffer
 #include "OGL_CycleBuffer.h"
@@ -127,6 +129,28 @@ void Instance::onUpdate() noexcept
         {ptr->update();}
         //clean up the queue
         OGL::CycleBufferBackend::m_updateQueue.clear();
+    }
+    //initialize / delete the framebuffers
+    {
+        //init / deinit
+        for (auto ptr : OGL::Framebuffer::s_De_InitQueue) {
+            //check for init / deinit
+            if (ptr.self) {
+                //check for specific states of the FBO value for specific commands
+                if (ptr.fbo == 0) {
+                    //create the framebuffer
+                    ptr.self->create();
+                } else if (ptr.fbo == 1) {
+                    //re-create the framebuffer
+                    ptr.self->recreate_backend();
+                } else {
+                    //error
+                    GLGE_ABORT("Unknown framebuffer command");
+                }
+            } else {OGL::Framebuffer::destroy(ptr.fbo);}
+        }
+        //clean up the list
+        OGL::Framebuffer::s_De_InitQueue.clear();
     }
 }
 

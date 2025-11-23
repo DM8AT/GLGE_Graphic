@@ -29,5 +29,7 @@
 #include "OGL_Material.h"
 //add cycle buffers
 #include "OGL_CycleBuffer.h"
+//add framebuffers
+#include "OGL_Framebuffer.h"
 
 #endif

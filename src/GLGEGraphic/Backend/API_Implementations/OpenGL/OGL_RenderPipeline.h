@@ -21,6 +21,9 @@
 //only available for C++
 #if __cplusplus
 
+//add optionals for using data that MAY be there
+#include <optional>
+
 //add command buffers. They are required by the render pipeline
 #include "OGL_CommandBuffer.h"
 
@@ -120,6 +123,20 @@ protected:
     void executeStage_Finalize(const RenderPipelineStageData&) noexcept;
 
     /**
+     * @brief blit from one element to another
+     * 
+     * @param stage the stage data to use for blitting
+     */
+    void executeStage_Blit(const RenderPipelineStageData& stage) noexcept;
+
+    /**
+     * @brief clear a specific framebuffer
+     * 
+     * @param stage the stage data to use for clearing
+     */
+    void executeStage_Clear(const RenderPipelineStageData& stage) noexcept;
+
+    /**
      * @brief store the OpenGL command buffer
      */
     CommandBuffer m_cmdBuff;
@@ -132,7 +149,7 @@ protected:
     std::vector<uint32_t> m_customBuffs;
     //store a list of function pointers that are delayed till the first run
     //this stores stages to execute later
-    std::vector<std::pair<RenderPipelineStageData, void (RenderPipeline::*)(const RenderPipelineStageData& stage)>> m_todo;
+    std::vector<std::optional<std::pair<RenderPipelineStageData, void (RenderPipeline::*)(const RenderPipelineStageData& stage)>>> m_todo;
 
 };
 

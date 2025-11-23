@@ -10,6 +10,10 @@
  */
 //add the camera
 #include "Camera.h"
+//add framebuffers
+#include "Framebuffer.h"
+//add debugging
+#include "../../GLGE_BG/Debugging/Logging/__BG_SimpleDebug.h"
 
 Camera::~Camera()
 {
@@ -92,7 +96,26 @@ void Camera::update() noexcept
     Transform transf = *m_obj->get<Transform>();
     transf.pos = -transf.pos;
     //calculate the window aspect ratio
-    float aspect = m_window->getSize().y / (float)m_window->getSize().x;
+    float aspect = 1.f;
+    //switch over the type of target to collect the correct data
+    switch (m_target.type)
+    {
+    //the window is just a window
+    case GLGE_WINDOW:
+        aspect = ((Window*)m_target.target)->getSize().y / (float)((Window*)m_target.target)->getSize().x;
+        break;
+    //the framebuffer should have one texture, else it is invalid
+    case GLGE_FRAMEBUFFER:
+        aspect = ((Framebuffer*)m_target.target)->getTextures()[0]->getData().extent.y / 
+                 (float)((Framebuffer*)m_target.target)->getTextures()[0]->getData().extent.x;
+        break;
+    
+    default:
+        //how did we get here?
+        GLGE_ABORT("Undefined render target type");
+        aspect = 0.f;
+        break;
+    }
 
     //if no update is required, check if the transform changed
     if (!m_requiresUpdate) {
