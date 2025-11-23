@@ -175,20 +175,6 @@ int main()
                     .batchShaderCount=(sizeof(renderList) / sizeof(*renderList))
                 }}}
         }, {
-            "Copy to main frame", 
-            RenderPipelineStage{
-                .type = GLGE_RENDER_PIPELINE_BLIT,
-                .data{.blit{
-                    .from{RenderTarget{&fbuff, GLGE_FRAMEBUFFER}, win.getSize(), uivec2(0,0)},
-                    .to{RenderTarget{&win, GLGE_WINDOW}, win.getSize(), uivec2(0,0)},
-                    .filter = GLGE_FILTER_MODE_NEAREST,
-                    .copyColor = true,
-                    .copyDepth = false,
-                    .copyStencil = false
-                }
-                }
-            }
-        }, {
             "ImGui - Start",
             RenderPipelineStage{
                 .type = GLGE_RENDER_PIPELINE_STAGE_CUSTOM, 
@@ -212,6 +198,20 @@ int main()
                     .custom_func = glge_ImGui_FrameEnd,
                     .userData = &win
                 }}}
+        }, {
+            "Copy to main frame", 
+            RenderPipelineStage{
+                .type = GLGE_RENDER_PIPELINE_BLIT,
+                .data{.blit{
+                    .from{RenderTarget{&fbuff, GLGE_FRAMEBUFFER}, win.getSize(), uivec2(0,0)},
+                    .to{RenderTarget{&win, GLGE_WINDOW}, win.getSize(), uivec2(0,0)},
+                    .filter = GLGE_FILTER_MODE_NEAREST,
+                    .copyColor = true,
+                    .copyDepth = false,
+                    .copyStencil = false
+                }
+                }
+            }
         }
     }, &win);
 
