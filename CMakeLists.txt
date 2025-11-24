@@ -78,7 +78,7 @@ target_include_directories(GLGE_GRAPHIC PUBLIC ${PROJECT_SOURCE_DIR}/../GLGE_Cor
 
 ## SDL3
 set(SDL_WAYLAND_LIBDECOR OFF CACHE BOOL "" FORCE)
-add_subdirectory(${PROJECT_SOURCE_DIR}/external/SDL ${PROJECT_BINARY_DIR}/external/SDL)
+add_subdirectory(${PROJECT_SOURCE_DIR}/external/SDL3 ${PROJECT_BINARY_DIR}/external/SDL3)
 target_link_libraries(GLGE_GRAPHIC PUBLIC SDL3::SDL3)
 target_include_directories(GLGE_GRAPHIC PUBLIC ${PROJECT_SOURCE_DIR}/external/SDL/include)
 
